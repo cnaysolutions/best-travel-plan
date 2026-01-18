@@ -463,7 +463,7 @@ export async function generateMockTripPlan(details: TripDetails): Promise<TripPl
       description: "Start your day with a delicious local breakfast",
       time: "08:00",
       type: "meal",
-      cost: 25,
+      cost: 25 * totalPassengers, // ✅ Multiply by passengers
       included: true,
       imageUrl: getMealImage("breakfast", day - 1),
     });
@@ -484,7 +484,9 @@ export async function generateMockTripPlan(details: TripDetails): Promise<TripPl
       const hour = 10 + idx * 3; // 10am, 1pm, 4pm (better spacing)
       
       // Generate realistic price based on category
-      const attractionCost = getAttractionPrice(attraction.category, attraction.rating || 7);
+      const attractionCostPerPerson = getAttractionPrice(attraction.category, attraction.rating || 7);
+      // ✅ MULTIPLY by total passengers
+      const attractionCost = attractionCostPerPerson * totalPassengers;
       
       dayItems.push({
         id: `day${day}-attraction${idx}`,
@@ -507,7 +509,7 @@ export async function generateMockTripPlan(details: TripDetails): Promise<TripPl
       description: "Enjoy a memorable dining experience",
       time: "12:00",
       type: "meal",
-      cost: 45,
+      cost: 45 * totalPassengers, // ✅ Multiply by passengers
       included: true,
       imageUrl: getMealImage("lunch", day - 1),
     });
@@ -519,7 +521,7 @@ export async function generateMockTripPlan(details: TripDetails): Promise<TripPl
       description: "Savor authentic local flavors",
       time: "19:00",
       type: "meal",
-      cost: 55,
+      cost: 55 * totalPassengers, // ✅ Multiply by passengers
       included: true,
       imageUrl: getMealImage("dinner", day - 1),
     });
@@ -537,6 +539,13 @@ export async function generateMockTripPlan(details: TripDetails): Promise<TripPl
         imageUrl: `https://images.unsplash.com/photo-1436491865332-7a61a109cc05?auto=format&fit=crop&w=800&q=80`,
       });
     }
+
+    // ✅ SORT ITEMS BY TIME to ensure correct chronological order
+    dayItems.sort((a, b) => {
+      const timeA = a.time.split(':').map(Number);
+      const timeB = b.time.split(':').map(Number);
+      return (timeA[0] * 60 + timeA[1]) - (timeB[0] * 60 + timeB[1]);
+    });
 
     itinerary.push({
       day,
