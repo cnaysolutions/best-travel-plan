@@ -65,9 +65,7 @@ export function useTripPersistence() {
       // 2. Build trip items - handle gracefully if this fails
       let itemsWarning = false;
       try {
-                // Calculate total passengers for cost multiplication
-        const totalPassengers = tripDetails.passengers.adults + tripDetails.passengers.children + tripDetails.passengers.infants;
-                // Calculate total passengers for cost multiplication
+        // Calculate total passengers for cost multiplication
         const totalPassengers = tripDetails.passengers.adults + tripDetails.passengers.children + tripDetails.passengers.infants;
         const tripItems = buildTripItems(tripId, tripPlan, totalPassengers);
         if (tripItems.length > 0) {
@@ -114,12 +112,13 @@ function buildTripItems(tripId: string, tripPlan: TripPlan, totalPassengers: num
 
   // Add outbound flight
   if (tripPlan.outboundFlight) {
-    items.push(mapFlightToItem(tripId, tripPlan.outboundFlight, "outbound", 1, 0, totalPassengers));  }
+    items.push(mapFlightToItem(tripId, tripPlan.outboundFlight, "outbound", 1, 0, totalPassengers));
+  }
 
   // Add return flight
   if (tripPlan.returnFlight) {
     const lastDay = tripPlan.itinerary.length || 1;
-        items.push(mapFlightToItem(tripId, tripPlan.returnFlight, "return", lastDay, 99, totalPassengers));
+    items.push(mapFlightToItem(tripId, tripPlan.returnFlight, "return", lastDay, 99, totalPassengers));
   }
 
   // Add car rental
