@@ -1,0 +1,23 @@
+project_id = "wpadifvbkmgnbwztcfli"
+
+[functions.send-trip-email]
+verify_jwt = false
+
+[functions.amadeus-city-search]
+verify_jwt = false
+
+[functions.stripe-webhook]
+verify_jwt = false
+
+[functions.create-checkout]
+verify_jwt = false
+
+
+[functions.get-place-photo]
+verify_jwt = false
+
+[functions.get-activity-image]
+verify_jwt = false
+
+[functions.get-attractions-opentripmap]
+verify_jwt = false
