@@ -109,7 +109,7 @@ export function TripResults({
     tripPlan.itinerary.forEach((day) => {
       day.items.forEach((item) => {
         if (item.included && item.cost) {
-          cost += item.cost * (tripDetails.passengers.adults + tripDetails.passengers.children + tripDetails.passengers.infants);
+cost += item.cost; // Already multiplied by passengers in mockTripData.ts
         }
       });
     });
