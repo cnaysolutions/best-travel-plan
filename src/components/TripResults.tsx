@@ -427,7 +427,7 @@ export function TripResults({
                         {item.cost && (
                           <div className="flex items-center space-x-2">
                             <p className="font-semibold">
-                              €{(item.cost * (tripDetails.passengers.adults + tripDetails.passengers.children + tripDetails.passengers.infants)).toLocaleString("en-US", { minimumFractionDigits: 0, maximumFractionDigits: 0 })}
+                              €{item.cost.toLocaleString("en-US", { minimumFractionDigits: 0, maximumFractionDigits: 0 })}
                             </p>
                             <Button
                               variant="ghost"
