@@ -109,7 +109,9 @@ export function TripResults({
     tripPlan.itinerary.forEach((day) => {
       day.items.forEach((item) => {
         if (item.included && item.cost) {
-cost += item.cost; // Already multiplied by passengers in mockTripData.ts
+          // ✅ FIX: item.cost is ALREADY multiplied by totalPassengers in mockTripData.ts
+          // Do NOT multiply again here!
+          cost += item.cost;
         }
       });
     });
