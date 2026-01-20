@@ -167,17 +167,26 @@ export function TripResults({
         throw new Error("Failed to fetch trip items: " + itemsError.message);
       }
 
-      // Send full trip data to email function
-      const { data, error } = await supabase.functions.invoke("send-trip-email", {
-        body: {
-          trip: tripData,
-          tripItems: tripItems || [],
+      // ✅ NEW: Send email using Vercel API route with Resend (bypasses Supabase Edge Function)
+      const response = await fetch('/api/send-email', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
         },
+        body: JSON.stringify({
+          userEmail: loggedInEmail,
+          tripData: tripData,
+          tripItems: tripItems || [],
+        }),
       });
 
-      if (error) {
-        throw error;
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || 'Failed to send email');
       }
+
+      const result = await response.json();
+      console.log('Email sent successfully:', result);
 
       toast({
         title: "Email sent!",
