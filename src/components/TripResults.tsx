@@ -109,7 +109,9 @@ export function TripResults({
     tripPlan.itinerary.forEach((day) => {
       day.items.forEach((item) => {
         if (item.included && item.cost) {
-          cost += item.cost * (tripDetails.passengers.adults + tripDetails.passengers.children + tripDetails.passengers.infants);
+          // ✅ FIX: item.cost is ALREADY multiplied by totalPassengers in mockTripData.ts
+          // Do NOT multiply again here!
+          cost += item.cost;
         }
       });
     });
@@ -425,7 +427,7 @@ export function TripResults({
                         {item.cost && (
                           <div className="flex items-center space-x-2">
                             <p className="font-semibold">
-                              €{(item.cost * (tripDetails.passengers.adults + tripDetails.passengers.children + tripDetails.passengers.infants)).toLocaleString("en-US", { minimumFractionDigits: 0, maximumFractionDigits: 0 })}
+                              €{item.cost.toLocaleString("en-US", { minimumFractionDigits: 0, maximumFractionDigits: 0 })}
                             </p>
                             <Button
                               variant="ghost"

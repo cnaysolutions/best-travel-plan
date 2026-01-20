@@ -400,6 +400,11 @@ export async function generateMockTripPlan(details: TripDetails): Promise<TripPl
   const returnDate = details.returnDate || addDays(departureDate, 5);
   const tripDays = Math.ceil((returnDate.getTime() - departureDate.getTime()) / (1000 * 60 * 60 * 24)) + 1;
 
+  // ✅ CALCULATE TOTAL PASSENGERS for price multiplication
+  const totalPassengers = (details.passengers?.adults || 1) + 
+                          (details.passengers?.children || 0) + 
+                          (details.passengers?.infants || 0);
+
   const originCode = getAirportCode(details.departureCity);
   const destCode = getAirportCode(details.destinationCity);
 
@@ -456,15 +461,37 @@ export async function generateMockTripPlan(details: TripDetails): Promise<TripPl
       });
     }
 
+    // ✅ ADD BREAKFAST (08:00) for all days
+    dayItems.push({
+      id: `day${day}-breakfast`,
+      title: `Breakfast at ${details.destinationCity}`,
+      description: "Start your day with a delicious local breakfast",
+      time: "08:00",
+      type: "meal",
+      cost: 25 * totalPassengers, // ✅ Multiply by passengers
+      included: true,
+      imageUrl: getMealImage("breakfast", day - 1),
+    });
+
     // Add 2-3 attractions per day
     const startIdx = (day - 1) * 3;
     const dayAttractions = attractionsWithPhotos.slice(startIdx, startIdx + 3);
 
-    dayAttractions.forEach((attraction, idx) => {
-      const hour = 9 + idx * 3; // 9am, 12pm, 3pm
+    // ✅ ENSURE EVERY DAY HAS ATTRACTIONS (use fallback if needed)
+    const attractionsToShow = dayAttractions.length > 0 
+      ? dayAttractions 
+      : getFallbackAttractions(details.destinationCity, 3).map((attr, idx) => ({
+          ...attr,
+          imageUrl: getCategoryFallbackImage(attr.category, startIdx + idx)
+        }));
+
+    attractionsToShow.forEach((attraction, idx) => {
+      const hour = 10 + idx * 3; // 10am, 1pm, 4pm (better spacing)
       
       // Generate realistic price based on category
-      const attractionCost = getAttractionPrice(attraction.category, attraction.rating);
+      const attractionCostPerPerson = getAttractionPrice(attraction.category, attraction.rating || 7);
+      // ✅ MULTIPLY by total passengers
+      const attractionCost = attractionCostPerPerson * totalPassengers;
       
       dayItems.push({
         id: `day${day}-attraction${idx}`,
@@ -480,6 +507,29 @@ export async function generateMockTripPlan(details: TripDetails): Promise<TripPl
       });
     });
 
+    // ✅ ADD LUNCH (12:00) for all days
+    dayItems.push({
+      id: `day${day}-lunch`,
+      title: `Lunch at ${details.destinationCity}`,
+      description: "Enjoy a memorable dining experience",
+      time: "12:00",
+      type: "meal",
+      cost: 45 * totalPassengers, // ✅ Multiply by passengers
+      included: true,
+      imageUrl: getMealImage("lunch", day - 1),
+    });
+
+    // ✅ ADD DINNER (19:00) for all days
+    dayItems.push({
+      id: `day${day}-dinner`,
+      title: `Dinner at ${details.destinationCity}`,
+      description: "Savor authentic local flavors",
+      time: "19:00",
+      type: "meal",
+      cost: 55 * totalPassengers, // ✅ Multiply by passengers
+      included: true,
+      imageUrl: getMealImage("dinner", day - 1),
+    });
 
     // Last day: departure
     if (day === tripDays) {
@@ -494,6 +544,13 @@ export async function generateMockTripPlan(details: TripDetails): Promise<TripPl
         imageUrl: `https://images.unsplash.com/photo-1436491865332-7a61a109cc05?auto=format&fit=crop&w=800&q=80`,
       });
     }
+
+    // ✅ SORT ITEMS BY TIME to ensure correct chronological order
+    dayItems.sort((a, b) => {
+      const timeA = a.time.split(':').map(Number);
+      const timeB = b.time.split(':').map(Number);
+      return (timeA[0] * 60 + timeA[1]) - (timeB[0] * 60 + timeB[1]);
+    });
 
     itinerary.push({
       day,
