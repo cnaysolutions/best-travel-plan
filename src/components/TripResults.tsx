@@ -168,11 +168,18 @@ export function TripResults({
       }
 // Get Resend API key from environment variable
 const RESEND_API_KEY = import.meta.env.VITE_RESEND_API_KEY;
+<<<<<<< HEAD
 
 if (!RESEND_API_KEY) {
   throw new Error("Resend API key not configured. Please contact support.");
 }
 
+=======
+if (!RESEND_API_KEY) {
+  throw new Error("Resend API key not configured. Please contact support.");
+}
+
+>>>>>>> 971e9d16000c9d3b904db068097e933a0ce35712
 // Format trip details for email
 const from = tripData.from_city || 'Unknown';
 const to = tripData.to_city || 'Unknown';
