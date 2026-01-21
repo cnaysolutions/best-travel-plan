@@ -166,19 +166,81 @@ export function TripResults({
       if (itemsError) {
         throw new Error("Failed to fetch trip items: " + itemsError.message);
       }
+// Get Resend API key from environment variable
+const RESEND_API_KEY = import.meta.env.VITE_RESEND_API_KEY;
 
+if (!RESEND_API_KEY) {
+  throw new Error("Resend API key not configured. Please contact support.");
+}
+
+// Format trip details for email
+const from = tripData.from_city || 'Unknown';
+const to = tripData.to_city || 'Unknown';
+const startDate = tripData.start_date ? new Date(tripData.start_date).toLocaleDateString() : 'TBD';
+const endDate = tripData.end_date ? new Date(tripData.end_date).toLocaleDateString() : 'TBD';
+
+// Build HTML email content
+const emailHtml = `
+  <!DOCTYPE html>
+  <html>
+  <head>
+    <style>
+      body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; }
+      .container { max-width: 600px; margin: 0 auto; padding: 20px; }
+      .header { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 30px; text-align: center; border-radius: 10px 10px 0 0; }
+      .content { background: #f9f9f9; padding: 30px; border-radius: 0 0 10px 10px; }
+      .trip-info { background: white; padding: 20px; margin: 20px 0; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
+      .label { font-weight: bold; color: #667eea; }
+      .footer { text-align: center; margin-top: 30px; color: #666; font-size: 12px; }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <div class="header">
+        <h1>🌍 Your Trip Itinerary</h1>
+        <p>${from} → ${to}</p>
+      </div>
+      <div class="content">
+        <div class="trip-info">
+          <p><span class="label">From:</span> ${from}</p>
+          <p><span class="label">To:</span> ${to}</p>
+          <p><span class="label">Dates:</span> ${startDate} - ${endDate}</p>
+          <p><span class="label">Total Cost:</span> €${totalCost.toLocaleString()}</p>
+        </div>
+        
+        <h2>Trip Details</h2>
+        <p>Your complete trip itinerary has been generated! View all details including flights, accommodation, activities, and daily schedule on our website.</p>
+        
+        <div style="text-align: center; margin: 30px 0;">
+          <a href="https://best-travel-plan.cloud/trip/${tripId}" 
+             style="background: #667eea; color: white; padding: 12px 30px; text-decoration: none; border-radius: 5px; display: inline-block;">
+            View Full Itinerary
+          </a>
+        </div>
+      </div>
+      <div class="footer">
+        <p>Best Holiday Plan - Your AI-Powered Travel Planner</p>
+        <p>© 2026 best-travel-plan.cloud</p>
+      </div>
+    </div>
+  </body>
+  </html>
+`;
       // ✅ NEW: Send email using Vercel API route with Resend (bypasses Supabase Edge Function)
-      const response = await fetch('/api/send-email', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          userEmail: loggedInEmail,
-          tripData: tripData,
-          tripItems: tripItems || [],
-        }),
-      });
+// Call Resend API directly
+const response = await fetch('https://api.resend.com/emails', {
+  method: 'POST',
+  headers: {
+    'Authorization': `Bearer ${RESEND_API_KEY}`,
+    'Content-Type': 'application/json',
+  },
+  body: JSON.stringify({
+    from: 'Best Holiday Plan <noreply@best-travel-plan.cloud>',
+    to: [loggedInEmail],
+    subject: `Your Trip Itinerary: ${from} → ${to}`,
+    html: emailHtml,
+  } ),
+});
 
       if (!response.ok) {
         const errorData = await response.json();
