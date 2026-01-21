@@ -44,6 +44,13 @@ function safeString(value: unknown, fallback: string = "—"): string {
   if (value === null || value === undefined || value === "") return fallback;
   return String(value);
 }
+
+// ✅ NEW: Helper function for safe price formatting
+function safePrice(value: number | undefined | null): string {
+  if (value === null || value === undefined || isNaN(value)) return "€0";
+  return `€${value.toLocaleString("en-US", { minimumFractionDigits: 0, maximumFractionDigits: 0 })}`;
+}
+
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
@@ -94,23 +101,21 @@ export function TripResults({
 
   const totalCost = useMemo(() => {
     let cost = 0;
-    if (tripPlan.outboundFlight?.included) {
+    if (tripPlan.outboundFlight?.included && tripPlan.outboundFlight.pricePerPerson) {
       cost += tripPlan.outboundFlight.pricePerPerson * (tripDetails.passengers.adults + tripDetails.passengers.children + tripDetails.passengers.infants);
     }
-    if (tripPlan.returnFlight?.included) {
+    if (tripPlan.returnFlight?.included && tripPlan.returnFlight.pricePerPerson) {
       cost += tripPlan.returnFlight.pricePerPerson * (tripDetails.passengers.adults + tripDetails.passengers.children + tripDetails.passengers.infants);
     }
-    if (tripPlan.carRental?.included) {
+    if (tripPlan.carRental?.included && tripPlan.carRental.totalPrice) {
       cost += tripPlan.carRental.totalPrice;
     }
-    if (tripPlan.hotel?.included) {
+    if (tripPlan.hotel?.included && tripPlan.hotel.totalPrice) {
       cost += tripPlan.hotel.totalPrice;
     }
-    tripPlan.itinerary.forEach((day) => {
-      day.items.forEach((item) => {
+    tripPlan.itinerary?.forEach((day) => {
+      day.items?.forEach((item) => {
         if (item.included && item.cost) {
-          // ✅ FIX: item.cost is ALREADY multiplied by totalPassengers in mockTripData.ts
-          // Do NOT multiply again here!
           cost += item.cost;
         }
       });
@@ -168,10 +173,10 @@ export function TripResults({
       }
 
       // Format trip details for email
-      const from = tripData.from_city || 'Unknown';
-      const to = tripData.to_city || 'Unknown';
-      const startDate = tripData.start_date ? new Date(tripData.start_date).toLocaleDateString() : 'TBD';
-      const endDate = tripData.end_date ? new Date(tripData.end_date).toLocaleDateString() : 'TBD';
+      const from = tripData.origin_city || 'Unknown';
+      const to = tripData.destination_city || 'Unknown';
+      const startDate = tripData.departure_date ? new Date(tripData.departure_date).toLocaleDateString() : 'TBD';
+      const endDate = tripData.return_date ? new Date(tripData.return_date).toLocaleDateString() : 'TBD';
 
       // Build HTML email content
       const emailHtml = `
@@ -199,7 +204,7 @@ export function TripResults({
                 <p><span class="label">From:</span> ${from}</p>
                 <p><span class="label">To:</span> ${to}</p>
                 <p><span class="label">Dates:</span> ${startDate} - ${endDate}</p>
-                <p><span class="label">Total Cost:</span> €${totalCost.toLocaleString()}</p>
+                <p><span class="label">Total Cost:</span> €${(totalCost || 0).toLocaleString()}</p>
               </div>
               
               <h2>Trip Details</h2>
@@ -221,7 +226,7 @@ export function TripResults({
         </html>
       `;
 
-      // ✅ NEW: Call our Vercel backend API instead of calling Resend directly
+      // Call our Vercel backend API
       const response = await fetch('/api/send-email', {
         method: 'POST',
         headers: {
@@ -283,7 +288,7 @@ export function TripResults({
           <div className="flex items-baseline justify-between">
             <p className="text-sm font-medium text-gray-500">Estimated Total</p>
             <p className="text-4xl font-bold text-primary">
-              €{totalCost.toLocaleString("en-US", { minimumFractionDigits: 0, maximumFractionDigits: 0 })}
+              {safePrice(totalCost)}
             </p>
           </div>
 
@@ -309,7 +314,7 @@ export function TripResults({
                     </div>
                     <div className="flex items-center space-x-2">
                       <p className="font-semibold">
-                        €{(tripPlan.outboundFlight.pricePerPerson * (tripDetails.passengers.adults + tripDetails.passengers.children + tripDetails.passengers.infants)).toLocaleString("en-US", { minimumFractionDigits: 0, maximumFractionDigits: 0 })}
+                        {safePrice((tripPlan.outboundFlight.pricePerPerson || 0) * (tripDetails.passengers.adults + tripDetails.passengers.children + tripDetails.passengers.infants))}
                       </p>
                       <Button
                         variant="ghost"
@@ -342,7 +347,7 @@ export function TripResults({
                     </div>
                     <div className="flex items-center space-x-2">
                       <p className="font-semibold">
-                        €{(tripPlan.returnFlight.pricePerPerson * (tripDetails.passengers.adults + tripDetails.passengers.children + tripDetails.passengers.infants)).toLocaleString("en-US", { minimumFractionDigits: 0, maximumFractionDigits: 0 })}
+                        {safePrice((tripPlan.returnFlight.pricePerPerson || 0) * (tripDetails.passengers.adults + tripDetails.passengers.children + tripDetails.passengers.infants))}
                       </p>
                       <Button
                         variant="ghost"
@@ -380,7 +385,7 @@ export function TripResults({
                   </div>
                   <div className="flex items-center space-x-2">
                     <p className="font-semibold">
-                      €{tripPlan.hotel.totalPrice.toLocaleString("en-US", { minimumFractionDigits: 0, maximumFractionDigits: 0 })}
+                      {safePrice(tripPlan.hotel.totalPrice)}
                     </p>
                     <Button
                       variant="ghost"
@@ -420,7 +425,7 @@ export function TripResults({
                   </div>
                   <div className="flex items-center space-x-2">
                     <p className="font-semibold">
-                      €{tripPlan.carRental.totalPrice.toLocaleString("en-US", { minimumFractionDigits: 0, maximumFractionDigits: 0 })}
+                      {safePrice(tripPlan.carRental.totalPrice)}
                     </p>
                     <Button
                       variant="ghost"
@@ -490,7 +495,7 @@ export function TripResults({
                         {item.cost && (
                           <div className="flex items-center space-x-2">
                             <p className="font-semibold">
-                              €{item.cost.toLocaleString("en-US", { minimumFractionDigits: 0, maximumFractionDigits: 0 })}
+                              {safePrice(item.cost)}
                             </p>
                             <Button
                               variant="ghost"
