@@ -167,13 +167,6 @@ export function TripResults({
         throw new Error("Failed to fetch trip items: " + itemsError.message);
       }
 
-      // Get Resend API key from environment variable
-      const RESEND_API_KEY = import.meta.env.VITE_RESEND_API_KEY;
-
-      if (!RESEND_API_KEY) {
-        throw new Error("Resend API key not configured. Please add VITE_RESEND_API_KEY to environment variables.");
-      }
-
       // Format trip details for email
       const from = tripData.from_city || 'Unknown';
       const to = tripData.to_city || 'Unknown';
@@ -228,16 +221,14 @@ export function TripResults({
         </html>
       `;
 
-      // Call Resend API directly
-      const response = await fetch('https://api.resend.com/emails', {
+      // ✅ NEW: Call our Vercel backend API instead of calling Resend directly
+      const response = await fetch('/api/send-email', {
         method: 'POST',
         headers: {
-          'Authorization': `Bearer ${RESEND_API_KEY}`,
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          from: 'Best Holiday Plan <noreply@best-travel-plan.cloud>',
-          to: [loggedInEmail],
+          to: loggedInEmail,
           subject: `Your Trip Itinerary: ${from} → ${to}`,
           html: emailHtml,
         }),
