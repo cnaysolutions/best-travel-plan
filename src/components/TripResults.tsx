@@ -177,6 +177,9 @@ export function TripResults({
       const to = tripData.destination_city || 'Unknown';
       const startDate = tripData.departure_date ? new Date(tripData.departure_date).toLocaleDateString() : 'TBD';
       const endDate = tripData.return_date ? new Date(tripData.return_date).toLocaleDateString() : 'TBD';
+      
+      // Sanitize tripId to prevent corruption in email links
+      const cleanTripId = String(tripId).trim();
 
       // Build HTML email content
       const emailHtml = `
@@ -212,7 +215,7 @@ export function TripResults({
               <p>Your complete trip itinerary has been generated! View all details including flights, accommodation, activities, and daily schedule on our website.</p>
               
               <div style="text-align: center; margin: 30px 0;">
-                <a href="https://best-travel-plan.cloud/trip/${tripId}" class="button">
+                <a href="https://best-travel-plan.cloud/trip/${cleanTripId}" class="button">
                   View Full Itinerary
                 </a>
               </div>
