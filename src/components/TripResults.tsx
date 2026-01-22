@@ -252,7 +252,7 @@ export function TripResults({
           Your Itinerary: {tripDetails.departureCity} → {tripDetails.destinationCity}
         </CardTitle>
         <div className="flex items-center space-x-2">
-          <Button onClick={sendEmail} disabled={isSendingEmail}>
+          <Button onClick={sendEmail} disabled={isSendingEmail} className="hidden">
             {isSendingEmail ? (
               <Loader2 className="mr-2 h-4 w-4 animate-spin" />
             ) : (
