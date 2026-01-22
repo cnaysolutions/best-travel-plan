@@ -191,6 +191,7 @@ export function TripResults({
             .trip-info { background: white; padding: 20px; margin: 20px 0; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
             .label { font-weight: bold; color: #667eea; }
             .footer { text-align: center; margin-top: 30px; color: #666; font-size: 12px; }
+            .button { background: #667eea; color: white !important; padding: 12px 30px; text-decoration: none; border-radius: 5px; display: inline-block; }
           </style>
         </head>
         <body>
@@ -211,8 +212,7 @@ export function TripResults({
               <p>Your complete trip itinerary has been generated! View all details including flights, accommodation, activities, and daily schedule on our website.</p>
               
               <div style="text-align: center; margin: 30px 0;">
-                <a href="https://best-travel-plan.cloud/trip/${tripId}" 
-                   style="background: #667eea; color: white; padding: 12px 30px; text-decoration: none; border-radius: 5px; display: inline-block;">
+                <a href="https://best-travel-plan.cloud/trip/${tripId}" class="button">
                   View Full Itinerary
                 </a>
               </div>
