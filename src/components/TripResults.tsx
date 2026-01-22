@@ -152,10 +152,10 @@ export function TripResults({
       }
 
       // Use trip data from component props (already available)
-      const from = tripDetails.from || 'Unknown';
-      const to = tripDetails.to || 'Unknown';
-      const startDate = tripDetails.dates.from ? new Date(tripDetails.dates.from).toLocaleDateString() : 'TBD';
-      const endDate = tripDetails.dates.to ? new Date(tripDetails.dates.to).toLocaleDateString() : 'TBD';
+      const from = tripDetails.departureCity || 'Unknown';
+      const to = tripDetails.destinationCity || 'Unknown';
+      const startDate = tripDetails.departureDate ? new Date(tripDetails.departureDate).toLocaleDateString() : 'TBD';
+      const endDate = tripDetails.returnDate ? new Date(tripDetails.returnDate).toLocaleDateString() : 'TBD';
       
       // Sanitize tripId to prevent corruption in email links
       const cleanTripId = String(tripId).trim();
