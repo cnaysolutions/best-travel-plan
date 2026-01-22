@@ -151,32 +151,11 @@ export function TripResults({
         throw new Error("User email not found.");
       }
 
-      // Fetch trip data from database
-      const { data: tripData, error: tripError } = await supabase
-        .from('trips')
-        .select('*')
-        .eq('id', tripId)
-        .single();
-
-      if (tripError) {
-        throw new Error("Failed to fetch trip data: " + tripError.message);
-      }
-
-      // Fetch trip items from database
-      const { data: tripItems, error: itemsError } = await supabase
-        .from('trip_items')
-        .select('*')
-        .eq('trip_id', tripId);
-
-      if (itemsError) {
-        throw new Error("Failed to fetch trip items: " + itemsError.message);
-      }
-
-      // Format trip details for email
-      const from = tripData.origin_city || 'Unknown';
-      const to = tripData.destination_city || 'Unknown';
-      const startDate = tripData.departure_date ? new Date(tripData.departure_date).toLocaleDateString() : 'TBD';
-      const endDate = tripData.return_date ? new Date(tripData.return_date).toLocaleDateString() : 'TBD';
+      // Use trip data from component props (already available)
+      const from = tripDetails.from || 'Unknown';
+      const to = tripDetails.to || 'Unknown';
+      const startDate = tripDetails.dates.from ? new Date(tripDetails.dates.from).toLocaleDateString() : 'TBD';
+      const endDate = tripDetails.dates.to ? new Date(tripDetails.dates.to).toLocaleDateString() : 'TBD';
       
       // Sanitize tripId to prevent corruption in email links
       const cleanTripId = String(tripId).trim();
