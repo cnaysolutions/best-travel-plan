@@ -53,8 +53,8 @@ export function FlightBookingCard({ tripDetails, isAmadeusSupported }: FlightBoo
             
             <p className="text-sm text-muted-foreground">
               {isAmadeusSupported
-                ? "Search and compare real-time flight prices from hundreds of airlines on Skyscanner."
-                : "The prices shown above are AI-generated estimates. Click below to see real-time prices and book your flights on Skyscanner."}
+                ? "Search and compare real-time flight prices from hundreds of airlines on Booking.com."
+                : "The prices shown above are AI-generated estimates. Click below to see real-time prices and book your flights on Booking.com."}
             </p>
 
             <div className="flex items-start gap-2 p-3 bg-blue-50 dark:bg-blue-950/20 rounded-lg">

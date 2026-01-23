@@ -91,8 +91,8 @@ export function estimateFlightPrice(
 }
 
 /**
- * Generate Skyscanner affiliate booking URL
- * Note: Replace 'YOUR_AFFILIATE_ID' with actual Skyscanner affiliate ID when available
+ * Generate TravelPayouts/Booking.com affiliate booking URL
+ * Uses TravelPayouts marker ID: 698237
  */
 export function generateSkyscannerUrl(
   originIATA: string,
@@ -114,34 +114,34 @@ export function generateSkyscannerUrl(
   const depDate = formatDate(departureDate);
   const retDate = returnDate ? formatDate(returnDate) : "";
 
-  // Skyscanner cabin class mapping
+  // Booking.com cabin class mapping
   const cabinMap = {
-    economy: "economy",
-    business: "business",
-    first: "first",
+    economy: "ECONOMY",
+    business: "BUSINESS",
+    first: "FIRST",
   };
 
-  // Build Skyscanner URL
-  // Format: https://www.skyscanner.com/transport/flights/{origin}/{dest}/{depDate}/{retDate}/?adults={adults}&children={children}&infants={infants}&cabinclass={class}
-  const baseUrl = "https://www.skyscanner.com/transport/flights";
-  const tripType = returnDate ? "return" : "oneway";
-  
-  let url = `${baseUrl}/${originIATA}/${destIATA}/${depDate}`;
-  if (returnDate) {
-    url += `/${retDate}`;
-  }
+  // Build Booking.com Flights URL with TravelPayouts tracking
+  // TravelPayouts Marker ID: 698237
+  const baseUrl = "https://www.booking.com/flights/index.html";
   
   const params = new URLSearchParams({
+    // TravelPayouts tracking
+    marker: "698237",
+    // Flight search parameters
+    from: originIATA,
+    to: destIATA,
+    depart: depDate,
+    ...(returnDate && { return: retDate }),
     adults: adults.toString(),
     ...(children > 0 && { children: children.toString() }),
     ...(infants > 0 && { infants: infants.toString() }),
-    cabinclass: cabinMap[cabinClass],
+    cabinClass: cabinMap[cabinClass],
+    // Additional tracking
+    aid: "2311591", // Booking.com affiliate ID (standard for TravelPayouts)
   });
 
-  // TODO: Add affiliate tracking parameter when Skyscanner affiliate ID is available
-  // params.append('associateid', 'YOUR_AFFILIATE_ID');
-
-  return `${url}?${params.toString()}`;
+  return `${baseUrl}?${params.toString()}`;
 }
 
 /**
