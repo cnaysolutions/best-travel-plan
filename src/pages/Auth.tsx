@@ -225,15 +225,16 @@ export default function Auth() {
                                 <Label htmlFor="reset-email">Email</Label>
                                 <div className="relative">
                                   <Mail className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                                  <Input
-                                    id="reset-email"
-                                    type="email"
-                                    placeholder="you@example.com"
-                                    className="pl-10"
-                                    value={resetEmail}
-                                    onChange={(e) => setResetEmail(e.target.value)}
-                                    disabled={isResetting}
-                                  />
+                                                                  <Input
+                                  id="reset-email"
+                                  type="email"
+                                  placeholder="you@example.com"
+                                  className="pl-10"
+                                  value={resetEmail}
+                                  onChange={(e: React.ChangeEvent<HTMLInputElement>) => setResetEmail(e.target.value)}
+                                  disabled={isResetting}
+                                />
+
                                 </div>
                               </div>
                               <Button type="submit" className="w-full" disabled={isResetting}>
