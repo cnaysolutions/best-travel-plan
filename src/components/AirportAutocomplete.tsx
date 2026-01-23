@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef } from "react";
+import { createPortal } from "react-dom";
 import { Plane, Loader2, CheckCircle2 } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
@@ -39,8 +40,33 @@ export function AirportAutocomplete({
   const [isLoading, setIsLoading] = useState(false);
   const [airports, setAirports] = useState<Airport[]>([]);
   const [error, setError] = useState<string | null>(null);
+  const [dropdownPosition, setDropdownPosition] = useState({ top: 0, left: 0, width: 0 });
   const containerRef = useRef<HTMLDivElement>(null);
+  const inputRef = useRef<HTMLInputElement>(null);
   const debounceRef = useRef<NodeJS.Timeout | null>(null);
+
+  // Update dropdown position when it opens or window resizes
+  useEffect(() => {
+    function updatePosition() {
+      if (containerRef.current && isOpen) {
+        const rect = containerRef.current.getBoundingClientRect();
+        setDropdownPosition({
+          top: rect.bottom + window.scrollY,
+          left: rect.left + window.scrollX,
+          width: rect.width,
+        });
+      }
+    }
+
+    updatePosition();
+    window.addEventListener('resize', updatePosition);
+    window.addEventListener('scroll', updatePosition, true);
+
+    return () => {
+      window.removeEventListener('resize', updatePosition);
+      window.removeEventListener('scroll', updatePosition, true);
+    };
+  }, [isOpen]);
 
   // Search for airports when input changes
   useEffect(() => {
@@ -100,7 +126,11 @@ export function AirportAutocomplete({
   useEffect(() => {
     function handleClickOutside(event: MouseEvent) {
       if (containerRef.current && !containerRef.current.contains(event.target as Node)) {
-        setIsOpen(false);
+        // Check if click is on the portal dropdown
+        const target = event.target as HTMLElement;
+        if (!target.closest('[data-airport-dropdown]')) {
+          setIsOpen(false);
+        }
       }
     }
 
@@ -119,10 +149,67 @@ export function AirportAutocomplete({
     setAirports([]);
   }
 
+  // Dropdown content component
+  const DropdownContent = () => {
+    if (!isOpen || (!airports.length && !error)) return null;
+
+    return createPortal(
+      <div
+        data-airport-dropdown
+        className="fixed z-[9999] rounded-lg border border-border bg-popover shadow-lg animate-fade-in max-h-96 overflow-hidden"
+        style={{
+          top: `${dropdownPosition.top}px`,
+          left: `${dropdownPosition.left}px`,
+          width: `${dropdownPosition.width}px`,
+        }}
+      >
+        {error ? (
+          <div className="p-3 text-sm text-destructive">{error}</div>
+        ) : (
+          <ul className="max-h-96 overflow-auto py-1">
+            {airports.map((airport) => (
+              <li key={airport.id}>
+                <button
+                  type="button"
+                  onClick={() => handleSelect(airport)}
+                  className="w-full px-3 py-2.5 text-left hover:bg-accent/10 focus:bg-accent/10 focus:outline-none transition-colors flex items-center gap-3"
+                >
+                  <div className="h-8 w-8 rounded-full bg-accent/20 flex items-center justify-center shrink-0">
+                    <Plane className="h-4 w-4 text-accent" />
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center gap-2 flex-wrap">
+                      <span className="font-medium text-foreground">
+                        {airport.city}
+                      </span>
+                      <span className="text-xs font-mono bg-muted px-1.5 py-0.5 rounded text-muted-foreground">
+                        {airport.iata_code}
+                      </span>
+                      {airport.is_amadeus_supported && (
+                        <Badge variant="secondary" className="text-xs">
+                          Real Prices
+                        </Badge>
+                      )}
+                    </div>
+                    <div className="text-sm text-muted-foreground truncate">
+                      {airport.name}, {airport.country}
+                    </div>
+                  </div>
+                </button>
+              </li>
+            ))}
+          </ul>
+        )}
+      </div>,
+      document.body
+    );
+  };
+
   return (
     <div ref={containerRef} className="relative">
       <div className="relative">
         <Input
+          ref={inputRef}
           id={id}
           type="text"
           value={value}
@@ -148,48 +235,7 @@ export function AirportAutocomplete({
         </div>
       </div>
 
-      {/* Dropdown */}
-      {isOpen && (airports.length > 0 || error) && (
-        <div className="absolute z-[9999] mt-1 w-full rounded-lg border border-border bg-popover shadow-lg animate-fade-in max-h-96 overflow-hidden">
-          {error ? (
-            <div className="p-3 text-sm text-destructive">{error}</div>
-          ) : (
-            <ul className="max-h-96 overflow-auto py-1">
-              {airports.map((airport) => (
-                <li key={airport.id}>
-                  <button
-                    type="button"
-                    onClick={() => handleSelect(airport)}
-                    className="w-full px-3 py-2.5 text-left hover:bg-accent/10 focus:bg-accent/10 focus:outline-none transition-colors flex items-center gap-3"
-                  >
-                    <div className="h-8 w-8 rounded-full bg-accent/20 flex items-center justify-center shrink-0">
-                      <Plane className="h-4 w-4 text-accent" />
-                    </div>
-                    <div className="flex-1 min-w-0">
-                      <div className="flex items-center gap-2 flex-wrap">
-                        <span className="font-medium text-foreground">
-                          {airport.city}
-                        </span>
-                        <span className="text-xs font-mono bg-muted px-1.5 py-0.5 rounded text-muted-foreground">
-                          {airport.iata_code}
-                        </span>
-                        {airport.is_amadeus_supported && (
-                          <Badge variant="secondary" className="text-xs">
-                            Real Prices
-                          </Badge>
-                        )}
-                      </div>
-                      <div className="text-sm text-muted-foreground truncate">
-                        {airport.name}, {airport.country}
-                      </div>
-                    </div>
-                  </button>
-                </li>
-              ))}
-            </ul>
-          )}
-        </div>
-      )}
+      <DropdownContent />
     </div>
   );
 }
