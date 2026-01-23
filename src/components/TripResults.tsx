@@ -295,7 +295,7 @@ export function TripResults({
                   <CardContent className="p-4 flex items-center justify-between">
                     <div>
                       <p className="font-medium">
-                        {tripPlan.outboundFlight.originCode} → {tripPlan.outboundFlight.destinationCode}
+                        {tripDetails.departureLocation?.iataCode || tripPlan.outboundFlight.originCode} → {tripDetails.destinationLocation?.iataCode || tripPlan.outboundFlight.destinationCode}
                       </p>
                       <p className="text-sm text-gray-500">
                         {tripPlan.outboundFlight.airline} • {tripPlan.outboundFlight.flightNumber}
@@ -328,7 +328,7 @@ export function TripResults({
                   <CardContent className="p-4 flex items-center justify-between">
                     <div>
                       <p className="font-medium">
-                        {tripPlan.returnFlight.originCode} → {tripPlan.returnFlight.destinationCode}
+                        {tripDetails.destinationLocation?.iataCode || tripPlan.returnFlight.originCode} → {tripDetails.departureLocation?.iataCode || tripPlan.returnFlight.destinationCode}
                       </p>
                       <p className="text-sm text-gray-500">
                         {tripPlan.returnFlight.airline} • {tripPlan.returnFlight.flightNumber}

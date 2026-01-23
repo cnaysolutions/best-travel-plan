@@ -102,15 +102,26 @@ export default function TripDetailsPage() {
 
       // Reconstruct TripDetails
       const details: TripDetails = {
-        departureCity: trip.origin_city,
-        destinationCity: trip.destination_city,
-        departureDate: safeParseDate(trip.departure_date),
-        returnDate: safeParseDate(trip.return_date),
-        passengers: { adults: trip.adults, children: trip.children, infants: trip.infants },
-        flightClass: trip.flight_class as any,
-        includeCarRental: trip.include_car,
-        includeHotel: trip.include_hotel,
-      };
+  departureCity: trip.origin_city,
+  destinationCity: trip.destination_city,
+  departureDate: safeParseDate(trip.departure_date),
+  returnDate: safeParseDate(trip.return_date),
+  passengers: { adults: trip.adults, children: trip.children, infants: trip.infants },
+  flightClass: trip.flight_class as any,
+  includeCarRental: trip.include_car,
+  includeHotel: trip.include_hotel,
+  // Add location objects for FlightBookingCard
+  departureLocation: trip.origin_iata_code ? {
+    iataCode: trip.origin_iata_code,
+    city: trip.origin_city,
+    country: trip.origin_country || '',
+  } : undefined,
+  destinationLocation: trip.destination_iata_code ? {
+    iataCode: trip.destination_iata_code,
+    city: trip.destination_city,
+    country: trip.destination_country || '',
+  } : undefined,
+};
 
       // Reconstruct TripPlan
       const plan: TripPlan = {
