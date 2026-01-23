@@ -150,7 +150,7 @@ export function AirportAutocomplete({
 
       {/* Dropdown */}
       {isOpen && (airports.length > 0 || error) && (
-        <div className="absolute z-50 mt-1 w-full rounded-lg border border-border bg-popover shadow-lg animate-fade-in max-h-96 overflow-hidden">
+        <div className="absolute z-[9999] mt-1 w-full rounded-lg border border-border bg-popover shadow-lg animate-fade-in max-h-96 overflow-hidden">
           {error ? (
             <div className="p-3 text-sm text-destructive">{error}</div>
           ) : (
