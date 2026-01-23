@@ -8,7 +8,14 @@ import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { toast } from 'sonner';
-import { Loader2, Mail, Lock, User, Compass } from 'lucide-react';
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from '@/components/ui/dialog';
 
 // Validation schemas
 const signInSchema = z.object({
@@ -29,10 +36,13 @@ const signUpSchema = z.object({
 export default function Auth() {
   const navigate = useNavigate();
   const location = useLocation();
-  const { user, signIn, signUp, signInWithGoogle } = useAuth();
+    const { user, signIn, signUp, signInWithGoogle, resetPassword } = useAuth();
   
-  const [isLoading, setIsLoading] = useState(false);
+    const [isLoading, setIsLoading] = useState(false);
   const [activeTab, setActiveTab] = useState<'signin' | 'signup'>('signin');
+  const [showForgotPassword, setShowForgotPassword] = useState(false);
+  const [resetEmail, setResetEmail] = useState('');
+  const [isResetting, setIsResetting] = useState(false);
   
   // Form state
   const [signInForm, setSignInForm] = useState({ email: '', password: '' });
@@ -113,15 +123,27 @@ export default function Auth() {
     }
   };
 
-  const handleGoogleSignIn = async () => {
-    setIsLoading(true);
-    const { error } = await signInWithGoogle();
+    const handleResetPassword = async (e: React.FormEvent) => {
+    e.preventDefault();
+    
+    if (!resetEmail || !resetEmail.includes('@')) {
+      toast.error('Please enter a valid email address');
+      return;
+    }
+
+    setIsResetting(true);
+    const { error } = await resetPassword(resetEmail);
+    setIsResetting(false);
+
     if (error) {
       toast.error(error.message);
-      setIsLoading(false);
+    } else {
+      toast.success('Password reset email sent! Check your inbox.');
+      setShowForgotPassword(false);
+      setResetEmail('');
     }
-    // Don't set loading to false on success - we'll be redirected
   };
+
 
   return (
     <div className="min-h-screen bg-background flex flex-col">
@@ -178,8 +200,56 @@ export default function Auth() {
                       {errors.email && <p className="text-sm text-destructive">{errors.email}</p>}
                     </div>
 
-                    <div className="space-y-2">
-                      <Label htmlFor="signin-password">Password</Label>
+                                        <div className="space-y-2">
+                      <div className="flex items-center justify-between">
+                        <Label htmlFor="signin-password">Password</Label>
+                        <Dialog open={showForgotPassword} onOpenChange={setShowForgotPassword}>
+                          <DialogTrigger asChild>
+                            <button
+                              type="button"
+                              className="text-sm text-primary hover:underline"
+                              disabled={isLoading}
+                            >
+                              Forgot password?
+                            </button>
+                          </DialogTrigger>
+                          <DialogContent>
+                            <DialogHeader>
+                              <DialogTitle>Reset your password</DialogTitle>
+                              <DialogDescription>
+                                Enter your email address and we'll send you a link to reset your password.
+                              </DialogDescription>
+                            </DialogHeader>
+                            <form onSubmit={handleResetPassword} className="space-y-4 mt-4">
+                              <div className="space-y-2">
+                                <Label htmlFor="reset-email">Email</Label>
+                                <div className="relative">
+                                  <Mail className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                                  <Input
+                                    id="reset-email"
+                                    type="email"
+                                    placeholder="you@example.com"
+                                    className="pl-10"
+                                    value={resetEmail}
+                                    onChange={(e) => setResetEmail(e.target.value)}
+                                    disabled={isResetting}
+                                  />
+                                </div>
+                              </div>
+                              <Button type="submit" className="w-full" disabled={isResetting}>
+                                {isResetting ? (
+                                  <>
+                                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                                    Sending...
+                                  </>
+                                ) : (
+                                  'Send Reset Link'
+                                )}
+                              </Button>
+                            </form>
+                          </DialogContent>
+                        </Dialog>
+                      </div>
                       <div className="relative">
                         <Lock className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                         <Input
@@ -194,6 +264,7 @@ export default function Auth() {
                       </div>
                       {errors.password && <p className="text-sm text-destructive">{errors.password}</p>}
                     </div>
+
 
                     <Button type="submit" variant="premium" className="w-full" disabled={isLoading}>
                       {isLoading ? (

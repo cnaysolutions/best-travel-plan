@@ -71,10 +71,18 @@ export function useAuth() {
     return { error };
   };
 
-  const signOut = async () => {
+    const signOut = async () => {
     const { error } = await supabase.auth.signOut();
     return { error };
   };
 
-  return { user, session, loading, signUp, signIn, signInWithGoogle, signOut };
+  const resetPassword = async (email: string) => {
+    const { error } = await supabase.auth.resetPasswordForEmail(email, {
+      redirectTo: `${window.location.origin}/auth/reset-password`,
+    });
+    return { error };
+  };
+
+  return { user, session, loading, signUp, signIn, signInWithGoogle, signOut, resetPassword };
 }
+
