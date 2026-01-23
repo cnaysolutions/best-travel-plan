@@ -57,6 +57,7 @@ import { cn } from "@/lib/utils";
 import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
+import { FlightBookingCard } from "@/components/FlightBookingCard";
 import type { TripDetails, TripPlan, DayItinerary } from "@/types/trip";
 
 // Helper function to generate Google Maps URL
@@ -273,6 +274,15 @@ export function TripResults({
               {safePrice(totalCost)}
             </p>
           </div>
+
+          {/* Flight Booking Card */}
+          <FlightBookingCard 
+            tripDetails={tripDetails} 
+            isAmadeusSupported={
+              (tripDetails.departureLocation?.iataCode && ['JFK', 'LAX', 'LHR', 'CDG', 'DXB', 'SIN', 'HND', 'NRT', 'AMS', 'FRA', 'MAD', 'BCN', 'FCO', 'SYD'].includes(tripDetails.departureLocation.iataCode)) ||
+              (tripDetails.destinationLocation?.iataCode && ['JFK', 'LAX', 'LHR', 'CDG', 'DXB', 'SIN', 'HND', 'NRT', 'AMS', 'FRA', 'MAD', 'BCN', 'FCO', 'SYD'].includes(tripDetails.destinationLocation.iataCode))
+            }
+          />
 
           {/* Flights */}
           {tripPlan.outboundFlight || tripPlan.returnFlight ? (
