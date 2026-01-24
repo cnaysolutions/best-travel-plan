@@ -38,7 +38,6 @@ export default function ResetPassword() {
       setErrors(fieldErrors);
       return;
     }
-
     setIsLoading(true);
     const { error } = await updatePassword(form.password);
     setIsLoading(false);
@@ -50,7 +49,6 @@ export default function ResetPassword() {
       navigate('/auth');
     }
   };
-
   return (
     <div className="min-h-screen bg-background flex flex-col">
       {/* Header */}
@@ -64,7 +62,6 @@ export default function ResetPassword() {
           </a>
         </div>
       </header>
-
       {/* Main content */}
       <main className="flex-1 flex items-center justify-center px-4 py-12">
         <div className="w-full max-w-md animate-fade-in">
@@ -93,7 +90,6 @@ export default function ResetPassword() {
                   </div>
                   {errors.password && <p className="text-sm text-destructive">{errors.password}</p>}
                 </div>
-
                 <div className="space-y-2">
                   <Label htmlFor="confirm-password">Confirm New Password</Label>
                   <div className="relative">
