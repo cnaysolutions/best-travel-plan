@@ -144,8 +144,15 @@ export default function Auth() {
       setResetEmail('');
     }
   };
-
-
+  const handleGoogleSignIn = async () => {
+    setIsLoading(true);
+    const { error } = await signInWithGoogle();
+    if (error) {
+      toast.error(error.message);
+      setIsLoading(false);
+    }
+    // Don't set loading to false on success - we'll be redirected
+  };
   return (
     <div className="min-h-screen bg-background flex flex-col">
       {/* Header */}
