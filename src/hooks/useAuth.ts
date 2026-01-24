@@ -71,7 +71,7 @@ export function useAuth() {
     return { error };
   };
 
-    const signOut = async () => {
+  const signOut = async () => {
     const { error } = await supabase.auth.signOut();
     return { error };
   };
@@ -83,6 +83,12 @@ export function useAuth() {
     return { error };
   };
 
-  return { user, session, loading, signUp, signIn, signInWithGoogle, signOut, resetPassword };
-}
+  const updatePassword = async (newPassword: string) => {
+    const { error } = await supabase.auth.updateUser({
+      password: newPassword
+    });
+    return { error };
+  };
 
+  return { user, session, loading, signUp, signIn, signInWithGoogle, signOut, resetPassword, updatePassword };
+}
