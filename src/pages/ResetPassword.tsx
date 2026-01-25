@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { useNavigate, useSearchParams } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { z } from 'zod';
 import { supabase } from '@/integrations/supabase/client';
 import { Button } from '@/components/ui/button';
@@ -19,42 +19,31 @@ const resetPasswordSchema = z.object({
 
 export default function ResetPassword() {
   const navigate = useNavigate();
-  const [searchParams] = useSearchParams();
   
   const [isLoading, setIsLoading] = useState(false);
-  const [isVerifying, setIsVerifying] = useState(true);
+  const [isCheckingSession, setIsCheckingSession] = useState(true);
+  const [hasValidSession, setHasValidSession] = useState(false);
   const [form, setForm] = useState({ password: '', confirmPassword: '' });
   const [errors, setErrors] = useState<Record<string, string>>({});
 
   useEffect(() => {
-    // Verify the recovery token from URL
-    const verifyToken = async () => {
-      const token = searchParams.get('token');
-      const type = searchParams.get('type');
-
-      if (!token || type !== 'recovery') {
-        toast.error('Invalid or missing reset token');
+    // Check if user has a valid session (Supabase handles the token automatically)
+    const checkSession = async () => {
+      const { data: { session } } = await supabase.auth.getSession();
+      
+      if (!session) {
+        toast.error('Invalid or expired reset link. Please request a new one.');
         navigate('/auth');
         return;
       }
 
-      // Exchange the token for a session
-      const { error } = await supabase.auth.verifyOtp({
-        token_hash: token,
-        type: 'recovery',
-      });
-
-      if (error) {
-        toast.error('Reset link is invalid or has expired');
-        navigate('/auth');
-        return;
-      }
-
-      setIsVerifying(false);
+      setHasValidSession(true);
+      setIsCheckingSession(false);
     };
 
-    verifyToken();
-  }, [searchParams, navigate]);
+    // Give Supabase a moment to process the token from URL
+    setTimeout(checkSession, 1000);
+  }, [navigate]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -82,11 +71,13 @@ export default function ResetPassword() {
       toast.error(error.message);
     } else {
       toast.success('Password updated successfully! You can now sign in.');
+      // Sign out to clear the recovery session
+      await supabase.auth.signOut();
       navigate('/auth');
     }
   };
 
-  if (isVerifying) {
+  if (isCheckingSession) {
     return (
       <div className="min-h-screen bg-background flex items-center justify-center">
         <div className="text-center">
@@ -95,6 +86,10 @@ export default function ResetPassword() {
         </div>
       </div>
     );
+  }
+
+  if (!hasValidSession) {
+    return null; // Will redirect to /auth
   }
 
   return (
