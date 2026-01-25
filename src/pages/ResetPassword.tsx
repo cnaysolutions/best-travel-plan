@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import { z } from 'zod';
-import { useAuth } from '@/hooks/useAuth';
+import { supabase } from '@/integrations/supabase/client';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -19,11 +19,42 @@ const resetPasswordSchema = z.object({
 
 export default function ResetPassword() {
   const navigate = useNavigate();
-  const { updatePassword } = useAuth();
+  const [searchParams] = useSearchParams();
   
   const [isLoading, setIsLoading] = useState(false);
+  const [isVerifying, setIsVerifying] = useState(true);
   const [form, setForm] = useState({ password: '', confirmPassword: '' });
   const [errors, setErrors] = useState<Record<string, string>>({});
+
+  useEffect(() => {
+    // Verify the recovery token from URL
+    const verifyToken = async () => {
+      const token = searchParams.get('token');
+      const type = searchParams.get('type');
+
+      if (!token || type !== 'recovery') {
+        toast.error('Invalid or missing reset token');
+        navigate('/auth');
+        return;
+      }
+
+      // Exchange the token for a session
+      const { error } = await supabase.auth.verifyOtp({
+        token_hash: token,
+        type: 'recovery',
+      });
+
+      if (error) {
+        toast.error('Reset link is invalid or has expired');
+        navigate('/auth');
+        return;
+      }
+
+      setIsVerifying(false);
+    };
+
+    verifyToken();
+  }, [searchParams, navigate]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -38,8 +69,13 @@ export default function ResetPassword() {
       setErrors(fieldErrors);
       return;
     }
+
     setIsLoading(true);
-    const { error } = await updatePassword(form.password);
+    
+    const { error } = await supabase.auth.updateUser({
+      password: form.password
+    });
+    
     setIsLoading(false);
 
     if (error) {
@@ -49,6 +85,18 @@ export default function ResetPassword() {
       navigate('/auth');
     }
   };
+
+  if (isVerifying) {
+    return (
+      <div className="min-h-screen bg-background flex items-center justify-center">
+        <div className="text-center">
+          <Loader2 className="h-8 w-8 animate-spin mx-auto mb-4 text-accent" />
+          <p className="text-muted-foreground">Verifying reset link...</p>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen bg-background flex flex-col">
       {/* Header */}
@@ -62,6 +110,7 @@ export default function ResetPassword() {
           </a>
         </div>
       </header>
+
       {/* Main content */}
       <main className="flex-1 flex items-center justify-center px-4 py-12">
         <div className="w-full max-w-md animate-fade-in">
@@ -90,6 +139,7 @@ export default function ResetPassword() {
                   </div>
                   {errors.password && <p className="text-sm text-destructive">{errors.password}</p>}
                 </div>
+
                 <div className="space-y-2">
                   <Label htmlFor="confirm-password">Confirm New Password</Label>
                   <div className="relative">
