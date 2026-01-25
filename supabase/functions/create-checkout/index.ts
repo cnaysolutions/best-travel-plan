@@ -8,7 +8,7 @@ const corsHeaders = {
 };
 
 // Traveler Pack Price ID
-const TRAVELER_PACK_PRICE_ID = "price_1SmFRHDRemeRqpbNn9q8rQOw";
+const TRAVELER_PACK_PRICE_ID = "prod_TrCUTajeCPlNDz";
 
 serve(async (req) => {
   if (req.method === "OPTIONS") {

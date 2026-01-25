@@ -22,7 +22,7 @@ const stripeWebhookSecret = Deno.env.get("STRIPE_WEBHOOK_SECRET")!;
 
 // Product ID mapping: Map Stripe Product ID to the number of credits
 const PRODUCT_CREDIT_MAP: { [key: string]: number } = {
-  "prod_TjithQuJxJ9DGQ": 15, // Traveler Pack - 15 credits
+  "prod_TjithQuJxJ9DGQ": 8, // Traveler Pack - 8 credits
 };
 
 const corsHeaders = {
