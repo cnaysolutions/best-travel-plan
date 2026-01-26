@@ -123,29 +123,12 @@ export default function TripDetailsPage() {
   } : undefined,
 };
 
-      // ✅ FIX: Reconstruct TripPlan with proper price restoration
-      const outboundFlightItem = items.find((i: any) => i.item_type === "flight" && (i.provider_data as any)?.direction === "outbound");
-      const returnFlightItem = items.find((i: any) => i.item_type === "flight" && (i.provider_data as any)?.direction === "return");
-      const carRentalItem = items.find((i: any) => i.item_type === "car");
-      const hotelItem = items.find((i: any) => i.item_type === "hotel");
-
+      // Reconstruct TripPlan
       const plan: TripPlan = {
-        outboundFlight: outboundFlightItem ? {
-          ...outboundFlightItem.provider_data,
-          pricePerPerson: Number(outboundFlightItem.cost) || outboundFlightItem.provider_data?.pricePerPerson || 0,
-        } as any : undefined,
-        returnFlight: returnFlightItem ? {
-          ...returnFlightItem.provider_data,
-          pricePerPerson: Number(returnFlightItem.cost) || returnFlightItem.provider_data?.pricePerPerson || 0,
-        } as any : undefined,
-        carRental: carRentalItem ? {
-          ...carRentalItem.provider_data,
-          totalPrice: Number(carRentalItem.cost) || carRentalItem.provider_data?.totalPrice || 0,
-        } as any : undefined,
-        hotel: hotelItem ? {
-          ...hotelItem.provider_data,
-          totalPrice: Number(hotelItem.cost) || hotelItem.provider_data?.totalPrice || 0,
-        } as any : undefined,
+        outboundFlight: items.find((i: any) => i.item_type === "flight" && (i.provider_data as any)?.direction === "outbound")?.provider_data as any,
+        returnFlight: items.find((i: any) => i.item_type === "flight" && (i.provider_data as any)?.direction === "return")?.provider_data as any,
+        carRental: items.find((i: any) => i.item_type === "car")?.provider_data as any,
+        hotel: items.find((i: any) => i.item_type === "hotel")?.provider_data as any,
         itinerary: [],
         totalCost: items.filter((i: any) => i.included).reduce((sum: number, i: any) => sum + Number(i.cost || 0), 0),
       };
