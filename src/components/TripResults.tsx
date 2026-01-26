@@ -248,11 +248,11 @@ export function TripResults({
   
   return (
     <Card className="w-full">
-      <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-        <CardTitle className="text-2xl font-bold">
+      <CardHeader className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 pb-2">
+        <CardTitle className="text-xl md:text-2xl font-bold break-words">
           Your Itinerary: {tripDetails.departureCity} → {tripDetails.destinationCity}
         </CardTitle>
-        <div className="flex items-center space-x-2">
+        <div className="flex items-center gap-2 flex-shrink-0">
           <Button onClick={sendEmail} disabled={isSendingEmail} className="hidden">
             {isSendingEmail ? (
               <Loader2 className="mr-2 h-4 w-4 animate-spin" />
@@ -261,16 +261,16 @@ export function TripResults({
             )}
             Send to my email
           </Button>
-          <Button variant="outline" onClick={onReset}>
+          <Button variant="outline" onClick={onReset} className="text-sm md:text-base">
             Start Over
           </Button>
         </div>
       </CardHeader>
       <CardContent>
         <div className="grid gap-4">
-          <div className="flex items-baseline justify-between">
+          <div className="flex flex-col sm:flex-row sm:items-baseline sm:justify-between gap-2">
             <p className="text-sm font-medium text-gray-500">Estimated Total</p>
-            <p className="text-4xl font-bold text-primary">
+            <p className="text-3xl sm:text-4xl font-bold text-primary">
               {safePrice(totalCost)}
             </p>
           </div>
@@ -291,70 +291,72 @@ export function TripResults({
                 <Plane className="mr-2 h-5 w-5 text-primary" /> Flights
               </h3>
               {tripPlan.outboundFlight && (
-                <Card className={cn(!tripPlan.outboundFlight.included && "opacity-50")}>
-                  <CardContent className="p-4 flex items-center justify-between">
-                    <div>
-                      <p className="font-medium">
-                        {tripDetails.departureLocation?.iataCode || tripPlan.outboundFlight.originCode} → {tripDetails.destinationLocation?.iataCode || tripPlan.outboundFlight.destinationCode}
-                      </p>
-                      <p className="text-sm text-gray-500">
-                        {tripPlan.outboundFlight.airline} • {tripPlan.outboundFlight.flightNumber}
-                      </p>
-                      <p className="text-sm text-gray-500">
-                        {safeString(tripPlan.outboundFlight.departureTime, "Time not specified")} - {safeString(tripPlan.outboundFlight.arrivalTime, "Time not specified")} ({safeString(tripPlan.outboundFlight.duration, "Duration N/A")})
-                      </p>
-                    </div>
-                    <div className="flex items-center space-x-2">
-                      <p className="font-semibold">
-                        {safePrice((tripPlan.outboundFlight.pricePerPerson || 0) * (tripDetails.passengers.adults + tripDetails.passengers.children + tripDetails.passengers.infants))}
-                      </p>
-                      <Button
-                        variant="ghost"
-                        size="icon"
-                        onClick={() => onToggleItem("outboundFlight", tripPlan.outboundFlight!.id)}
-                      >
-                        {tripPlan.outboundFlight.included ? (
-                          <Check className="h-4 w-4 text-green-500" />
-                        ) : (
-                          <X className="h-4 w-4 text-red-500" />
-                        )}
-                      </Button>
-                    </div>
-                  </CardContent>
-                </Card>
+              <Card className={cn(!tripPlan.outboundFlight.included && "opacity-50")}>
+                <CardContent className="p-3 sm:p-4 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 overflow-hidden">
+                  <div className="min-w-0 flex-1">
+                    <p className="font-medium text-sm sm:text-base break-words">
+                      {tripDetails.departureLocation?.iataCode || tripPlan.outboundFlight.originCode} → {tripDetails.destinationLocation?.iataCode || tripPlan.outboundFlight.destinationCode}
+                    </p>
+                    <p className="text-xs sm:text-sm text-gray-500 truncate">
+                      {tripPlan.outboundFlight.airline} • {tripPlan.outboundFlight.flightNumber}
+                    </p>
+                    <p className="text-xs sm:text-sm text-gray-500">
+                      {safeString(tripPlan.outboundFlight.departureTime, "Time not specified")} - {safeString(tripPlan.outboundFlight.arrivalTime, "Time not specified")} ({safeString(tripPlan.outboundFlight.duration, "Duration N/A")})
+                    </p>
+                  </div>
+                  <div className="flex items-center gap-2 flex-shrink-0 min-w-fit">
+                    <p className="font-semibold text-sm sm:text-base whitespace-nowrap">
+                      {safePrice((tripPlan.outboundFlight.pricePerPerson || 0) * (tripDetails.passengers.adults + tripDetails.passengers.children + tripDetails.passengers.infants))}
+                    </p>
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      className="h-8 w-8 sm:h-10 sm:w-10"
+                      onClick={() => onToggleItem("outboundFlight", tripPlan.outboundFlight!.id)}
+                    >
+                      {tripPlan.outboundFlight.included ? (
+                        <Check className="h-4 w-4 text-green-500" />
+                      ) : (
+                        <X className="h-4 w-4 text-red-500" />
+                      )}
+                    </Button>
+                  </div>
+                </CardContent>
+              </Card>
               )}
               {tripPlan.returnFlight && (
-                <Card className={cn(!tripPlan.returnFlight.included && "opacity-50")}>
-                  <CardContent className="p-4 flex items-center justify-between">
-                    <div>
-                      <p className="font-medium">
-                        {tripDetails.destinationLocation?.iataCode || tripPlan.returnFlight.originCode} → {tripDetails.departureLocation?.iataCode || tripPlan.returnFlight.destinationCode}
-                      </p>
-                      <p className="text-sm text-gray-500">
-                        {tripPlan.returnFlight.airline} • {tripPlan.returnFlight.flightNumber}
-                      </p>
-                      <p className="text-sm text-gray-500">
-                        {safeString(tripPlan.returnFlight.departureTime, "Time not specified")} - {safeString(tripPlan.returnFlight.arrivalTime, "Time not specified")} ({safeString(tripPlan.returnFlight.duration, "Duration N/A")})
-                      </p>
-                    </div>
-                    <div className="flex items-center space-x-2">
-                      <p className="font-semibold">
-                        {safePrice((tripPlan.returnFlight.pricePerPerson || 0) * (tripDetails.passengers.adults + tripDetails.passengers.children + tripDetails.passengers.infants))}
-                      </p>
-                      <Button
-                        variant="ghost"
-                        size="icon"
-                        onClick={() => onToggleItem("returnFlight", tripPlan.returnFlight!.id)}
-                      >
-                        {tripPlan.returnFlight.included ? (
-                          <Check className="h-4 w-4 text-green-500" />
-                        ) : (
-                          <X className="h-4 w-4 text-red-500" />
-                        )}
-                      </Button>
-                    </div>
-                  </CardContent>
-                </Card>
+              <Card className={cn(!tripPlan.returnFlight.included && "opacity-50")}>
+                <CardContent className="p-3 sm:p-4 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 overflow-hidden">
+                  <div className="min-w-0 flex-1">
+                    <p className="font-medium text-sm sm:text-base break-words">
+                      {tripDetails.destinationLocation?.iataCode || tripPlan.returnFlight.originCode} → {tripDetails.departureLocation?.iataCode || tripPlan.returnFlight.destinationCode}
+                    </p>
+                    <p className="text-xs sm:text-sm text-gray-500 truncate">
+                      {tripPlan.returnFlight.airline} • {tripPlan.returnFlight.flightNumber}
+                    </p>
+                    <p className="text-xs sm:text-sm text-gray-500">
+                      {safeString(tripPlan.returnFlight.departureTime, "Time not specified")} - {safeString(tripPlan.returnFlight.arrivalTime, "Time not specified")} ({safeString(tripPlan.returnFlight.duration, "Duration N/A")})
+                    </p>
+                  </div>
+                  <div className="flex items-center gap-2 flex-shrink-0 min-w-fit">
+                    <p className="font-semibold text-sm sm:text-base whitespace-nowrap">
+                      {safePrice((tripPlan.returnFlight.pricePerPerson || 0) * (tripDetails.passengers.adults + tripDetails.passengers.children + tripDetails.passengers.infants))}
+                    </p>
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      className="h-8 w-8 sm:h-10 sm:w-10"
+                      onClick={() => onToggleItem("returnFlight", tripPlan.returnFlight!.id)}
+                    >
+                      {tripPlan.returnFlight.included ? (
+                        <Check className="h-4 w-4 text-green-500" />
+                      ) : (
+                        <X className="h-4 w-4 text-red-500" />
+                      )}
+                    </Button>
+                  </div>
+                </CardContent>
+              </Card>
               )}
             </div>
           ) : null}
@@ -366,33 +368,33 @@ export function TripResults({
                 <Building2 className="mr-2 h-5 w-5 text-primary" /> Accommodation
               </h3>
               <Card className={cn(!tripPlan.hotel.included && "opacity-50")}>
-                <CardContent className="p-4 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
-                  <div className="flex-1">
-                    <p className="font-medium">{tripPlan.hotel.name}</p>
-                    <p className="text-sm text-gray-500">
-                      ⭐ {tripPlan.hotel.rating}/5 • {tripPlan.hotel.distanceFromAirport} from airport
+                <CardContent className="p-2 xs:p-3 sm:p-4 flex flex-col gap-3">
+                  <div className="min-w-0 flex-1">
+                    <p className="font-medium text-xs xs:text-sm sm:text-base break-words leading-snug">{tripPlan.hotel.name}</p>
+                    <p className="text-xs text-gray-500 break-words leading-snug">
+                      ⭐ {tripPlan.hotel.rating}/5 • {tripPlan.hotel.distanceFromAirport}
                     </p>
-                    <p className="text-sm text-gray-500">{tripPlan.hotel.address}</p>
+                    <p className="text-xs text-gray-500 break-words leading-snug">{tripPlan.hotel.address}</p>
                     <GoogleMapsLink query={`${tripPlan.hotel.name} ${tripDetails.destinationCity}`} />
                   </div>
-                  <div className="flex flex-col sm:flex-row items-start sm:items-center gap-2 flex-shrink-0 min-w-fit">
-                    <div className="flex flex-col items-end">
-                      <p className="font-semibold">
+                  <div className="flex flex-col xs:flex-row items-start xs:items-center justify-between gap-2 w-full">
+                    <div className="flex flex-col items-start xs:items-end">
+                      <p className="font-semibold text-xs xs:text-sm sm:text-base">
                         {safePrice(tripPlan.hotel.totalPrice)}
                       </p>
                       <a
                         href={`https://www.booking.com/searchresults.html?ss=${tripDetails.destinationCity}`}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="text-blue-600 hover:underline flex items-center text-xs mt-1"
+                        className="text-blue-600 hover:underline flex items-center text-xs mt-1 min-h-[32px] py-1"
                       >
-                        <ExternalLink className="h-3 w-3 mr-1" /> Book Now
+                        <ExternalLink className="h-3 w-3 mr-1 flex-shrink-0" /> Book Now
                       </a>
                     </div>
                     <Button
                       variant="ghost"
                       size="icon"
-                      className="h-8 w-8 sm:h-10 sm:w-10"
+                      className="h-9 w-9 xs:h-10 xs:w-10 flex-shrink-0"
                       onClick={() => onToggleItem("hotel", tripPlan.hotel!.id)}
                     >
                       {tripPlan.hotel.included ? (
@@ -414,36 +416,36 @@ export function TripResults({
                 <Car className="mr-2 h-5 w-5 text-primary" /> Car Rental
               </h3>
               <Card className={cn(!tripPlan.carRental.included && "opacity-50")}>
-                <CardContent className="p-4 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
-                  <div className="flex-1">
-                    <p className="font-medium">{tripPlan.carRental.vehicleName}</p>
-                    <p className="text-sm text-gray-500">{tripPlan.carRental.company}</p>
-                    <p className="text-sm text-gray-500">
+                <CardContent className="p-2 xs:p-3 sm:p-4 flex flex-col gap-3">
+                  <div className="min-w-0 flex-1">
+                    <p className="font-medium text-xs xs:text-sm sm:text-base break-words leading-snug">{tripPlan.carRental.vehicleName}</p>
+                    <p className="text-xs text-gray-500 leading-snug">{tripPlan.carRental.company}</p>
+                    <p className="text-xs text-gray-500 leading-snug">
                       Pickup: {safeFormatDate(tripPlan.carRental.pickupTime, "MMM d, p")}
                     </p>
-                    <p className="text-sm text-gray-500">
+                    <p className="text-xs text-gray-500 leading-snug">
                       Dropoff: {safeFormatDate(tripPlan.carRental.dropoffTime, "MMM d, p")}
                     </p>
                     <GoogleMapsLink query={`${tripPlan.carRental.pickupLocation} ${tripDetails.destinationCity}`} />
                   </div>
-                  <div className="flex flex-col sm:flex-row items-start sm:items-center gap-2 flex-shrink-0 min-w-fit">
-                    <div className="flex flex-col items-end">
-                      <p className="font-semibold">
+                  <div className="flex flex-col xs:flex-row items-start xs:items-center justify-between gap-2 w-full">
+                    <div className="flex flex-col items-start xs:items-end">
+                      <p className="font-semibold text-xs xs:text-sm sm:text-base">
                         {safePrice(tripPlan.carRental.totalPrice)}
                       </p>
                       <a
                         href={`https://www.rentalcars.com/en/search?dropoffLocation=${tripDetails.destinationCity}`}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="text-blue-600 hover:underline flex items-center text-xs mt-1"
+                        className="text-blue-600 hover:underline flex items-center text-xs mt-1 min-h-[32px] py-1"
                       >
-                        <ExternalLink className="h-3 w-3 mr-1" /> Book Now
+                        <ExternalLink className="h-3 w-3 mr-1 flex-shrink-0" /> Book Now
                       </a>
                     </div>
                     <Button
                       variant="ghost"
                       size="icon"
-                      className="h-8 w-8 sm:h-10 sm:w-10"
+                      className="h-9 w-9 xs:h-10 xs:w-10 flex-shrink-0"
                       onClick={() => onToggleItem("carRental", tripPlan.carRental!.id)}
                     >
                       {tripPlan.carRental.included ? (
@@ -471,59 +473,62 @@ export function TripResults({
                       Day {day.day}{day.date ? `: ${safeFormatDate(day.date, "EEEE, MMM d")}` : ""}
                     </CardTitle>
                   </CardHeader>
-                  <CardContent>
-                    <div className="space-y-3">
-                      {day.items && day.items.length > 0 ? (
-                        day.items.map((item, idx) => (
-                          <div key={idx} className={cn("p-3 rounded-lg border", !item.included && "opacity-50 bg-gray-50")}>
-                            <div className="flex items-start justify-between gap-2">
-                              <div className="flex-1">
-                                <div className="flex items-center gap-2 mb-1">
-                                  {item.type === "breakfast" && <Coffee className="h-4 w-4 text-orange-500" />}
-                                  {item.type === "lunch" && <Utensils className="h-4 w-4 text-blue-500" />}
-                                  {item.type === "dinner" && <Utensils className="h-4 w-4 text-red-500" />}
-                                  {item.type === "attraction" && <Camera className="h-4 w-4 text-purple-500" />}
-                                  {item.type === "accommodation" && <Bed className="h-4 w-4 text-green-500" />}
-                                  <p className="font-medium text-sm">{item.name}</p>
-                                </div>
-                                {item.time && (
-                                  <p className="text-xs text-gray-500 flex items-center gap-1">
-                                    <Clock className="h-3 w-3" /> {item.time}
-                                  </p>
-                                )}
-                                {item.description && (
-                                  <p className="text-xs text-gray-600 mt-1">{item.description}</p>
-                                )}
-                                {item.location && (
-                                  <GoogleMapsLink query={`${item.location} ${tripDetails.destinationCity}`} />
-                                )}
-                              </div>
-                              <div className="flex items-center gap-2 flex-shrink-0">
-                                {item.cost && (
-                                  <p className="font-semibold text-sm whitespace-nowrap">
-                                    {safePrice(item.cost)}
-                                  </p>
-                                )}
-                                <Button
-                                  variant="ghost"
-                                  size="icon"
-                                  className="h-8 w-8"
-                                  onClick={() => onToggleItem(`itinerary-${day.day}-${idx}`, item.id || `${day.day}-${idx}`)}
+                  <CardContent className="space-y-3">
+                    {day.items.map((item) => (
+                      <div
+                        key={item.id}
+                        className={cn(
+                          "flex flex-col sm:flex-row sm:items-start sm:justify-between gap-3",
+                          !item.included && "opacity-50"
+                        )}
+                      >
+                        <div className="flex items-start gap-2 sm:gap-3 min-w-0 flex-1">
+                          <Clock className="h-4 w-4 text-gray-500 mt-1 flex-shrink-0" />
+                          <div className="min-w-0 flex-1">
+                            <p className="font-medium text-sm sm:text-base break-words">{item.title}</p>
+                            <p className="text-xs sm:text-sm text-gray-500">{safeString(item.time, "Time not specified")}</p>
+                            {item.description && (
+                              <p className="text-xs sm:text-sm text-gray-500 break-words">{item.description}</p>
+                            )}
+                            {item.imageUrl && (
+                              <img src={item.imageUrl} alt={item.title} className="w-20 sm:w-24 h-auto rounded-md mt-2" />
+                            )}
+                            <div className="flex flex-wrap gap-2 sm:gap-3 mt-2 text-xs sm:text-sm">
+                              <GoogleMapsLink query={`${item.title} ${tripDetails.destinationCity}`} />
+                              {item.bookingUrl && (
+                                <a
+                                  href={item.bookingUrl}
+                                  target="_blank"
+                                  rel="noopener noreferrer"
+                                  className="text-blue-600 hover:underline flex items-center"
                                 >
-                                  {item.included ? (
-                                    <Check className="h-4 w-4 text-green-500" />
-                                  ) : (
-                                    <X className="h-4 w-4 text-red-500" />
-                                  )}
-                                </Button>
-                              </div>
+                                  <ExternalLink className="h-3 w-3 mr-1" /> Book Now
+                                </a>
+                              )}
                             </div>
                           </div>
-                        ))
-                      ) : (
-                        <p className="text-sm text-gray-500">No activities planned for this day.</p>
-                      )}
-                    </div>
+                        </div>
+                        {item.cost && (
+                          <div className="flex items-center gap-2 flex-shrink-0">
+                            <p className="font-semibold text-sm sm:text-base whitespace-nowrap">
+                              {safePrice(item.cost)}
+                            </p>
+                            <Button
+                              variant="ghost"
+                              size="icon"
+                              className="h-8 w-8 sm:h-10 sm:w-10"
+                              onClick={() => onToggleItem("itinerary", item.id)}
+                            >
+                              {item.included ? (
+                                <Check className="h-4 w-4 text-green-500" />
+                              ) : (
+                                <X className="h-4 w-4 text-red-500" />
+                              )}
+                            </Button>
+                          </div>
+                        )}
+                      </div>
+                    ))}
                   </CardContent>
                 </Card>
               ))}
