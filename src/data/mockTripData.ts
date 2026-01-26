@@ -58,9 +58,9 @@ function getFallbackAttractions(city: string, count: number) {
       names: ["City Museum", "National Museum", "Art Gallery", "History Museum", "Modern Art Museum"],
       descriptions: ["Explore the rich history and culture", "Discover fascinating exhibits", "Admire world-class art collections"],
       images: [
-        "https://images.pexels.com/photos/3807517/pexels-photo-3807517.jpeg?auto=compress&cs=tinysrgb&w=800",
-        "https://images.pexels.com/photos/3807516/pexels-photo-3807516.jpeg?auto=compress&cs=tinysrgb&w=800",
-        "https://images.pexels.com/photos/3807515/pexels-photo-3807515.jpeg?auto=compress&cs=tinysrgb&w=800",
+        "https://images.unsplash.com/photo-1554907984-15263bfd63bd?auto=format&fit=crop&w=800&q=80",
+        "https://images.unsplash.com/photo-1566127444979-b3d2b654e3d7?auto=format&fit=crop&w=800&q=80",
+        "https://images.unsplash.com/photo-1582555172866-f73bb12a2ab3?auto=format&fit=crop&w=800&q=80",
       ],
     },
     {
@@ -68,9 +68,9 @@ function getFallbackAttractions(city: string, count: number) {
       names: ["Old Town Square", "Historic District", "City Center", "Heritage Site", "Ancient Quarter"],
       descriptions: ["Walk through centuries of history", "Experience the city's heritage", "Discover architectural wonders"],
       images: [
-        "https://images.pexels.com/photos/3707517/pexels-photo-3707517.jpeg?auto=compress&cs=tinysrgb&w=800",
-        "https://images.pexels.com/photos/3707516/pexels-photo-3707516.jpeg?auto=compress&cs=tinysrgb&w=800",
-        "https://images.pexels.com/photos/3707515/pexels-photo-3707515.jpeg?auto=compress&cs=tinysrgb&w=800",
+        "https://images.unsplash.com/photo-1513635269975-59663e0ac1ad?auto=format&fit=crop&w=800&q=80",
+        "https://images.unsplash.com/photo-1467269204594-9661b134dd2b?auto=format&fit=crop&w=800&q=80",
+        "https://images.unsplash.com/photo-1533929736458-ca588d08c8be?auto=format&fit=crop&w=800&q=80",
       ],
     },
     {
@@ -78,9 +78,9 @@ function getFallbackAttractions(city: string, count: number) {
       names: ["Central Park", "City Park", "Botanical Garden", "Riverside Park", "Public Garden"],
       descriptions: ["Relax in beautiful green spaces", "Enjoy nature in the heart of the city", "Perfect spot for a leisurely stroll"],
       images: [
-        "https://images.pexels.com/photos/3607517/pexels-photo-3607517.jpeg?auto=compress&cs=tinysrgb&w=800",
-        "https://images.pexels.com/photos/3607516/pexels-photo-3607516.jpeg?auto=compress&cs=tinysrgb&w=800",
-        "https://images.pexels.com/photos/3607515/pexels-photo-3607515.jpeg?auto=compress&cs=tinysrgb&w=800",
+        "https://images.unsplash.com/photo-1519331379826-f10be5486c6f?auto=format&fit=crop&w=800&q=80",
+        "https://images.unsplash.com/photo-1441974231531-c6227db76b6e?auto=format&fit=crop&w=800&q=80",
+        "https://images.unsplash.com/photo-1585320806297-9794b3e4eeae?auto=format&fit=crop&w=800&q=80",
       ],
     },
     {
@@ -88,9 +88,9 @@ function getFallbackAttractions(city: string, count: number) {
       names: ["Shopping District", "Local Market", "Artisan Quarter", "Fashion Street", "Souvenir Market"],
       descriptions: ["Browse local shops and boutiques", "Find unique souvenirs and gifts", "Experience local shopping culture"],
       images: [
-        "https://images.pexels.com/photos/3507517/pexels-photo-3507517.jpeg?auto=compress&cs=tinysrgb&w=800",
-        "https://images.pexels.com/photos/3507516/pexels-photo-3507516.jpeg?auto=compress&cs=tinysrgb&w=800",
-        "https://images.pexels.com/photos/3507515/pexels-photo-3507515.jpeg?auto=compress&cs=tinysrgb&w=800",
+        "https://images.unsplash.com/photo-1441986300917-64674bd600d8?auto=format&fit=crop&w=800&q=80",
+        "https://images.unsplash.com/photo-1555529669-e69e7aa0ba9a?auto=format&fit=crop&w=800&q=80",
+        "https://images.unsplash.com/photo-1534452203293-494d7ddbf7e0?auto=format&fit=crop&w=800&q=80",
       ],
     },
     {
@@ -98,9 +98,9 @@ function getFallbackAttractions(city: string, count: number) {
       names: ["Local Restaurant", "Traditional Cuisine", "Rooftop Dining", "Waterfront Restaurant", "Gourmet Experience"],
       descriptions: ["Savor authentic local flavors", "Enjoy a memorable dining experience", "Taste the best of local cuisine"],
       images: [
-        "https://images.pexels.com/photos/3407517/pexels-photo-3407517.jpeg?auto=compress&cs=tinysrgb&w=800",
-        "https://images.pexels.com/photos/3407516/pexels-photo-3407516.jpeg?auto=compress&cs=tinysrgb&w=800",
-        "https://images.pexels.com/photos/3407515/pexels-photo-3407515.jpeg?auto=compress&cs=tinysrgb&w=800",
+        "https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?auto=format&fit=crop&w=800&q=80",
+        "https://images.unsplash.com/photo-1414235077428-338989a2e8c0?auto=format&fit=crop&w=800&q=80",
+        "https://images.unsplash.com/photo-1559339352-11d035aa65de?auto=format&fit=crop&w=800&q=80",
       ],
     },
     {
@@ -108,9 +108,9 @@ function getFallbackAttractions(city: string, count: number) {
       names: ["Cultural Center", "Theater District", "Music Hall", "Performance Venue", "Arts Quarter"],
       descriptions: ["Immerse yourself in local culture", "Experience performing arts", "Discover cultural traditions"],
       images: [
-        "https://images.pexels.com/photos/3307517/pexels-photo-3307517.jpeg?auto=compress&cs=tinysrgb&w=800",
-        "https://images.pexels.com/photos/3307516/pexels-photo-3307516.jpeg?auto=compress&cs=tinysrgb&w=800",
-        "https://images.pexels.com/photos/3307515/pexels-photo-3307515.jpeg?auto=compress&cs=tinysrgb&w=800",
+        "https://images.unsplash.com/photo-1503095396549-807759245b35?auto=format&fit=crop&w=800&q=80",
+        "https://images.unsplash.com/photo-1514306191717-452ec28c7814?auto=format&fit=crop&w=800&q=80",
+        "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=800&q=80",
       ],
     },
   ];
@@ -322,9 +322,9 @@ function getCategoryFallbackImage(category: string, index: number): string {
   // Museum images
   if (categoryLower.includes("museum")) {
     const museumImages = [
-      "https://images.pexels.com/photos/3807517/pexels-photo-3807517.jpeg?auto=compress&cs=tinysrgb&w=800",
-      "https://images.pexels.com/photos/3807516/pexels-photo-3807516.jpeg?auto=compress&cs=tinysrgb&w=800",
-      "https://images.pexels.com/photos/3807515/pexels-photo-3807515.jpeg?auto=compress&cs=tinysrgb&w=800",
+      "https://images.unsplash.com/photo-1554907984-15263bfd63bd?auto=format&fit=crop&w=800&q=80", // Museum interior
+      "https://images.unsplash.com/photo-1566127444979-b3d2b654e3d7?auto=format&fit=crop&w=800&q=80", // Art gallery
+      "https://images.unsplash.com/photo-1564399579883-451a5d44ec08?auto=format&fit=crop&w=800&q=80", // Modern museum
     ];
     return museumImages[index % museumImages.length];
   }
@@ -332,9 +332,9 @@ function getCategoryFallbackImage(category: string, index: number): string {
   // Historic & architecture
   if (categoryLower.includes("historic") || categoryLower.includes("architecture") || categoryLower.includes("monument")) {
     const historicImages = [
-      "https://images.pexels.com/photos/3707517/pexels-photo-3707517.jpeg?auto=compress&cs=tinysrgb&w=800",
-      "https://images.pexels.com/photos/3707516/pexels-photo-3707516.jpeg?auto=compress&cs=tinysrgb&w=800",
-      "https://images.pexels.com/photos/3707515/pexels-photo-3707515.jpeg?auto=compress&cs=tinysrgb&w=800",
+      "https://images.unsplash.com/photo-1558642452-9d2a7deb7f62?auto=format&fit=crop&w=800&q=80", // Historic building
+      "https://images.unsplash.com/photo-1549144511-f099e773c147?auto=format&fit=crop&w=800&q=80", // Monument
+      "https://images.unsplash.com/photo-1548445929-4f60a497f851?auto=format&fit=crop&w=800&q=80", // Castle
     ];
     return historicImages[index % historicImages.length];
   }
@@ -342,9 +342,9 @@ function getCategoryFallbackImage(category: string, index: number): string {
   // Religious sites
   if (categoryLower.includes("religion") || categoryLower.includes("church") || categoryLower.includes("temple")) {
     const religiousImages = [
-      "https://images.pexels.com/photos/3607517/pexels-photo-3607517.jpeg?auto=compress&cs=tinysrgb&w=800",
-      "https://images.pexels.com/photos/3607516/pexels-photo-3607516.jpeg?auto=compress&cs=tinysrgb&w=800",
-      "https://images.pexels.com/photos/3607515/pexels-photo-3607515.jpeg?auto=compress&cs=tinysrgb&w=800",
+      "https://images.unsplash.com/photo-1548013146-72479768bada?auto=format&fit=crop&w=800&q=80", // Cathedral
+      "https://images.unsplash.com/photo-1583422409516-2895a77efded?auto=format&fit=crop&w=800&q=80", // Church interior
+      "https://images.unsplash.com/photo-1564399579883-451a5d44ec08?auto=format&fit=crop&w=800&q=80", // Temple
     ];
     return religiousImages[index % religiousImages.length];
   }
@@ -352,9 +352,9 @@ function getCategoryFallbackImage(category: string, index: number): string {
   // Natural sites & parks
   if (categoryLower.includes("natural") || categoryLower.includes("park") || categoryLower.includes("garden")) {
     const natureImages = [
-      "https://images.pexels.com/photos/3507517/pexels-photo-3507517.jpeg?auto=compress&cs=tinysrgb&w=800",
-      "https://images.pexels.com/photos/3507516/pexels-photo-3507516.jpeg?auto=compress&cs=tinysrgb&w=800",
-      "https://images.pexels.com/photos/3507515/pexels-photo-3507515.jpeg?auto=compress&cs=tinysrgb&w=800",
+      "https://images.unsplash.com/photo-1585320806297-9794b3e4eeae?auto=format&fit=crop&w=800&q=80", // Park
+      "https://images.unsplash.com/photo-1518495973542-4542c06a5843?auto=format&fit=crop&w=800&q=80", // Garden
+      "https://images.unsplash.com/photo-1441974231531-c6227db76b6e?auto=format&fit=crop&w=800&q=80", // Forest
     ];
     return natureImages[index % natureImages.length];
   }
@@ -362,21 +362,21 @@ function getCategoryFallbackImage(category: string, index: number): string {
   // Entertainment & cultural
   if (categoryLower.includes("entertainment") || categoryLower.includes("theatre") || categoryLower.includes("cultural")) {
     const entertainmentImages = [
-      "https://images.pexels.com/photos/3407517/pexels-photo-3407517.jpeg?auto=compress&cs=tinysrgb&w=800",
-      "https://images.pexels.com/photos/3407516/pexels-photo-3407516.jpeg?auto=compress&cs=tinysrgb&w=800",
-      "https://images.pexels.com/photos/3407515/pexels-photo-3407515.jpeg?auto=compress&cs=tinysrgb&w=800",
+      "https://images.unsplash.com/photo-1503095396549-807759245b35?auto=format&fit=crop&w=800&q=80", // Theatre
+      "https://images.unsplash.com/photo-1514320291840-2e0a9bf2a9ae?auto=format&fit=crop&w=800&q=80", // Concert hall
+      "https://images.unsplash.com/photo-1499364615650-ec38552f4f34?auto=format&fit=crop&w=800&q=80", // Performance
     ];
     return entertainmentImages[index % entertainmentImages.length];
   }
   
   // Default varied travel images
   const defaultImages = [
-    "https://images.pexels.com/photos/3307517/pexels-photo-3307517.jpeg?auto=compress&cs=tinysrgb&w=800",
-    "https://images.pexels.com/photos/3307516/pexels-photo-3307516.jpeg?auto=compress&cs=tinysrgb&w=800",
-    "https://images.pexels.com/photos/3307515/pexels-photo-3307515.jpeg?auto=compress&cs=tinysrgb&w=800",
-    "https://images.pexels.com/photos/3307514/pexels-photo-3307514.jpeg?auto=compress&cs=tinysrgb&w=800",
-    "https://images.pexels.com/photos/3307513/pexels-photo-3307513.jpeg?auto=compress&cs=tinysrgb&w=800",
-    "https://images.pexels.com/photos/3307512/pexels-photo-3307512.jpeg?auto=compress&cs=tinysrgb&w=800",
+    "https://images.unsplash.com/photo-1499856871958-5b9627545d1a?auto=format&fit=crop&w=800&q=80", // City landmark
+    "https://images.unsplash.com/photo-1502602898657-3e91760cbb34?auto=format&fit=crop&w=800&q=80", // City street
+    "https://images.unsplash.com/photo-1523531294919-4bcd7c65e216?auto=format&fit=crop&w=800&q=80", // Tourist spot
+    "https://images.unsplash.com/photo-1476514525535-07fb3b4ae5f1?auto=format&fit=crop&w=800&q=80", // Scenic view
+    "https://images.unsplash.com/photo-1493976040374-85c8e12f0c0e?auto=format&fit=crop&w=800&q=80", // Landmark
+    "https://images.unsplash.com/photo-1467269204594-9661b134dd2b?auto=format&fit=crop&w=800&q=80", // Square
   ];
   return defaultImages[index % defaultImages.length];
 }
@@ -384,12 +384,12 @@ function getCategoryFallbackImage(category: string, index: number): string {
 // Meal images with variety
 function getMealImage(mealType: string, dayIndex: number): string {
   const lunchImages = [
-    "https://images.pexels.com/photos/3407517/pexels-photo-3407517.jpeg?auto=compress&cs=tinysrgb&w=800",
-    "https://images.pexels.com/photos/3407516/pexels-photo-3407516.jpeg?auto=compress&cs=tinysrgb&w=800",
-    "https://images.pexels.com/photos/3407515/pexels-photo-3407515.jpeg?auto=compress&cs=tinysrgb&w=800",
-    "https://images.pexels.com/photos/3407514/pexels-photo-3407514.jpeg?auto=compress&cs=tinysrgb&w=800",
-    "https://images.pexels.com/photos/3407513/pexels-photo-3407513.jpeg?auto=compress&cs=tinysrgb&w=800",
-    "https://images.pexels.com/photos/3407512/pexels-photo-3407512.jpeg?auto=compress&cs=tinysrgb&w=800",
+    "https://images.unsplash.com/photo-1414235077428-338989a2e8c0?auto=format&fit=crop&w=800&q=80", // Fine dining
+    "https://images.unsplash.com/photo-1504674900247-0877df9cc836?auto=format&fit=crop&w=800&q=80", // Gourmet meal
+    "https://images.unsplash.com/photo-1546069901-ba9599a7e63c?auto=format&fit=crop&w=800&q=80", // Salad plate
+    "https://images.unsplash.com/photo-1565299624946-b28f40a0ae38?auto=format&fit=crop&w=800&q=80", // Pizza
+    "https://images.unsplash.com/photo-1540189549336-e6e99c3679fe?auto=format&fit=crop&w=800&q=80", // Colorful dish
+    "https://images.unsplash.com/photo-1467003909585-2f8a72700288?auto=format&fit=crop&w=800&q=80", // Seafood
   ];
   
   return lunchImages[dayIndex % lunchImages.length];
@@ -399,11 +399,6 @@ export async function generateMockTripPlan(details: TripDetails): Promise<TripPl
   const departureDate = details.departureDate || new Date();
   const returnDate = details.returnDate || addDays(departureDate, 5);
   const tripDays = Math.ceil((returnDate.getTime() - departureDate.getTime()) / (1000 * 60 * 60 * 24)) + 1;
-
-  // ✅ CALCULATE TOTAL PASSENGERS for price multiplication
-  const totalPassengers = (details.passengers?.adults || 1) + 
-                          (details.passengers?.children || 0) + 
-                          (details.passengers?.infants || 0);
 
   const originCode = getAirportCode(details.departureCity);
   const destCode = getAirportCode(details.destinationCity);
@@ -457,7 +452,7 @@ export async function generateMockTripPlan(details: TripDetails): Promise<TripPl
         type: "transport",
         cost: 0,
         included: true,
-        imageUrl: `https://images.pexels.com/photos/3207517/pexels-photo-3207517.jpeg?auto=compress&cs=tinysrgb&w=800`,
+        imageUrl: `https://images.unsplash.com/photo-1436491865332-7a61a109cc05?auto=format&fit=crop&w=800&q=80`,
       });
     }
 
@@ -541,7 +536,7 @@ export async function generateMockTripPlan(details: TripDetails): Promise<TripPl
         type: "transport",
         cost: 0,
         included: true,
-        imageUrl: `https://images.pexels.com/photos/3207517/pexels-photo-3207517.jpeg?auto=compress&cs=tinysrgb&w=800`,
+        imageUrl: `https://images.unsplash.com/photo-1436491865332-7a61a109cc05?auto=format&fit=crop&w=800&q=80`,
       });
     }
 
