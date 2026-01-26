@@ -1,4 +1,3 @@
-import { useState, useMemo } from "react";
 import { useParams } from "react-router-dom";
 import { format, isValid } from "date-fns";
 import {
@@ -63,20 +62,8 @@ import type { TripDetails, TripPlan, DayItinerary } from "@/types/trip";
 // Helper function to generate Google Maps URL
 const getGoogleMapsLink = (locationQuery: string): string => {
   const encodedLocation = encodeURIComponent(locationQuery);
-  return `https://www.google.com/maps/search/?api=1&query=${encodedLocation}`;
+  return `https://www.google.com/maps/search/${encodedLocation}`;
 };
-
-// Google Maps link component
-const GoogleMapsLink = ({ query }: { query: string } ) => (
-  <a
-    href={getGoogleMapsLink(query)}
-    target="_blank"
-    rel="noopener noreferrer"
-    className="text-blue-600 hover:underline flex items-center text-sm"
-  >
-    <MapPin className="h-3 w-3 mr-1" /> View on Map
-  </a>
-);
 
 interface TripResultsProps {
   tripDetails: TripDetails;
@@ -93,26 +80,24 @@ export function TripResults({
   onToggleItem,
   onReset,
 }: TripResultsProps) {
-  const { id: paramTripId } = useParams();
-  const tripId = propTripId || paramTripId;
-  
-  const { toast } = useToast();
   const { user } = useAuth();
-  const [isSendingEmail, setIsSendingEmail] = useState(false);
+  const { toast } = useToast();
+  const [isSaving, setIsSaving] = React.useState(false);
 
-  const totalCost = useMemo(() => {
+  // Calculate total cost
+  const totalCost = React.useMemo(() => {
     let cost = 0;
-    if (tripPlan.outboundFlight?.included && tripPlan.outboundFlight.pricePerPerson) {
-      cost += tripPlan.outboundFlight.pricePerPerson * (tripDetails.passengers.adults + tripDetails.passengers.children + tripDetails.passengers.infants);
+    if (tripPlan.outboundFlight?.included && tripPlan.outboundFlight?.pricePerPerson) {
+      cost += tripPlan.outboundFlight.pricePerPerson * ((tripDetails.passengers?.adults || 0) + (tripDetails.passengers?.children || 0));
     }
-    if (tripPlan.returnFlight?.included && tripPlan.returnFlight.pricePerPerson) {
-      cost += tripPlan.returnFlight.pricePerPerson * (tripDetails.passengers.adults + tripDetails.passengers.children + tripDetails.passengers.infants);
+    if (tripPlan.returnFlight?.included && tripPlan.returnFlight?.pricePerPerson) {
+      cost += tripPlan.returnFlight.pricePerPerson * ((tripDetails.passengers?.adults || 0) + (tripDetails.passengers?.children || 0));
     }
-    if (tripPlan.carRental?.included && tripPlan.carRental.totalPrice) {
-      cost += tripPlan.carRental.totalPrice;
-    }
-    if (tripPlan.hotel?.included && tripPlan.hotel.totalPrice) {
+    if (tripPlan.hotel?.included && tripPlan.hotel?.totalPrice) {
       cost += tripPlan.hotel.totalPrice;
+    }
+    if (tripPlan.carRental?.included && tripPlan.carRental?.totalPrice) {
+      cost += tripPlan.carRental.totalPrice;
     }
     tripPlan.itinerary?.forEach((day) => {
       day.items?.forEach((item) => {
@@ -124,260 +109,217 @@ export function TripResults({
     return cost;
   }, [tripPlan, tripDetails]);
 
-  const sendEmail = async () => {
+  const handleSaveTrip = async () => {
     if (!user) {
       toast({
-        title: "Not logged in",
-        description: "Please log in to send the trip to your email.",
+        title: "Please log in",
+        description: "You need to be logged in to save trips",
         variant: "destructive",
       });
       return;
     }
 
-    if (!tripId || tripId === 'new') {
-      toast({
-        title: "Trip not saved",
-        description: "Please wait for the trip to be saved before sending email.",
-        variant: "destructive",
-      });
-      return;
-    }
-    
-    console.log("Sending email for tripId:", tripId);
-
-    setIsSendingEmail(true);
+    setIsSaving(true);
     try {
-      const loggedInEmail = user.email;
-      if (!loggedInEmail) {
-        throw new Error("User email not found.");
+      const { data: trip, error: tripError } = await supabase
+        .from("trips")
+        .insert({
+          user_id: user.id,
+          origin_city: tripDetails.departureCity,
+          destination_city: tripDetails.destinationCity,
+          departure_date: tripDetails.departureDate,
+          return_date: tripDetails.returnDate,
+          adults: tripDetails.passengers?.adults || 0,
+          children: tripDetails.passengers?.children || 0,
+          infants: tripDetails.passengers?.infants || 0,
+          flight_class: tripDetails.flightClass,
+          include_hotel: tripDetails.includeHotel,
+          include_car: tripDetails.includeCarRental,
+          origin_iata_code: tripDetails.departureLocation?.iataCode,
+          destination_iata_code: tripDetails.destinationLocation?.iataCode,
+          origin_country: tripDetails.departureLocation?.country,
+          destination_country: tripDetails.destinationLocation?.country,
+        })
+        .select()
+        .single();
+
+      if (tripError) throw tripError;
+
+      // Save trip items
+      const items: any[] = [];
+
+      if (tripPlan.outboundFlight) {
+        items.push({
+          trip_id: trip.id,
+          item_type: "flight",
+          name: `${tripDetails.departureCity} to ${tripDetails.destinationCity}`,
+          description: "Outbound flight",
+          cost: tripPlan.outboundFlight.pricePerPerson * ((tripDetails.passengers?.adults || 0) + (tripDetails.passengers?.children || 0)),
+          included: tripPlan.outboundFlight.included,
+          provider_data: { ...tripPlan.outboundFlight, direction: "outbound" },
+        });
       }
 
-      // Use trip data from component props (already available)
-      const from = tripDetails.departureCity || 'Unknown';
-      const to = tripDetails.destinationCity || 'Unknown';
-      const startDate = tripDetails.departureDate ? new Date(tripDetails.departureDate).toLocaleDateString() : 'TBD';
-      const endDate = tripDetails.returnDate ? new Date(tripDetails.returnDate).toLocaleDateString() : 'TBD';
-      
-      // Sanitize tripId to prevent corruption in email links
-      const cleanTripId = String(tripId).trim();
+      if (tripPlan.returnFlight) {
+        items.push({
+          trip_id: trip.id,
+          item_type: "flight",
+          name: `${tripDetails.destinationCity} to ${tripDetails.departureCity}`,
+          description: "Return flight",
+          cost: tripPlan.returnFlight.pricePerPerson * ((tripDetails.passengers?.adults || 0) + (tripDetails.passengers?.children || 0)),
+          included: tripPlan.returnFlight.included,
+          provider_data: { ...tripPlan.returnFlight, direction: "return" },
+        });
+      }
 
-      // Build HTML email content
-      const emailHtml = `
-        <!DOCTYPE html>
-        <html>
-        <head>
-          <style>
-            body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; }
-            .container { max-width: 600px; margin: 0 auto; padding: 20px; }
-            .header { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 30px; text-align: center; border-radius: 10px 10px 0 0; }
-            .content { background: #f9f9f9; padding: 30px; border-radius: 0 0 10px 10px; }
-            .trip-info { background: white; padding: 20px; margin: 20px 0; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
-            .label { font-weight: bold; color: #667eea; }
-            .footer { text-align: center; margin-top: 30px; color: #666; font-size: 12px; }
-            .button { background: #667eea; color: white !important; padding: 12px 30px; text-decoration: none; border-radius: 5px; display: inline-block; }
-          </style>
-        </head>
-        <body>
-          <div class="container">
-            <div class="header">
-              <h1>🌍 Your Trip Itinerary</h1>
-              <p>${from} → ${to}</p>
-            </div>
-            <div class="content">
-              <div class="trip-info">
-                <p><span class="label">From:</span> ${from}</p>
-                <p><span class="label">To:</span> ${to}</p>
-                <p><span class="label">Dates:</span> ${startDate} - ${endDate}</p>
-                <p><span class="label">Total Cost:</span> €${(totalCost || 0).toLocaleString()}</p>
-              </div>
-              
-              <h2>Trip Details</h2>
-              <p>Your complete trip itinerary has been generated! View all details including flights, accommodation, activities, and daily schedule on our website.</p>
-              
-              <div style="text-align: center; margin: 30px 0;">
-                <a href="https://best-travel-plan.cloud/trip/${cleanTripId}" class="button">
-                  View Full Itinerary
-                </a>
-              </div>
-            </div>
-            <div class="footer">
-              <p>Best Holiday Plan - Your AI-Powered Travel Planner</p>
-              <p>© 2026 best-travel-plan.cloud</p>
-            </div>
-          </div>
-        </body>
-        </html>
-      `;
+      if (tripPlan.hotel) {
+        items.push({
+          trip_id: trip.id,
+          item_type: "hotel",
+          name: tripPlan.hotel.name || "Hotel",
+          description: tripPlan.hotel.address,
+          cost: tripPlan.hotel.totalPrice,
+          included: tripPlan.hotel.included,
+          provider_data: tripPlan.hotel,
+        });
+      }
 
-      // Call our Vercel backend API
-      const response = await fetch('/api/send-email', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          to: loggedInEmail,
-          subject: `Your Trip Itinerary: ${from} → ${to}`,
-          html: emailHtml,
-        }),
+      if (tripPlan.carRental) {
+        items.push({
+          trip_id: trip.id,
+          item_type: "car",
+          name: tripPlan.carRental.name || "Car Rental",
+          description: `${tripPlan.carRental.pickupDate} - ${tripPlan.carRental.dropoffDate}`,
+          cost: tripPlan.carRental.totalPrice,
+          included: tripPlan.carRental.included,
+          provider_data: tripPlan.carRental,
+        });
+      }
+
+      // Add itinerary items
+      tripPlan.itinerary?.forEach((day, dayIndex) => {
+        day.items?.forEach((item) => {
+          items.push({
+            trip_id: trip.id,
+            item_type: "activity",
+            name: item.title,
+            description: item.description,
+            cost: item.cost || 0,
+            included: item.included,
+            day_number: dayIndex + 1,
+            image_url: item.imageUrl,
+            booking_url: item.bookingUrl,
+            provider_data: { time: item.time },
+          });
+        });
       });
 
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.error || 'Failed to send email');
+      if (items.length > 0) {
+        const { error: itemsError } = await supabase.from("trip_items").insert(items);
+        if (itemsError) throw itemsError;
       }
 
-      const result = await response.json();
-      console.log('Email sent successfully:', result);
-
       toast({
-        title: "Email sent!",
-        description: "Your trip itinerary has been sent to your email address.",
+        title: "Trip saved!",
+        description: "Your trip has been saved to your profile",
       });
     } catch (error) {
-      console.error("Failed to send email:", error);
+      console.error("Error saving trip:", error);
       toast({
-        title: "Failed to send email",
-        description: error instanceof Error ? error.message : "An unknown error occurred.",
+        title: "Error saving trip",
+        description: "Please try again later",
         variant: "destructive",
       });
     } finally {
-      setIsSendingEmail(false);
+      setIsSaving(false);
     }
   };
-  
+
   return (
     <Card className="w-full">
-      <CardHeader className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 pb-2">
-        <CardTitle className="text-xl md:text-2xl font-bold break-words">
-          Your Itinerary: {tripDetails.departureCity} → {tripDetails.destinationCity}
-        </CardTitle>
-        <div className="flex items-center gap-2 flex-shrink-0">
-          <Button onClick={sendEmail} disabled={isSendingEmail} className="hidden">
-            {isSendingEmail ? (
-              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-            ) : (
-              <Mail className="mr-2 h-4 w-4" />
-            )}
-            Send to my email
-          </Button>
-          <Button variant="outline" onClick={onReset} className="text-sm md:text-base">
+      <CardHeader className="bg-gradient-to-r from-blue-50 to-indigo-50">
+        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+          <div>
+            <CardTitle className="text-2xl sm:text-3xl mb-2">
+              Your Itinerary: {tripDetails.departureCity} ({tripDetails.departureLocation?.iataCode}) → {tripDetails.destinationCity} ({tripDetails.destinationLocation?.iataCode})
+            </CardTitle>
+            <p className="text-sm text-gray-600">
+              {safeFormatDate(tripDetails.departureDate, "MMM d, yyyy")} - {safeFormatDate(tripDetails.returnDate, "MMM d, yyyy")}
+            </p>
+          </div>
+          <Button onClick={onReset} variant="outline" className="w-full sm:w-auto">
             Start Over
           </Button>
         </div>
       </CardHeader>
-      <CardContent>
-        <div className="grid gap-4">
-          <div className="flex flex-col sm:flex-row sm:items-baseline sm:justify-between gap-2">
-            <p className="text-sm font-medium text-gray-500">Estimated Total</p>
-            <p className="text-3xl sm:text-4xl font-bold text-primary">
-              {safePrice(totalCost)}
+
+      <CardContent className="pt-6">
+        <div className="space-y-6">
+          {/* Estimated Total */}
+          <div className="bg-blue-50 p-4 rounded-lg border border-blue-200">
+            <p className="text-sm text-gray-600 mb-1">Estimated Total</p>
+            <p className="text-3xl font-bold text-blue-600">{safePrice(totalCost)}</p>
+            <p className="text-xs text-gray-500 mt-2">
+              {tripDetails.passengers?.adults || 0} Adult{(tripDetails.passengers?.adults || 0) !== 1 ? "s" : ""} {tripDetails.passengers?.children || 0 > 0 ? `+ ${tripDetails.passengers?.children} Child${(tripDetails.passengers?.children || 0) !== 1 ? "ren" : ""}` : ""}
             </p>
           </div>
 
-          {/* Flight Booking Card */}
-          <FlightBookingCard 
-            tripDetails={tripDetails} 
-            isAmadeusSupported={
-              (tripDetails.departureLocation?.iataCode && ['JFK', 'LAX', 'LHR', 'CDG', 'DXB', 'SIN', 'HND', 'NRT', 'AMS', 'FRA', 'MAD', 'BCN', 'FCO', 'SYD'].includes(tripDetails.departureLocation.iataCode)) ||
-              (tripDetails.destinationLocation?.iataCode && ['JFK', 'LAX', 'LHR', 'CDG', 'DXB', 'SIN', 'HND', 'NRT', 'AMS', 'FRA', 'MAD', 'BCN', 'FCO', 'SYD'].includes(tripDetails.destinationLocation.iataCode))
-            }
-          />
-
           {/* Flights */}
-          {tripPlan.outboundFlight || tripPlan.returnFlight ? (
-            <div className="space-y-2">
-              <h3 className="text-lg font-semibold flex items-center">
-                <Plane className="mr-2 h-5 w-5 text-primary" /> Flights
-              </h3>
+          {(tripPlan.outboundFlight || tripPlan.returnFlight) && (
+            <div className="space-y-4">
+              <h2 className="text-xl font-semibold flex items-center gap-2">
+                <Plane className="h-5 w-5" /> Flights
+              </h2>
+
               {tripPlan.outboundFlight && (
-              <Card className={cn(!tripPlan.outboundFlight.included && "opacity-50")}>
-                <CardContent className="p-3 sm:p-4 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 overflow-hidden">
-                  <div className="min-w-0 flex-1">
-                    <p className="font-medium text-sm sm:text-base break-words">
-                      {tripDetails.departureLocation?.iataCode || tripPlan.outboundFlight.originCode} → {tripDetails.destinationLocation?.iataCode || tripPlan.outboundFlight.destinationCode}
-                    </p>
-                    <p className="text-xs sm:text-sm text-gray-500 truncate">
-                      {tripPlan.outboundFlight.airline} • {tripPlan.outboundFlight.flightNumber}
-                    </p>
-                    <p className="text-xs sm:text-sm text-gray-500">
-                      {safeString(tripPlan.outboundFlight.departureTime, "Time not specified")} - {safeString(tripPlan.outboundFlight.arrivalTime, "Time not specified")} ({safeString(tripPlan.outboundFlight.duration, "Duration N/A")})
-                    </p>
-                  </div>
-                  <div className="flex items-center gap-2 flex-shrink-0 min-w-fit">
-                    <p className="font-semibold text-sm sm:text-base whitespace-nowrap">
-                      {safePrice((tripPlan.outboundFlight.pricePerPerson || 0) * (tripDetails.passengers.adults + tripDetails.passengers.children + tripDetails.passengers.infants))}
-                    </p>
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      className="h-8 w-8 sm:h-10 sm:w-10"
-                      onClick={() => onToggleItem("outboundFlight", tripPlan.outboundFlight!.id)}
-                    >
-                      {tripPlan.outboundFlight.included ? (
-                        <Check className="h-4 w-4 text-green-500" />
-                      ) : (
-                        <X className="h-4 w-4 text-red-500" />
-                      )}
-                    </Button>
-                  </div>
-                </CardContent>
-              </Card>
+                <FlightBookingCard
+                  flight={tripPlan.outboundFlight}
+                  passengers={tripDetails.passengers}
+                  onToggle={() => onToggleItem("outboundFlight", tripPlan.outboundFlight!.id)}
+                />
               )}
+
               {tripPlan.returnFlight && (
-              <Card className={cn(!tripPlan.returnFlight.included && "opacity-50")}>
-                <CardContent className="p-3 sm:p-4 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 overflow-hidden">
-                  <div className="min-w-0 flex-1">
-                    <p className="font-medium text-sm sm:text-base break-words">
-                      {tripDetails.destinationLocation?.iataCode || tripPlan.returnFlight.originCode} → {tripDetails.departureLocation?.iataCode || tripPlan.returnFlight.destinationCode}
-                    </p>
-                    <p className="text-xs sm:text-sm text-gray-500 truncate">
-                      {tripPlan.returnFlight.airline} • {tripPlan.returnFlight.flightNumber}
-                    </p>
-                    <p className="text-xs sm:text-sm text-gray-500">
-                      {safeString(tripPlan.returnFlight.departureTime, "Time not specified")} - {safeString(tripPlan.returnFlight.arrivalTime, "Time not specified")} ({safeString(tripPlan.returnFlight.duration, "Duration N/A")})
-                    </p>
-                  </div>
-                  <div className="flex items-center gap-2 flex-shrink-0 min-w-fit">
-                    <p className="font-semibold text-sm sm:text-base whitespace-nowrap">
-                      {safePrice((tripPlan.returnFlight.pricePerPerson || 0) * (tripDetails.passengers.adults + tripDetails.passengers.children + tripDetails.passengers.infants))}
-                    </p>
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      className="h-8 w-8 sm:h-10 sm:w-10"
-                      onClick={() => onToggleItem("returnFlight", tripPlan.returnFlight!.id)}
-                    >
-                      {tripPlan.returnFlight.included ? (
-                        <Check className="h-4 w-4 text-green-500" />
-                      ) : (
-                        <X className="h-4 w-4 text-red-500" />
-                      )}
-                    </Button>
-                  </div>
-                </CardContent>
-              </Card>
+                <FlightBookingCard
+                  flight={tripPlan.returnFlight}
+                  passengers={tripDetails.passengers}
+                  onToggle={() => onToggleItem("returnFlight", tripPlan.returnFlight!.id)}
+                />
               )}
             </div>
-          ) : null}
+          )}
 
-          {/* Hotel */}
+          {/* Accommodation */}
           {tripPlan.hotel ? (
-            <div className="space-y-2">
-              <h3 className="text-lg font-semibold flex items-center">
-                <Building2 className="mr-2 h-5 w-5 text-primary" /> Accommodation
-              </h3>
-              <Card className={cn(!tripPlan.hotel.included && "opacity-50")}>
-                <CardContent className="p-2 xs:p-3 sm:p-4 flex flex-col gap-3">
-                  <div className="min-w-0 flex-1">
-                    <p className="font-medium text-xs xs:text-sm sm:text-base break-words leading-snug">{tripPlan.hotel.name}</p>
-                    <p className="text-xs text-gray-500 break-words leading-snug">
-                      ⭐ {tripPlan.hotel.rating}/5 • {tripPlan.hotel.distanceFromAirport}
-                    </p>
-                    <p className="text-xs text-gray-500 break-words leading-snug">{tripPlan.hotel.address}</p>
-                    <GoogleMapsLink query={`${tripPlan.hotel.name} ${tripDetails.destinationCity}`} />
-                  </div>
-                  <div className="flex flex-col xs:flex-row items-start xs:items-center justify-between gap-2 w-full">
+            <div className="space-y-4">
+              <h2 className="text-xl font-semibold flex items-center gap-2">
+                <Building2 className="h-5 w-5" /> Accommodation
+              </h2>
+              <Card>
+                <CardContent className="pt-6">
+                  <div className="flex flex-col xs:flex-row xs:items-start xs:justify-between gap-4">
+                    <div className="flex-1 min-w-0">
+                      <h3 className="font-semibold text-base xs:text-lg mb-2 break-words">{tripPlan.hotel.name}</h3>
+                      <div className="space-y-1 text-sm text-gray-600">
+                        {tripPlan.hotel.rating && (
+                          <p className="flex items-center gap-1">
+                            <span className="text-yellow-500">★</span> {tripPlan.hotel.rating} • {tripPlan.hotel.distance}
+                          </p>
+                        )}
+                        {tripPlan.hotel.address && <p>{tripPlan.hotel.address}</p>}
+                        {tripPlan.hotel.checkInDate && tripPlan.hotel.checkOutDate && (
+                          <p className="flex items-center gap-1">
+                            <Calendar className="h-4 w-4" />
+                            {safeFormatDate(tripPlan.hotel.checkInDate, "MMM d")} - {safeFormatDate(tripPlan.hotel.checkOutDate, "MMM d")}
+                          </p>
+                        )}
+                        {tripPlan.hotel.mapUrl && (
+                          <a href={tripPlan.hotel.mapUrl} target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline flex items-center gap-1">
+                            <MapPin className="h-4 w-4" /> View on Map
+                          </a>
+                        )}
+                      </div>
+                    </div>
                     <div className="flex flex-col items-start xs:items-end">
                       <p className="font-semibold text-xs xs:text-sm sm:text-base">
                         {safePrice(tripPlan.hotel.totalPrice)}
@@ -386,7 +328,7 @@ export function TripResults({
                         href={`https://www.booking.com/searchresults.html?ss=${tripDetails.destinationCity}`}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="text-blue-600 hover:underline flex items-center text-xs mt-1 min-h-[32px] py-1"
+                        className="text-blue-700 hover:text-blue-900 hover:underline font-semibold flex items-center text-xs mt-1 min-h-[32px] py-1 px-2 rounded transition-colors"
                       >
                         <ExternalLink className="h-3 w-3 mr-1 flex-shrink-0" /> Book Now
                       </a>
@@ -411,24 +353,36 @@ export function TripResults({
 
           {/* Car Rental */}
           {tripPlan.carRental ? (
-            <div className="space-y-2">
-              <h3 className="text-lg font-semibold flex items-center">
-                <Car className="mr-2 h-5 w-5 text-primary" /> Car Rental
-              </h3>
-              <Card className={cn(!tripPlan.carRental.included && "opacity-50")}>
-                <CardContent className="p-2 xs:p-3 sm:p-4 flex flex-col gap-3">
-                  <div className="min-w-0 flex-1">
-                    <p className="font-medium text-xs xs:text-sm sm:text-base break-words leading-snug">{tripPlan.carRental.vehicleName}</p>
-                    <p className="text-xs text-gray-500 leading-snug">{tripPlan.carRental.company}</p>
-                    <p className="text-xs text-gray-500 leading-snug">
-                      Pickup: {safeFormatDate(tripPlan.carRental.pickupTime, "MMM d, p")}
-                    </p>
-                    <p className="text-xs text-gray-500 leading-snug">
-                      Dropoff: {safeFormatDate(tripPlan.carRental.dropoffTime, "MMM d, p")}
-                    </p>
-                    <GoogleMapsLink query={`${tripPlan.carRental.pickupLocation} ${tripDetails.destinationCity}`} />
-                  </div>
-                  <div className="flex flex-col xs:flex-row items-start xs:items-center justify-between gap-2 w-full">
+            <div className="space-y-4">
+              <h2 className="text-xl font-semibold flex items-center gap-2">
+                <Car className="h-5 w-5" /> Car Rental
+              </h2>
+              <Card>
+                <CardContent className="pt-6">
+                  <div className="flex flex-col xs:flex-row xs:items-start xs:justify-between gap-4">
+                    <div className="flex-1 min-w-0">
+                      <h3 className="font-semibold text-base xs:text-lg mb-2 break-words">{tripPlan.carRental.name}</h3>
+                      <div className="space-y-1 text-sm text-gray-600">
+                        {tripPlan.carRental.company && <p>{tripPlan.carRental.company}</p>}
+                        {tripPlan.carRental.pickupDate && tripPlan.carRental.dropoffDate && (
+                          <div>
+                            <p className="flex items-center gap-1">
+                              <Clock className="h-4 w-4" />
+                              Pickup: {safeFormatDate(tripPlan.carRental.pickupDate, "MMM d, HH:mm")}
+                            </p>
+                            <p className="flex items-center gap-1">
+                              <Clock className="h-4 w-4" />
+                              Dropoff: {safeFormatDate(tripPlan.carRental.dropoffDate, "MMM d, HH:mm")}
+                            </p>
+                          </div>
+                        )}
+                        {tripPlan.carRental.mapUrl && (
+                          <a href={tripPlan.carRental.mapUrl} target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline flex items-center gap-1">
+                            <MapPin className="h-4 w-4" /> View on Map
+                          </a>
+                        )}
+                      </div>
+                    </div>
                     <div className="flex flex-col items-start xs:items-end">
                       <p className="font-semibold text-xs xs:text-sm sm:text-base">
                         {safePrice(tripPlan.carRental.totalPrice)}
@@ -437,7 +391,7 @@ export function TripResults({
                         href={`https://www.rentalcars.com/en/search?dropoffLocation=${tripDetails.destinationCity}`}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="text-blue-600 hover:underline flex items-center text-xs mt-1 min-h-[32px] py-1"
+                        className="text-blue-700 hover:text-blue-900 hover:underline font-semibold flex items-center text-xs mt-1 min-h-[32px] py-1 px-2 rounded transition-colors"
                       >
                         <ExternalLink className="h-3 w-3 mr-1 flex-shrink-0" /> Book Now
                       </a>
@@ -463,70 +417,67 @@ export function TripResults({
           {/* Daily Itinerary */}
           {tripPlan.itinerary && tripPlan.itinerary.length > 0 ? (
             <div className="space-y-4">
-              <h3 className="text-lg font-semibold flex items-center">
-                <FileText className="mr-2 h-5 w-5 text-primary" /> Daily Itinerary
-              </h3>
+              <h2 className="text-xl font-semibold flex items-center gap-2">
+                <FileText className="h-5 w-5" /> Daily Itinerary
+              </h2>
               {tripPlan.itinerary.map((day) => (
                 <Card key={day.day}>
-                  <CardHeader>
-                    <CardTitle className="text-base">
-                      Day {day.day}{day.date ? `: ${safeFormatDate(day.date, "EEEE, MMM d")}` : ""}
+                  <CardHeader className="pb-3">
+                    <CardTitle className="text-lg">
+                      Day {day.day}: {safeFormatDate(
+                        new Date(
+                          (tripDetails.departureDate as Date).getTime() +
+                            (day.day - 1) * 24 * 60 * 60 * 1000
+                        ),
+                        "EEEE, MMM d"
+                      )}
                     </CardTitle>
                   </CardHeader>
-                  <CardContent className="space-y-3">
-                    {day.items.map((item) => (
-                      <div
-                        key={item.id}
-                        className={cn(
-                          "flex flex-col sm:flex-row sm:items-start sm:justify-between gap-3",
-                          !item.included && "opacity-50"
-                        )}
-                      >
-                        <div className="flex items-start gap-2 sm:gap-3 min-w-0 flex-1">
-                          <Clock className="h-4 w-4 text-gray-500 mt-1 flex-shrink-0" />
-                          <div className="min-w-0 flex-1">
-                            <p className="font-medium text-sm sm:text-base break-words">{item.title}</p>
-                            <p className="text-xs sm:text-sm text-gray-500">{safeString(item.time, "Time not specified")}</p>
-                            {item.description && (
-                              <p className="text-xs sm:text-sm text-gray-500 break-words">{item.description}</p>
-                            )}
-                            {item.imageUrl && (
-                              <img src={item.imageUrl} alt={item.title} className="w-20 sm:w-24 h-auto rounded-md mt-2" />
-                            )}
-                            <div className="flex flex-wrap gap-2 sm:gap-3 mt-2 text-xs sm:text-sm">
-                              <GoogleMapsLink query={`${item.title} ${tripDetails.destinationCity}`} />
-                              {item.bookingUrl && (
-                                <a
-                                  href={item.bookingUrl}
-                                  target="_blank"
-                                  rel="noopener noreferrer"
-                                  className="text-blue-600 hover:underline flex items-center"
-                                >
-                                  <ExternalLink className="h-3 w-3 mr-1" /> Book Now
-                                </a>
-                              )}
+                  <CardContent className="space-y-4">
+                    {day.items?.map((item) => (
+                      <div key={item.id} className="flex flex-col xs:flex-row xs:items-start xs:justify-between gap-3 pb-4 border-b last:border-b-0 last:pb-0">
+                        <div className="flex-1 min-w-0">
+                          <div className="flex items-start gap-2 mb-2">
+                            <Clock className="h-4 w-4 text-gray-500 flex-shrink-0 mt-0.5" />
+                            <div className="min-w-0">
+                              <p className="font-semibold text-sm xs:text-base">{item.time}</p>
+                              <p className="text-sm text-gray-600">{item.title}</p>
                             </div>
                           </div>
-                        </div>
-                        {item.cost && (
-                          <div className="flex items-center gap-2 flex-shrink-0">
-                            <p className="font-semibold text-sm sm:text-base whitespace-nowrap">
-                              {safePrice(item.cost)}
-                            </p>
-                            <Button
-                              variant="ghost"
-                              size="icon"
-                              className="h-8 w-8 sm:h-10 sm:w-10"
-                              onClick={() => onToggleItem("itinerary", item.id)}
-                            >
-                              {item.included ? (
-                                <Check className="h-4 w-4 text-green-500" />
-                              ) : (
-                                <X className="h-4 w-4 text-red-500" />
-                              )}
-                            </Button>
+                          {item.description && <p className="text-sm text-gray-600 mb-2 ml-6">{item.description}</p>}
+                          {item.imageUrl && (
+                            <img src={item.imageUrl} alt={item.title} className="h-24 w-32 object-cover rounded mb-2 ml-6" />
+                          )}
+                          <div className="flex gap-2 ml-6">
+                            {item.bookingUrl && (
+                              <a
+                                href={item.bookingUrl}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="text-blue-700 hover:text-blue-900 hover:underline font-semibold flex items-center text-xs mt-1 min-h-[32px] py-1 px-2 rounded transition-colors"
+                              >
+                                <ExternalLink className="h-3 w-3 mr-1" /> Book Now
+                              </a>
+                            )}
                           </div>
-                        )}
+                        </div>
+                        <div className="flex items-center gap-2 flex-shrink-0">
+                          <p className="font-semibold text-sm sm:text-base whitespace-nowrap">
+                            {safePrice(item.cost)}
+                          </p>
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            className="h-8 w-8 sm:h-10 sm:w-10"
+                            onClick={() => onToggleItem("itinerary", item.id)}
+                          >
+                            {item.included ? (
+                              <Check className="h-4 w-4 text-green-500" />
+                            ) : (
+                              <X className="h-4 w-4 text-red-500" />
+                            )}
+                          </Button>
+                        </div>
                       </div>
                     ))}
                   </CardContent>
@@ -534,8 +485,28 @@ export function TripResults({
               ))}
             </div>
           ) : null}
+
+          {/* Save Trip Button */}
+          <Button
+            onClick={handleSaveTrip}
+            disabled={isSaving}
+            className="w-full bg-blue-600 hover:bg-blue-700 text-white py-2 rounded"
+          >
+            {isSaving ? (
+              <>
+                <Loader2 className="h-4 w-4 mr-2 animate-spin" /> Saving...
+              </>
+            ) : (
+              <>
+                <Mail className="h-4 w-4 mr-2" /> Save Trip
+              </>
+            )}
+          </Button>
         </div>
       </CardContent>
     </Card>
   );
 }
+
+import React from "react";
+import { Calendar } from "lucide-react";

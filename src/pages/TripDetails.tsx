@@ -123,12 +123,29 @@ export default function TripDetailsPage() {
   } : undefined,
 };
 
-      // Reconstruct TripPlan
+      // ✅ FIX: Reconstruct TripPlan with proper price restoration
+      const outboundFlightItem = items.find((i: any) => i.item_type === "flight" && (i.provider_data as any)?.direction === "outbound");
+      const returnFlightItem = items.find((i: any) => i.item_type === "flight" && (i.provider_data as any)?.direction === "return");
+      const carRentalItem = items.find((i: any) => i.item_type === "car");
+      const hotelItem = items.find((i: any) => i.item_type === "hotel");
+
       const plan: TripPlan = {
-        outboundFlight: items.find((i: any) => i.item_type === "flight" && (i.provider_data as any)?.direction === "outbound")?.provider_data as any,
-        returnFlight: items.find((i: any) => i.item_type === "flight" && (i.provider_data as any)?.direction === "return")?.provider_data as any,
-        carRental: items.find((i: any) => i.item_type === "car")?.provider_data as any,
-        hotel: items.find((i: any) => i.item_type === "hotel")?.provider_data as any,
+        outboundFlight: outboundFlightItem ? {
+          ...outboundFlightItem.provider_data,
+          pricePerPerson: Number(outboundFlightItem.cost) || outboundFlightItem.provider_data?.pricePerPerson || 0,
+        } as any : undefined,
+        returnFlight: returnFlightItem ? {
+          ...returnFlightItem.provider_data,
+          pricePerPerson: Number(returnFlightItem.cost) || returnFlightItem.provider_data?.pricePerPerson || 0,
+        } as any : undefined,
+        carRental: carRentalItem ? {
+          ...carRentalItem.provider_data,
+          totalPrice: Number(carRentalItem.cost) || carRentalItem.provider_data?.totalPrice || 0,
+        } as any : undefined,
+        hotel: hotelItem ? {
+          ...hotelItem.provider_data,
+          totalPrice: Number(hotelItem.cost) || hotelItem.provider_data?.totalPrice || 0,
+        } as any : undefined,
         itinerary: [],
         totalCost: items.filter((i: any) => i.included).reduce((sum: number, i: any) => sum + Number(i.cost || 0), 0),
       };
@@ -241,8 +258,8 @@ export default function TripDetailsPage() {
   if (loading) {
     return (
       <div className="min-h-screen flex flex-col items-center justify-center bg-background">
-        <Loader2 className="h-8 w-8 animate-spin text-primary mb-4" />
-        <p className="text-muted-foreground font-body">Loading your journey...</p>
+        <Loader2 className="h-6 sm:h-8 w-6 sm:w-8 animate-spin text-primary mb-4" />
+        <p className="text-xs sm:text-base text-muted-foreground font-body">Loading your journey...</p>
       </div>
     );
   }
@@ -252,57 +269,57 @@ export default function TripDetailsPage() {
     return (
       <div className="min-h-screen flex flex-col bg-background">
         <Header />
-        <main className="flex-1 container mx-auto px-4 py-8">
-          <Button variant="ghost" onClick={() => navigate("/trips")} className="mb-6">
+        <main className="flex-1 container mx-auto px-2 sm:px-4 py-4 sm:py-8">
+          <Button variant="ghost" onClick={() => navigate("/trips")} className="mb-4 sm:mb-6 text-xs sm:text-sm">
             <ArrowLeft className="mr-2 h-4 w-4" /> Back to My Trips
           </Button>
           
           <Card className="max-w-2xl mx-auto border-primary/20 bg-gradient-to-br from-background to-muted/30">
-            <CardContent className="p-8 text-center space-y-6">
-              <div className="w-16 h-16 mx-auto rounded-full bg-primary/10 flex items-center justify-center">
-                <Sparkles className="h-8 w-8 text-primary" />
+            <CardContent className="p-4 sm:p-8 text-center space-y-4 sm:space-y-6">
+              <div className="w-12 sm:w-16 h-12 sm:h-16 mx-auto rounded-full bg-primary/10 flex items-center justify-center">
+                <Sparkles className="h-6 sm:h-8 w-6 sm:w-8 text-primary" />
               </div>
               
               <div className="space-y-2">
-                <h2 className="text-2xl font-display font-semibold text-foreground">
+                <h2 className="text-xl sm:text-2xl font-display font-semibold text-foreground">
                   Trip Preview
                 </h2>
-                <p className="text-lg text-muted-foreground">
+                <p className="text-base sm:text-lg text-muted-foreground break-words">
                   {tripRecord.origin_city} → {tripRecord.destination_city}
                 </p>
-                <p className="text-sm text-muted-foreground">
+                <p className="text-xs sm:text-sm text-muted-foreground">
                   {safeFormatDate(tripRecord.departure_date, "MMM d")} – {safeFormatDate(tripRecord.return_date, "MMM d, yyyy")}
                 </p>
               </div>
 
-              <div className="py-6 border-y border-border/50 space-y-4">
-                <p className="text-muted-foreground font-body">
+              <div className="py-4 sm:py-6 border-y border-border/50 space-y-4">
+                <p className="text-xs sm:text-base text-muted-foreground font-body">
                   This trip is a preview. Upgrade to unlock:
                 </p>
-                <div className="grid grid-cols-2 gap-3 max-w-sm mx-auto text-left">
-                  <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                    <Plane className="h-4 w-4 text-primary" />
+                <div className="grid grid-cols-2 gap-2 sm:gap-3 max-w-sm mx-auto text-left">
+                  <div className="flex items-center gap-2 text-xs sm:text-sm text-muted-foreground">
+                    <Plane className="h-4 w-4 text-primary flex-shrink-0" />
                     <span>Flight options</span>
                   </div>
-                  <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                    <Hotel className="h-4 w-4 text-primary" />
+                  <div className="flex items-center gap-2 text-xs sm:text-sm text-muted-foreground">
+                    <Hotel className="h-4 w-4 text-primary flex-shrink-0" />
                     <span>Hotel recommendations</span>
                   </div>
-                  <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                    <Car className="h-4 w-4 text-primary" />
+                  <div className="flex items-center gap-2 text-xs sm:text-sm text-muted-foreground">
+                    <Car className="h-4 w-4 text-primary flex-shrink-0" />
                     <span>Car rental deals</span>
                   </div>
-                  <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                    <MapPin className="h-4 w-4 text-primary" />
+                  <div className="flex items-center gap-2 text-xs sm:text-sm text-muted-foreground">
+                    <MapPin className="h-4 w-4 text-primary flex-shrink-0" />
                     <span>Daily itinerary</span>
                   </div>
                 </div>
               </div>
 
-              <div className="space-y-3">
+              <div className="space-y-2 sm:space-y-3">
                 <Button 
-                  size="lg" 
-                  className="w-full max-w-xs"
+                  size="sm" 
+                  className="w-full max-w-xs text-xs sm:text-sm"
                   onClick={() => navigate("/#pricing")}
                 >
                   <Sparkles className="mr-2 h-4 w-4" />
@@ -311,8 +328,8 @@ export default function TripDetailsPage() {
                 
                 <Button 
                   variant="outline" 
-                  size="lg" 
-                  className="w-full max-w-xs"
+                  size="sm" 
+                  className="w-full max-w-xs text-xs sm:text-sm"
                   onClick={sendEmail}
                   disabled={isSendingEmail || !user?.email}
                 >
@@ -344,8 +361,8 @@ export default function TripDetailsPage() {
   return (
     <div className="min-h-screen flex flex-col bg-background">
       <Header />
-      <main className="flex-1 container mx-auto px-4 py-8">
-        <Button variant="ghost" onClick={() => navigate("/trips")} className="mb-6">
+      <main className="flex-1 container mx-auto px-2 sm:px-4 py-4 sm:py-8">
+        <Button variant="ghost" onClick={() => navigate("/trips")} className="mb-4 sm:mb-6 text-xs sm:text-sm">
           <ArrowLeft className="mr-2 h-4 w-4" /> Back to My Trips
         </Button>
         {effectiveData && effectivePlan && effectiveDetails && (
