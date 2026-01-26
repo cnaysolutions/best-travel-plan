@@ -400,6 +400,10 @@ export async function generateMockTripPlan(details: TripDetails): Promise<TripPl
   const returnDate = details.returnDate || addDays(departureDate, 5);
   const tripDays = Math.ceil((returnDate.getTime() - departureDate.getTime()) / (1000 * 60 * 60 * 24)) + 1;
 
+  // ✅ FIX: Calculate total passengers from trip details
+  const totalPassengers = (details.adults || 0) + (details.children || 0) + (details.infants || 0);
+  console.log(`Total passengers: ${totalPassengers} (Adults: ${details.adults}, Children: ${details.children}, Infants: ${details.infants})`);
+
   const originCode = getAirportCode(details.departureCity);
   const destCode = getAirportCode(details.destinationCity);
 
