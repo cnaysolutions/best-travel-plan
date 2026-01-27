@@ -135,10 +135,10 @@ export function TripResults({
           flight_class: tripDetails.flightClass,
           include_hotel: tripDetails.includeHotel,
           include_car: tripDetails.includeCarRental,
-          origin_iata_code: tripDetails.departureLocation?.iataCode,
-          destination_iata_code: tripDetails.destinationLocation?.iataCode,
-          origin_country: tripDetails.departureLocation?.country,
-          destination_country: tripDetails.destinationLocation?.country,
+          origin_iata_code: tripDetails.departureLocation?.iataCode || null,
+          destination_iata_code: tripDetails.destinationLocation?.iataCode || null,
+          origin_country: tripDetails.departureLocation?.country || null,
+          destination_country: tripDetails.destinationLocation?.country || null,
         })
         .select()
         .single();
@@ -241,7 +241,7 @@ export function TripResults({
         <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
           <div>
             <CardTitle className="text-2xl sm:text-3xl mb-2">
-              Your Itinerary: {tripDetails.departureCity} ({tripDetails.departureLocation?.iataCode}) → {tripDetails.destinationCity} ({tripDetails.destinationLocation?.iataCode})
+              Your Itinerary: {tripDetails.departureCity} → {tripDetails.destinationCity}
             </CardTitle>
             <p className="text-sm text-gray-600">
               {safeFormatDate(tripDetails.departureDate, "MMM d, yyyy")} - {safeFormatDate(tripDetails.returnDate, "MMM d, yyyy")}
