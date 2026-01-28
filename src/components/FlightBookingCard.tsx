@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import type { Flight } from "@/types/trip";
 
 interface FlightBookingCardProps {
+  totalPriceOnly?: boolean;
   flight: Flight | null | undefined;
   passengers: {
     adults: number;
@@ -13,7 +14,7 @@ interface FlightBookingCardProps {
   onToggle: () => void;
 }
 
-export function FlightBookingCard({ flight, passengers, onToggle }: FlightBookingCardProps) {
+export function FlightBookingCard({ flight, passengers, onToggle, totalPriceOnly = false }: FlightBookingCardProps) {
   // If no flight data, don't render anything
   if (!flight) {
     return null;
@@ -67,6 +68,7 @@ export function FlightBookingCard({ flight, passengers, onToggle }: FlightBookin
             <p className="font-semibold text-base xs:text-lg">
               {safePrice(flight.price)}
             </p>
+            {totalPriceOnly && <p className="text-xs text-gray-500">Total price</p>}
             <a
               href="https://www.booking.com/flights"
               target="_blank"

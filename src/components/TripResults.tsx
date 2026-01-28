@@ -235,6 +235,8 @@ export function TripResults({
     }
   };
 
+  const totalPassengers = (tripDetails.passengers?.adults || 0) + (tripDetails.passengers?.children || 0);
+
   return (
     <Card className="w-full">
       <CardHeader className="bg-gradient-to-r from-blue-50 to-indigo-50">
@@ -276,6 +278,7 @@ export function TripResults({
                   flight={tripPlan.outboundFlight}
                   passengers={tripDetails.passengers}
                   onToggle={() => onToggleItem("outboundFlight", tripPlan.outboundFlight!.id)}
+                  totalPriceOnly={true}
                 />
               )}
 
@@ -284,187 +287,155 @@ export function TripResults({
                   flight={tripPlan.returnFlight}
                   passengers={tripDetails.passengers}
                   onToggle={() => onToggleItem("returnFlight", tripPlan.returnFlight!.id)}
+                  totalPriceOnly={true}
                 />
               )}
             </div>
           )}
 
           {/* Accommodation */}
-          {tripPlan.hotel ? (
-            <div className="space-y-4">
-              <h2 className="text-xl font-semibold flex items-center gap-2">
+          {tripPlan.hotel && (
+            <div>
+              <h2 className="text-xl font-semibold flex items-center gap-2 mb-4">
                 <Building2 className="h-5 w-5" /> Accommodation
               </h2>
-              <Card>
-                <CardContent className="pt-6">
-                  <div className="flex flex-col xs:flex-row xs:items-start xs:justify-between gap-4">
-                    <div className="flex-1 min-w-0">
-                      <h3 className="font-semibold text-base xs:text-lg mb-2 break-words">{tripPlan.hotel.name}</h3>
-                      <div className="space-y-1 text-sm text-gray-600">
-                        {tripPlan.hotel.rating && (
-                          <p className="flex items-center gap-1">
-                            <span className="text-yellow-500">★</span> {tripPlan.hotel.rating} • {tripPlan.hotel.distance}
-                          </p>
-                        )}
-                        {tripPlan.hotel.address && <p>{tripPlan.hotel.address}</p>}
-                        {tripPlan.hotel.checkInDate && tripPlan.hotel.checkOutDate && (
-                          <p className="flex items-center gap-1">
-                            <Calendar className="h-4 w-4" />
-                            {safeFormatDate(tripPlan.hotel.checkInDate, "MMM d")} - {safeFormatDate(tripPlan.hotel.checkOutDate, "MMM d")}
-                          </p>
-                        )}
-                        {tripPlan.hotel.mapUrl && (
-                          <a href={tripPlan.hotel.mapUrl} target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline flex items-center gap-1">
-                            <MapPin className="h-4 w-4" /> View on Map
-                          </a>
-                        )}
-                      </div>
+              <div className="border rounded-lg p-4 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+                <div className="flex-grow">
+                  <h3 className="font-semibold text-lg">{tripPlan.hotel.name}</h3>
+                  <p className="text-sm text-gray-500">{tripPlan.hotel.address}</p>
+                  <div className="flex items-center gap-2 mt-2">
+                    <div className="flex items-center text-sm text-yellow-500">
+                      {tripPlan.hotel.rating} <Star className="h-4 w-4 ml-1" />
                     </div>
-                    <div className="flex flex-col items-start xs:items-end">
-                      <p className="font-semibold text-xs xs:text-sm sm:text-base">
-                        {safePrice(tripPlan.hotel.totalPrice)}
-                      </p>
-                      <a
-                        href={`https://www.booking.com/searchresults.html?ss=${tripDetails.destinationCity}`}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="text-blue-700 hover:text-blue-900 hover:underline font-semibold flex items-center text-xs mt-1 min-h-[32px] py-1 px-2 rounded transition-colors"
-                      >
-                        <ExternalLink className="h-3 w-3 mr-1 flex-shrink-0" /> Book Now
-                      </a>
-                    </div>
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      className="h-9 w-9 xs:h-10 xs:w-10 flex-shrink-0"
-                      onClick={() => onToggleItem("hotel", tripPlan.hotel!.id)}
+                    <span className="text-sm text-gray-500">·</span>
+                    <a
+                      href={getGoogleMapsLink(tripPlan.hotel.name + ", " + tripPlan.hotel.address)}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-sm text-blue-600 hover:underline flex items-center gap-1"
                     >
-                      {tripPlan.hotel.included ? (
-                        <Check className="h-4 w-4 text-green-500" />
-                      ) : (
-                        <X className="h-4 w-4 text-red-500" />
-                      )}
-                    </Button>
+                      <MapPin className="h-4 w-4" /> View on Map
+                    </a>
                   </div>
-                </CardContent>
-              </Card>
+                </div>
+                <div className="flex items-center gap-4">
+                  <p className="font-semibold text-lg whitespace-nowrap">{safePrice(tripPlan.hotel.totalPrice)}</p>
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    className="h-8 w-8 sm:h-10 sm:w-10"
+                    onClick={() => onToggleItem("hotel", tripPlan.hotel!.id)}
+                  >
+                    {tripPlan.hotel.included ? (
+                      <Check className="h-4 w-4 text-green-500" />
+                    ) : (
+                      <X className="h-4 w-4 text-red-500" />
+                    )}
+                  </Button>
+                </div>
+              </div>
             </div>
-          ) : null}
+          )}
 
           {/* Car Rental */}
-          {tripPlan.carRental ? (
-            <div className="space-y-4">
-              <h2 className="text-xl font-semibold flex items-center gap-2">
+          {tripPlan.carRental && (
+            <div>
+              <h2 className="text-xl font-semibold flex items-center gap-2 mb-4">
                 <Car className="h-5 w-5" /> Car Rental
               </h2>
-              <Card>
-                <CardContent className="pt-6">
-                  <div className="flex flex-col xs:flex-row xs:items-start xs:justify-between gap-4">
-                    <div className="flex-1 min-w-0">
-                      <h3 className="font-semibold text-base xs:text-lg mb-2 break-words">{tripPlan.carRental.name}</h3>
-                      <div className="space-y-1 text-sm text-gray-600">
-                        {tripPlan.carRental.company && <p>{tripPlan.carRental.company}</p>}
-                        {tripPlan.carRental.pickupDate && tripPlan.carRental.dropoffDate && (
-                          <div>
-                            <p className="flex items-center gap-1">
-                              <Clock className="h-4 w-4" />
-                              Pickup: {safeFormatDate(tripPlan.carRental.pickupDate, "MMM d, HH:mm")}
-                            </p>
-                            <p className="flex items-center gap-1">
-                              <Clock className="h-4 w-4" />
-                              Dropoff: {safeFormatDate(tripPlan.carRental.dropoffDate, "MMM d, HH:mm")}
-                            </p>
-                          </div>
-                        )}
-                        {tripPlan.carRental.mapUrl && (
-                          <a href={tripPlan.carRental.mapUrl} target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline flex items-center gap-1">
-                            <MapPin className="h-4 w-4" /> View on Map
-                          </a>
-                        )}
-                      </div>
-                    </div>
-                    <div className="flex flex-col items-start xs:items-end">
-                      <p className="font-semibold text-xs xs:text-sm sm:text-base">
-                        {safePrice(tripPlan.carRental.totalPrice)}
-                      </p>
-                      <a
-                        href={`https://www.rentalcars.com/en/search?dropoffLocation=${tripDetails.destinationCity}`}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="text-blue-700 hover:text-blue-900 hover:underline font-semibold flex items-center text-xs mt-1 min-h-[32px] py-1 px-2 rounded transition-colors"
-                      >
-                        <ExternalLink className="h-3 w-3 mr-1 flex-shrink-0" /> Book Now
-                      </a>
-                    </div>
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      className="h-9 w-9 xs:h-10 xs:w-10 flex-shrink-0"
-                      onClick={() => onToggleItem("carRental", tripPlan.carRental!.id)}
-                    >
-                      {tripPlan.carRental.included ? (
-                        <Check className="h-4 w-4 text-green-500" />
-                      ) : (
-                        <X className="h-4 w-4 text-red-500" />
-                      )}
-                    </Button>
-                  </div>
-                </CardContent>
-              </Card>
+              <div className="border rounded-lg p-4 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+                <div className="flex-grow">
+                  <h3 className="font-semibold text-lg">{tripPlan.carRental.name}</h3>
+                  <p className="text-sm text-gray-500">{tripPlan.carRental.company}</p>
+                  <p className="text-sm text-gray-500">
+                    {safeFormatDate(tripPlan.carRental.pickupDate, "MMM d, yyyy")} - {safeFormatDate(tripPlan.carRental.dropoffDate, "MMM d, yyyy")}
+                  </p>
+                </div>
+                <div className="flex items-center gap-4">
+                  <p className="font-semibold text-lg whitespace-nowrap">{safePrice(tripPlan.carRental.totalPrice)}</p>
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    className="h-8 w-8 sm:h-10 sm:w-10"
+                    onClick={() => onToggleItem("carRental", tripPlan.carRental!.id)}
+                  >
+                    {tripPlan.carRental.included ? (
+                      <Check className="h-4 w-4 text-green-500" />
+                    ) : (
+                      <X className="h-4 w-4 text-red-500" />
+                    )}
+                  </Button>
+                </div>
+              </div>
             </div>
-          ) : null}
+          )}
 
           {/* Daily Itinerary */}
           {tripPlan.itinerary && tripPlan.itinerary.length > 0 ? (
-            <div className="space-y-4">
-              <h2 className="text-xl font-semibold flex items-center gap-2">
-                <FileText className="h-5 w-5" /> Daily Itinerary
+            <div>
+              <h2 className="text-xl font-semibold flex items-center gap-2 mb-4">
+                <MapPin className="h-5 w-5" /> Daily Itinerary
               </h2>
-              {tripPlan.itinerary.map((day) => (
-                <Card key={day.day}>
-                  <CardHeader className="pb-3">
+              {tripPlan.itinerary.map((day, index) => (
+                <Card key={index} className="mb-6">
+                  <CardHeader>
                     <CardTitle className="text-lg">
-                      Day {day.day}: {safeFormatDate(
-                        new Date(
-                          (tripDetails.departureDate as Date).getTime() +
-                            (day.day - 1) * 24 * 60 * 60 * 1000
-                        ),
-                        "EEEE, MMM d"
-                      )}
+                      Day {day.day}: {safeFormatDate(day.date, "EEEE, MMMM d")}
                     </CardTitle>
                   </CardHeader>
-                  <CardContent className="space-y-4">
-                    {day.items?.map((item) => (
-                      <div key={item.id} className="flex flex-col xs:flex-row xs:items-start xs:justify-between gap-3 pb-4 border-b last:border-b-0 last:pb-0">
-                        <div className="flex-1 min-w-0">
-                          <div className="flex items-start gap-2 mb-2">
-                            <Clock className="h-4 w-4 text-gray-500 flex-shrink-0 mt-0.5" />
-                            <div className="min-w-0">
-                              <p className="font-semibold text-sm xs:text-base">{item.time}</p>
-                              <p className="text-sm text-gray-600">{item.title}</p>
-                            </div>
+                  <CardContent>
+                    {day.items.map((item) => (
+                      <div
+                        key={item.id}
+                        className="flex flex-col sm:flex-row items-start gap-4 border-b last:border-b-0 py-4"
+                      >
+                        {item.imageUrl && (
+                          <img
+                            src={item.imageUrl}
+                            alt={item.title}
+                            className="w-full sm:w-32 h-32 object-cover rounded-lg"
+                          />
+                        )}
+                        <div className="flex-grow">
+                          <div className="flex items-center gap-2 text-sm text-gray-500 mb-1">
+                            <Clock className="h-4 w-4" />
+                            <span>{item.time}</span>
                           </div>
-                          {item.description && <p className="text-sm text-gray-600 mb-2 ml-6">{item.description}</p>}
-                          {item.imageUrl && (
-                            <img src={item.imageUrl} alt={item.title} className="h-24 w-32 object-cover rounded mb-2 ml-6" />
-                          )}
-                          <div className="flex gap-2 ml-6">
+                          <h3 className="font-semibold text-lg mb-1">{item.title}</h3>
+                          <p className="text-sm text-gray-600 mb-2">{item.description}</p>
+                          <div className="flex items-center gap-2">
                             {item.bookingUrl && (
                               <a
                                 href={item.bookingUrl}
                                 target="_blank"
                                 rel="noopener noreferrer"
-                                className="text-blue-700 hover:text-blue-900 hover:underline font-semibold flex items-center text-xs mt-1 min-h-[32px] py-1 px-2 rounded transition-colors"
+                                className="text-sm text-blue-600 hover:underline flex items-center gap-1"
                               >
-                                <ExternalLink className="h-3 w-3 mr-1" /> Book Now
+                                <ExternalLink className="h-4 w-4" /> Book Now
+                              </a>
+                            )}
+                            {item.bookingUrl && item.googleMapsUrl && <span className="text-sm text-gray-500">·</span>}
+                            {item.googleMapsUrl && (
+                              <a
+                                href={item.googleMapsUrl}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="text-sm text-blue-600 hover:underline flex items-center gap-1"
+                              >
+                                <MapPin className="h-4 w-4" /> View on Map
                               </a>
                             )}
                           </div>
                         </div>
-                        <div className="flex items-center gap-2 flex-shrink-0">
-                          <p className="font-semibold text-sm sm:text-base whitespace-nowrap">
-                            {safePrice(item.costPerPerson)}<span class=\"text-xs text-gray-500 ml-1\">/ person</span>
-                          </p>
+                        <div className="flex items-center gap-4 self-start sm:self-center">
+                          <div className="text-right">
+                            <p className="font-semibold text-sm sm:text-base whitespace-nowrap">
+                              {safePrice(item.costPerPerson)} <span className="text-xs text-gray-500">/ person</span>
+                            </p>
+                            <p className="text-xs text-gray-500 whitespace-nowrap">
+                              {safePrice((item.costPerPerson || 0) * totalPassengers)} total
+                            </p>
+                          </div>
                           <Button
                             variant="ghost"
                             size="icon"
