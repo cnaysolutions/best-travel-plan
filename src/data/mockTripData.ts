@@ -1,6 +1,7 @@
 import type { TripPlan, TripDetails } from "@/types/trip";
 import { addDays, format } from "date-fns";
 import { supabase } from "@/integrations/supabase/client";
+import type { TripPlan } from "@/types/trip";
 
 // Helper function to fetch real photos from Pexels API (FREE - already working!)
 async function fetchPlacePhoto(placeName: string, city: string): Promise<string | null> {
@@ -274,6 +275,98 @@ function getRandomPrice(min: number, max: number): number {
   return Math.floor(Math.random() * (max - min + 1)) + min;
 }
 
+// Cost-of-living index for cities (based on Kaggle data)
+// Index: 10 = very cheap (India), 20 = moderate (Brazil), 30+ = expensive (Western Europe, Japan)
+const cityPricingIndex: Record<string, number> = {
+  // Very Cheap (5-10)
+  "Dhaka": 5.5,
+  "Karachi": 5.7,
+  "Mumbai": 9.9,
+  "Delhi": 10.8,
+  "Kolkata": 5.9,
+  "Bangalore": 10.8,
+  "Bangkok": 12.0,
+  "Jakarta": 10.1,
+  "Ho Chi Minh City": 8.5,
+  "Manila": 9.2,
+  
+  // Budget-Friendly (10-15)
+  "Cairo": 10.0,
+  "Mexico City": 20.1,
+  "Rio de Janeiro": 19.1,
+  "Buenos Aires": 18.0,
+  "Istanbul": 14.5,
+  "Prague": 14.0,
+  "Budapest": 13.5,
+  "Warsaw": 12.0,
+  "Bucharest": 11.5,
+  "Sofia": 11.0,
+  "Belgrade": 12.5,
+  
+  // Moderate (15-25)
+  "Barcelona": 21.0,
+  "Madrid": 19.5,
+  "Rome": 20.0,
+  "Athens": 15.5,
+  "Lisbon": 16.0,
+  "Dublin": 22.0,
+  "Berlin": 18.0,
+  "Vienna": 19.0,
+  "Singapore": 24.0,
+  "Seoul": 20.7,
+  "Dubai": 25.0,
+  "Tel Aviv": 23.0,
+  
+  // Expensive (25-35)
+  "Paris": 25.0,
+  "London": 26.0,
+  "Amsterdam": 24.0,
+  "Copenhagen": 26.0,
+  "Stockholm": 27.0,
+  "Oslo": 28.0,
+  "Zurich": 30.0,
+  "Geneva": 31.0,
+  "Tokyo": 20.7,
+  "Hong Kong": 23.0,
+  "Sydney": 24.0,
+  "Melbourne": 23.0,
+  "Toronto": 22.0,
+  "New York": 27.0,
+  "Los Angeles": 25.0,
+  "Miami": 24.0,
+  "Moscow": 31.5,
+  "Helsinki": 26.0,
+  "Auckland": 23.0,
+  "Cape Town": 18.0,
+};
+
+// Get cost-of-living multiplier for a city
+function getCostMultiplier(city: string): number {
+  const cityName = city.includes(',') ? city.split(',')[0].trim() : city;
+  const index = cityPricingIndex[cityName];
+  if (!index) {
+    console.warn(`Cost index not found for ${cityName}, using default 20`);
+    return 1.0; // Default multiplier
+  }
+  // Normalize to Brussels (index ~20) as baseline
+  return index / 20;
+}
+
+// Get dynamic meal prices based on city
+function getMealPrice(mealType: string, city: string): number {
+  const multiplier = getCostMultiplier(city);
+  
+  // Base prices (for Brussels/moderate cities)
+  const basePrices: Record<string, number> = {
+    breakfast: 15,  // €15 base
+    lunch: 25,      // €25 base
+    dinner: 35,     // €35 base
+  };
+  
+  const basePrice = basePrices[mealType] || 25;
+  return Math.round(basePrice * multiplier);
+}
+
 // Get realistic attraction price based on category
 function getAttractionPrice(category: string, rating: number): number {
   const categoryLower = (category || "").toLowerCase();
@@ -395,7 +488,13 @@ function getMealImage(mealType: string, dayIndex: number): string {
   return lunchImages[dayIndex % lunchImages.length];
 }
 
-export async function generateMockTripPlan(details: TripDetails): Promise<TripPlan> {
+// Helper function to generate Google Maps URL
+function getGoogleMapsLink(locationQuery: string): string {
+  const encodedLocation = encodeURIComponent(locationQuery);
+  return `https://www.google.com/maps/search/${encodedLocation}`;
+}
+
+export async function generateMockTripPlan(details: any): Promise<TripPlan> {
   const departureDate = details.departureDate || new Date();
   const returnDate = details.returnDate || addDays(departureDate, 5);
   const tripDays = Math.ceil((returnDate.getTime() - departureDate.getTime()) / (1000 * 60 * 60 * 24)) + 1;
@@ -460,16 +559,19 @@ export async function generateMockTripPlan(details: TripDetails): Promise<TripPl
       });
     }
 
-    // ✅ ADD BREAKFAST (08:00) for all days
+    // ✅ ADD BREAKFAST (08:00) for all days with dynamic pricing
+    const breakfastPrice = getMealPrice("breakfast", details.destinationCity);
     dayItems.push({
       id: `day${day}-breakfast`,
       title: `Breakfast at ${details.destinationCity}`,
       description: "Start your day with a delicious local breakfast",
       time: "08:00",
       type: "meal",
-      cost: 25 * totalPassengers, costPerPerson: 25, // ✅ Add cost per person
+      cost: breakfastPrice * totalPassengers, costPerPerson: breakfastPrice,
       included: true,
       imageUrl: getMealImage("breakfast", day - 1),
+      googleMapsUrl: getGoogleMapsLink(`breakfast restaurant ${details.destinationCity}`),
+      bookingUrl: `https://www.google.com/maps/search/breakfast+restaurant+${encodeURIComponent(details.destinationCity)}`,
     });
 
     // Add 2-3 attractions per day
@@ -498,36 +600,44 @@ export async function generateMockTripPlan(details: TripDetails): Promise<TripPl
         description: attraction.description || `Explore this ${attraction.category} in ${details.destinationCity}`,
         time: `${hour.toString().padStart(2, "0")}:00`,
         type: "attraction",
-        cost: attractionCost, costPerPerson: attractionCostPerPerson, // ✅ Add cost per person
+        cost: attractionCost, costPerPerson: attractionCostPerPerson,
         included: true,
         imageUrl: attraction.imageUrl,
         distance: idx > 0 ? "2.5 km" : undefined,
         duration: "2h",
+        googleMapsUrl: getGoogleMapsLink(attraction.name + " " + details.destinationCity),
+        bookingUrl: `https://www.google.com/maps/search/${encodeURIComponent(attraction.name + " " + details.destinationCity)}`,
       });
     });
 
-    // ✅ ADD LUNCH (12:00) for all days
+    // ✅ ADD LUNCH (12:00) for all days with dynamic pricing
+    const lunchPrice = getMealPrice("lunch", details.destinationCity);
     dayItems.push({
       id: `day${day}-lunch`,
       title: `Lunch at ${details.destinationCity}`,
       description: "Enjoy a memorable dining experience",
       time: "12:00",
       type: "meal",
-      cost: 45 * totalPassengers, costPerPerson: 45, // ✅ Add cost per person
+      cost: lunchPrice * totalPassengers, costPerPerson: lunchPrice,
       included: true,
       imageUrl: getMealImage("lunch", day - 1),
+      googleMapsUrl: getGoogleMapsLink(`restaurant ${details.destinationCity}`),
+      bookingUrl: `https://www.google.com/maps/search/restaurant+${encodeURIComponent(details.destinationCity)}`,
     });
 
-    // ✅ ADD DINNER (19:00) for all days
+    // ✅ ADD DINNER (19:00) for all days with dynamic pricing
+    const dinnerPrice = getMealPrice("dinner", details.destinationCity);
     dayItems.push({
       id: `day${day}-dinner`,
       title: `Dinner at ${details.destinationCity}`,
       description: "Savor authentic local flavors",
       time: "19:00",
       type: "meal",
-      cost: 55 * totalPassengers, costPerPerson: 55, // ✅ Add cost per person
+      cost: dinnerPrice * totalPassengers, costPerPerson: dinnerPrice,
       included: true,
       imageUrl: getMealImage("dinner", day - 1),
+      googleMapsUrl: getGoogleMapsLink(`fine dining restaurant ${details.destinationCity}`),
+      bookingUrl: `https://www.google.com/maps/search/restaurant+${encodeURIComponent(details.destinationCity)}`,
     });
 
     // Last day: departure
