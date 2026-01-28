@@ -1,7 +1,25 @@
-import type { TripPlan, TripDetails } from "@/types/trip";
 import { addDays, format } from "date-fns";
 import { supabase } from "@/integrations/supabase/client";
 import type { TripPlan } from "@/types/trip";
+
+// Helper function to fetch real photos from Pexels API
+async function fetchPexelsImage(query: string, city: string): Promise<string | null> {
+  try {
+    const { data, error } = await supabase.functions.invoke("get-pexels-image", {
+      body: { query, city },
+    });
+
+    if (error) {
+      console.error(`Error fetching Pexels image for "${query}":`, error);
+      return null;
+    }
+
+    return data?.imageUrl || null;
+  } catch (error) {
+    console.error(`Exception fetching Pexels image for "${query}":`, error);
+    return null;
+  }
+}
 
 // Helper function to fetch real photos from Pexels API (FREE - already working!)
 async function fetchPlacePhoto(placeName: string, city: string): Promise<string | null> {
@@ -99,220 +117,370 @@ function getFallbackAttractions(city: string, count: number) {
       names: ["Local Restaurant", "Traditional Cuisine", "Rooftop Dining", "Waterfront Restaurant", "Gourmet Experience"],
       descriptions: ["Savor authentic local flavors", "Enjoy a memorable dining experience", "Taste the best of local cuisine"],
       images: [
-        "https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?auto=format&fit=crop&w=800&q=80",
         "https://images.unsplash.com/photo-1414235077428-338989a2e8c0?auto=format&fit=crop&w=800&q=80",
-        "https://images.unsplash.com/photo-1559339352-11d035aa65de?auto=format&fit=crop&w=800&q=80",
-      ],
-    },
-    {
-      category: "cultural",
-      names: ["Cultural Center", "Theater District", "Music Hall", "Performance Venue", "Arts Quarter"],
-      descriptions: ["Immerse yourself in local culture", "Experience performing arts", "Discover cultural traditions"],
-      images: [
-        "https://images.unsplash.com/photo-1503095396549-807759245b35?auto=format&fit=crop&w=800&q=80",
-        "https://images.unsplash.com/photo-1514306191717-452ec28c7814?auto=format&fit=crop&w=800&q=80",
-        "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=800&q=80",
+        "https://images.unsplash.com/photo-1504674900247-0877df9cc836?auto=format&fit=crop&w=800&q=80",
+        "https://images.unsplash.com/photo-1546069901-ba9599a7e63c?auto=format&fit=crop&w=800&q=80",
       ],
     },
   ];
 
   const attractions = [];
-  for (let i = 0; i < count; i++ ) {
-    const typeIndex = i % fallbackAttractionTypes.length;
-    const type = fallbackAttractionTypes[typeIndex];
-    const nameIndex = Math.floor(i / fallbackAttractionTypes.length) % type.names.length;
-    const descIndex = i % type.descriptions.length;
-    const imgIndex = i % type.images.length;
-
+  for (let i = 0; i < count; i++) {
+    const type = fallbackAttractionTypes[i % fallbackAttractionTypes.length];
     attractions.push({
-      name: `${type.names[nameIndex]} of ${city}`,
-      description: type.descriptions[descIndex],
+      name: type.names[i % type.names.length],
+      description: type.descriptions[i % type.descriptions.length],
       category: type.category,
-      rating: 6 + (i % 3), // Rating between 6-8
-      imageUrl: type.images[imgIndex],
+      rating: 7 + Math.random() * 2, // 7-9 rating
+      imageUrl: type.images[i % type.images.length],
     });
   }
 
   return attractions;
 }
-// City coordinates for OpenTripMap API
-const cityCoordinates: Record<string, { lat: number; lon: number }> = {
-  // Europe
-  Paris: { lat: 48.8566, lon: 2.3522 },
-  Barcelona: { lat: 41.3874, lon: 2.1686 },
-  Rome: { lat: 41.9028, lon: 12.4964 },
-  London: { lat: 51.5074, lon: -0.1278 },
-  Amsterdam: { lat: 52.3676, lon: 4.9041 },
-  Berlin: { lat: 52.52, lon: 13.405 },
-  Madrid: { lat: 40.4168, lon: -3.7038 },
-  Prague: { lat: 50.0755, lon: 14.4378 },
-  Vienna: { lat: 48.2082, lon: 16.3738 },
-  Athens: { lat: 37.9838, lon: 23.7275 },
 
-  // Asia
-  Tokyo: { lat: 35.6762, lon: 139.6503 },
-  Dubai: { lat: 25.2048, lon: 55.2708 },
-  Bangkok: { lat: 13.7563, lon: 100.5018 },
-  Singapore: { lat: 1.3521, lon: 103.8198 },
-  "Hong Kong": { lat: 22.3193, lon: 114.1694 },
-  Seoul: { lat: 37.5665, lon: 126.978 },
-  Istanbul: { lat: 41.0082, lon: 28.9784 },
-
-  // Americas
-  "New York": { lat: 40.7128, lon: -74.006 },
-  "Los Angeles": { lat: 34.0522, lon: -118.2437 },
-  Miami: { lat: 25.7617, lon: -80.1918 },
-  Toronto: { lat: 43.6532, lon: -79.3832 },
-  "Mexico City": { lat: 19.4326, lon: -99.1332 },
-  "Rio de Janeiro": { lat: -22.9068, lon: -43.1729 },
-  "Buenos Aires": { lat: -34.6037, lon: -58.3816 },
-
-  // Oceania
-  Sydney: { lat: -33.8688, lon: 151.2093 },
-  Melbourne: { lat: -37.8136, lon: 144.9631 },
-  Auckland: { lat: -36.8485, lon: 174.7633 },
-
-  // Africa & Middle East
-  Cairo: { lat: 30.0444, lon: 31.2357 },
-  "Cape Town": { lat: -33.9249, lon: 18.4241 },
-  "Tel Aviv": { lat: 32.0853, lon: 34.7818 },
-};
-
+// City coordinates for fetching attractions
 function getCityCoordinates(city: string): { lat: number; lon: number } | null {
-  // Strip country name if present (e.g., "Barcelona, Spain" -> "Barcelona")
-  const cityName = city.includes(',') ? city.split(',')[0].trim() : city;
-  
-  // Try exact match first
-  if (cityCoordinates[cityName]) {
-    return cityCoordinates[cityName];
-  }
-
-  // Try case-insensitive match
-  const cityLower = cityName.toLowerCase();
-  for (const [key, coords] of Object.entries(cityCoordinates)) {
-    if (key.toLowerCase() === cityLower) {
-      return coords;
-    }
-  }
-
-  // Default to Paris if not found
-  console.warn(`Coordinates not found for ${cityName}, using Paris as default`);
-  return cityCoordinates["Paris"];
-}
-
-function getAirportCode(city: string): string {
-  // Strip country name if present (e.g., "Madrid, Spain" -> "Madrid")
-  const cityName = city.includes(',') ? city.split(',')[0].trim() : city;
-  
-  const codes: Record<string, string> = {
-    Paris: "CDG",
-    Barcelona: "BCN",
-    Rome: "FCO",
-    London: "LHR",
-    Amsterdam: "AMS",
-    Berlin: "BER",
-    Madrid: "MAD",
-    Prague: "PRG",
-    Vienna: "VIE",
-    Athens: "ATH",
-    Tokyo: "NRT",
-    Dubai: "DXB",
-    Bangkok: "BKK",
-    Singapore: "SIN",
-    "Hong Kong": "HKG",
-    Seoul: "ICN",
-    Istanbul: "IST",
-    "New York": "JFK",
-    "Los Angeles": "LAX",
-    Miami: "MIA",
-    Toronto: "YYZ",
-    "Mexico City": "MEX",
-    "Rio de Janeiro": "GIG",
-    "Buenos Aires": "EZE",
-    Sydney: "SYD",
-    Melbourne: "MEL",
-    Auckland: "AKL",
-    Cairo: "CAI",
-    "Cape Town": "CPT",
-    "Tel Aviv": "TLV",
-    Frankfurt: "FRA",
-    Munich: "MUC",
-    Lisbon: "LIS",
-    Dublin: "DUB",
-    Brussels: "BRU",
-    Zurich: "ZRH",
-    Geneva: "GVA",
-    Copenhagen: "CPH",
-    Stockholm: "ARN",
-    Oslo: "OSL",
-    Helsinki: "HEL",
-    Warsaw: "WAW",
-    Budapest: "BUD",
-    Bucharest: "OTP",
-    Sofia: "SOF",
-    Zagreb: "ZAG",
-    Belgrade: "BEG",
+  const cityCoords: Record<string, { lat: number; lon: number }> = {
+    "Paris": { lat: 48.8566, lon: 2.3522 },
+    "London": { lat: 51.5074, lon: -0.1278 },
+    "Barcelona": { lat: 41.3851, lon: 2.1734 },
+    "Rome": { lat: 41.9028, lon: 12.4964 },
+    "Madrid": { lat: 40.4168, lon: -3.7038 },
+    "Amsterdam": { lat: 52.3676, lon: 4.9041 },
+    "Berlin": { lat: 52.52, lon: 13.405 },
+    "Vienna": { lat: 48.2082, lon: 16.3738 },
+    "Prague": { lat: 50.0755, lon: 14.4378 },
+    "Dublin": { lat: 53.3498, lon: -6.2603 },
+    "Brussels": { lat: 50.8503, lon: 4.3517 },
+    "Lisbon": { lat: 38.7223, lon: -9.1393 },
+    "Athens": { lat: 37.9838, lon: 23.7275 },
+    "Istanbul": { lat: 41.0082, lon: 28.9784 },
+    "Bangkok": { lat: 13.7563, lon: 100.5018 },
+    "Singapore": { lat: 1.3521, lon: 103.8198 },
+    "Hong Kong": { lat: 22.3193, lon: 114.1694 },
+    "Tokyo": { lat: 35.6762, lon: 139.6503 },
+    "Seoul": { lat: 37.5665, lon: 126.978 },
+    "Dubai": { lat: 25.2048, lon: 55.2708 },
+    "New York": { lat: 40.7128, lon: -74.006 },
+    "Los Angeles": { lat: 34.0522, lon: -118.2437 },
+    "San Francisco": { lat: 37.7749, lon: -122.4194 },
+    "Las Vegas": { lat: 36.1699, lon: -115.1398 },
+    "Miami": { lat: 25.7617, lon: -80.1918 },
+    "Sydney": { lat: -33.8688, lon: 151.2093 },
+    "Melbourne": { lat: -37.8136, lon: 144.9631 },
+    "Toronto": { lat: 43.6532, lon: -79.3832 },
+    "Vancouver": { lat: 49.2827, lon: -123.1207 },
+    "Mexico City": { lat: 19.4326, lon: -99.1332 },
+    "Cancun": { lat: 21.1619, lon: -87.0385 },
+    "Rio de Janeiro": { lat: -22.9068, lon: -43.1729 },
+    "Buenos Aires": { lat: -34.6037, lon: -58.3816 },
+    "Lima": { lat: -12.0464, lon: -77.0428 },
+    "Bangalore": { lat: 12.9716, lon: 77.5946 },
+    "Mumbai": { lat: 19.0760, lon: 72.8777 },
+    "Delhi": { lat: 28.7041, lon: 77.1025 },
+    "Jaipur": { lat: 26.9124, lon: 75.7873 },
+    "Goa": { lat: 15.4909, lon: 73.8278 },
+    "Dubrovnik": { lat: 42.6426, lon: 18.1092 },
+    "Venice": { lat: 45.4408, lon: 12.3155 },
+    "Florence": { lat: 43.7695, lon: 11.2558 },
+    "Milan": { lat: 45.4642, lon: 9.1900 },
+    "Naples": { lat: 40.8518, lon: 14.2681 },
+    "Krakow": { lat: 50.0647, lon: 19.9450 },
+    "Warsaw": { lat: 52.2297, lon: 21.0122 },
+    "Budapest": { lat: 47.4979, lon: 19.0402 },
+    "Hanoi": { lat: 21.0285, lon: 105.8542 },
+    "Ho Chi Minh City": { lat: 10.7769, lon: 106.7009 },
+    "Chiang Mai": { lat: 18.7883, lon: 98.9853 },
+    "Phuket": { lat: 8.1047, lon: 98.3091 },
+    "Bali": { lat: -8.6705, lon: 115.2126 },
+    "Jakarta": { lat: -6.2088, lon: 106.8456 },
+    "Manila": { lat: 14.5994, lon: 120.9842 },
+    "Kuala Lumpur": { lat: 3.1390, lon: 101.6869 },
+    "Yangon": { lat: 16.8661, lon: 96.1951 },
+    "Phnom Penh": { lat: 11.5564, lon: 104.9282 },
+    "Cairo": { lat: 30.0444, lon: 31.2357 },
+    "Marrakech": { lat: 31.6295, lon: -8.0088 },
+    "Cape Town": { lat: -33.9249, lon: 18.4241 },
+    "Johannesburg": { lat: -26.2023, lon: 28.0436 },
+    "Lagos": { lat: 6.5244, lon: 3.3792 },
+    "Nairobi": { lat: -1.2865, lon: 36.8172 },
+    "Moscow": { lat: 55.7558, lon: 37.6173 },
+    "St. Petersburg": { lat: 59.9311, lon: 30.3609 },
+    "Istanbul": { lat: 41.0082, lon: 28.9784 },
+    "Ankara": { lat: 39.9334, lon: 32.8597 },
+    "Tel Aviv": { lat: 32.0853, lon: 34.7818 },
+    "Jerusalem": { lat: 31.7683, lon: 35.2137 },
+    "Amman": { lat: 31.9454, lon: 35.9284 },
+    "Beirut": { lat: 33.8886, lon: 35.4955 },
+    "Dubai": { lat: 25.2048, lon: 55.2708 },
+    "Abu Dhabi": { lat: 24.4539, lon: 54.3773 },
+    "Doha": { lat: 25.2854, lon: 51.5310 },
+    "Riyadh": { lat: 24.7136, lon: 46.6753 },
+    "Jeddah": { lat: 21.5433, lon: 39.1727 },
   };
 
-  // Try exact match first
-  if (codes[cityName]) {
-    return codes[cityName];
+  const coords = cityCoords[city];
+  if (!coords) {
+    console.warn(`Coordinates not found for ${city}, using Paris as default`);
+    return cityCoords["Paris"];
   }
-
-  // Try case-insensitive match
-  const cityLower = cityName.toLowerCase();
-  for (const [key, code] of Object.entries(codes)) {
-    if (key.toLowerCase() === cityLower) {
-      return code;
-    }
-  }
-
-  return "XXX";
+  return coords;
 }
 
-// Helper to get random price within a range
-function getRandomPrice(min: number, max: number): number {
-  return Math.floor(Math.random() * (max - min + 1)) + min;
+// Get airport code for a city
+function getAirportCode(city: string): string {
+  const airportCodes: Record<string, string> = {
+    "Paris": "CDG",
+    "London": "LHR",
+    "Barcelona": "BCN",
+    "Rome": "FCO",
+    "Madrid": "MAD",
+    "Amsterdam": "AMS",
+    "Berlin": "BER",
+    "Vienna": "VIE",
+    "Prague": "PRG",
+    "Dublin": "DUB",
+    "Brussels": "BRU",
+    "Lisbon": "LIS",
+    "Athens": "ATH",
+    "Istanbul": "IST",
+    "Bangkok": "BKK",
+    "Singapore": "SIN",
+    "Hong Kong": "HKG",
+    "Tokyo": "NRT",
+    "Seoul": "ICN",
+    "Dubai": "DXB",
+    "New York": "JFK",
+    "Los Angeles": "LAX",
+    "San Francisco": "SFO",
+    "Las Vegas": "LAS",
+    "Miami": "MIA",
+    "Sydney": "SYD",
+    "Melbourne": "MEL",
+    "Toronto": "YYZ",
+    "Vancouver": "YVR",
+    "Mexico City": "MEX",
+    "Cancun": "CUN",
+    "Rio de Janeiro": "GIG",
+    "Buenos Aires": "EZE",
+    "Lima": "LIM",
+    "Bangalore": "BLR",
+    "Mumbai": "BOM",
+    "Delhi": "DEL",
+    "Jaipur": "JAI",
+    "Goa": "GOI",
+    "Dubrovnik": "DBV",
+    "Venice": "VCE",
+    "Florence": "FLR",
+    "Milan": "MXP",
+    "Naples": "NAP",
+    "Krakow": "KRK",
+    "Warsaw": "WAW",
+    "Budapest": "BUD",
+    "Hanoi": "HAN",
+    "Ho Chi Minh City": "SGN",
+    "Chiang Mai": "CNX",
+    "Phuket": "HKT",
+    "Bali": "DPS",
+    "Jakarta": "CGK",
+    "Manila": "MNL",
+    "Kuala Lumpur": "KUL",
+    "Yangon": "RGN",
+    "Phnom Penh": "PNH",
+    "Cairo": "CAI",
+    "Marrakech": "RAK",
+    "Cape Town": "CPT",
+    "Johannesburg": "JNB",
+    "Lagos": "LOS",
+    "Nairobi": "NBO",
+    "Moscow": "SVO",
+    "St. Petersburg": "LED",
+    "Tel Aviv": "TLV",
+    "Jerusalem": "JRS",
+    "Amman": "AMM",
+    "Beirut": "BEY",
+    "Abu Dhabi": "AUH",
+    "Doha": "DOH",
+    "Riyadh": "RYD",
+    "Jeddah": "JED",
+  };
+
+  return airportCodes[city] || "XXX";
 }
 
-// Cost-of-living index for cities (based on Kaggle data)
-// Index: 10 = very cheap (India), 20 = moderate (Brazil), 30+ = expensive (Western Europe, Japan)
+// City pricing index (cost-of-living multiplier)
 const cityPricingIndex: Record<string, number> = {
-  // Very Cheap (5-10)
-  "Dhaka": 5.5,
-  "Karachi": 5.7,
-  "Mumbai": 9.9,
-  "Delhi": 10.8,
-  "Kolkata": 5.9,
-  "Bangalore": 10.8,
-  "Bangkok": 12.0,
+  // Budget-friendly (5-10)
+  "Bangalore": 9.0,
+  "Mumbai": 9.5,
+  "Delhi": 8.5,
+  "Jaipur": 9.0,
+  "Goa": 10.0,
+  "Kochi": 9.5,
+  "Thiruvananthapuram": 9.0,
+  "Amritsar": 8.5,
+  "Varanasi": 8.0,
+  "Agra": 8.5,
+  "Shimla": 9.0,
+  "Manali": 9.5,
+  "Darjeeling": 8.5,
+  "Leh": 10.0,
+  "Srinagar": 9.0,
+  "Jodhpur": 8.5,
+  "Udaipur": 9.0,
+  "Pushkar": 8.0,
+  "Rishikesh": 8.5,
+  "Haridwar": 8.0,
+  "Mussoorie": 9.5,
+  "Nainital": 9.0,
+  "Almora": 8.0,
+  "Ranikhet": 8.5,
+  "Auli": 9.0,
+  "Kasol": 8.5,
+  "Kufri": 9.0,
+  "Dalhousie": 8.5,
+  "Dharamshala": 8.5,
+  "McLeod Ganj": 8.5,
+  "Tso Moriri": 9.0,
+  "Tso Kar": 9.0,
+  "Pangong": 9.5,
+  "Khardung La": 9.5,
+  "Nubra": 9.0,
+  "Diskit": 9.0,
+  "Hunder": 9.0,
+  "Turtuk": 9.0,
+  "Lamayuru": 9.0,
+  "Alchi": 9.0,
+  "Basgo": 9.0,
+  "Likir": 9.0,
+  "Spituk": 9.0,
+  "Hemis": 9.0,
+  "Thiksey": 9.0,
+  "Shey": 9.0,
+  "Stok": 9.0,
+  "Matho": 9.0,
+  "Choglamsar": 9.0,
+  "Khaltse": 9.0,
+  "Saspol": 9.0,
+  "Temisgam": 9.0,
+  "Sumur": 9.0,
+  "Panamik": 9.0,
+  "Bogdang": 9.0,
+  "Durbuk": 9.0,
+  "Tangtse": 9.0,
+  "Chushul": 9.0,
+  "Hanle": 9.0,
+  "Tso Kiagar": 9.0,
+  "Bangkok": 11.0,
+  "Chiang Mai": 9.0,
+  "Phuket": 11.5,
+  "Bali": 10.0,
   "Jakarta": 10.1,
-  "Ho Chi Minh City": 8.5,
-  "Manila": 9.2,
+  "Yangon": 7.5,
+  "Mandalay": 7.0,
+  "Phnom Penh": 8.0,
+  "Hanoi": 9.0,
+  "Ho Chi Minh City": 9.5,
+  "Kuala Lumpur": 13.0,
+  "Penang": 11.0,
   
-  // Budget-Friendly (10-15)
-  "Cairo": 10.0,
-  "Mexico City": 20.1,
-  "Rio de Janeiro": 19.1,
-  "Buenos Aires": 18.0,
-  "Istanbul": 14.5,
+  // Moderate (10-20)
+  "Brussels": 20.0,
   "Prague": 14.0,
   "Budapest": 13.5,
-  "Warsaw": 12.0,
-  "Bucharest": 11.5,
-  "Sofia": 11.0,
-  "Belgrade": 12.5,
+  "Warsaw": 12.5,
+  "Krakow": 12.5,
+  "Wroclaw": 12.0,
+  "Gdansk": 12.5,
+  "Riga": 12.0,
+  "Tallinn": 13.0,
+  "Vilnius": 12.5,
+  "Minsk": 11.0,
+  "Almaty": 11.5,
+  "Astana": 12.0,
+  "Tashkent": 10.5,
+  "Bishkek": 9.5,
+  "Ulaanbaatar": 11.0,
+  "Da Nang": 8.5,
+  "Saigon": 9.5,
+  "Siem Reap": 8.5,
+  "Cebu": 9.0,
+  "Davao": 8.5,
+  "Boracay": 10.5,
+  "Lahore": 8.5,
+  "Islamabad": 9.0,
+  "Rawalpindi": 8.5,
+  "Hyderabad": 9.5,
+  "Chennai": 9.0,
+  "Pune": 10.0,
+  "Ahmedabad": 9.5,
+  "Lucknow": 8.5,
+  "Marrakech": 14.0,
+  "Cairo": 10.0,
+  "Lisbon": 15.0,
+  "Athens": 14.0,
+  "Istanbul": 15.0,
   
-  // Moderate (15-25)
+  // Expensive (20-30)
+  "Brussels": 20.0,
   "Barcelona": 21.0,
-  "Madrid": 19.5,
+  "Madrid": 19.0,
+  "Valencia": 18.0,
+  "Seville": 17.0,
+  "Malaga": 16.0,
+  "Bilbao": 19.0,
+  "San Sebastian": 20.0,
+  "Palma de Mallorca": 18.0,
+  "Ibiza": 22.0,
+  "Venice": 24.0,
+  "Florence": 20.0,
+  "Milan": 22.0,
+  "Naples": 18.0,
+  "Palermo": 17.0,
   "Rome": 20.0,
-  "Athens": 15.5,
-  "Lisbon": 16.0,
-  "Dublin": 22.0,
-  "Berlin": 18.0,
-  "Vienna": 19.0,
-  "Singapore": 24.0,
+  "Vienna": 21.0,
+  "Prague": 14.0,
+  "Budapest": 13.5,
+  "Warsaw": 12.5,
+  "Berlin": 19.0,
+  "Munich": 21.0,
+  "Hamburg": 20.0,
+  "Cologne": 19.0,
+  "Frankfurt": 20.0,
+  "Stuttgart": 20.0,
+  "Dusseldorf": 20.0,
+  "Amsterdam": 24.0,
+  "Rotterdam": 22.0,
+  "Utrecht": 21.0,
+  "Antwerp": 20.0,
+  "Ghent": 18.0,
+  "Bruges": 19.0,
+  "Copenhagen": 26.0,
+  "Stockholm": 27.0,
+  "Oslo": 28.0,
+  "Helsinki": 26.0,
+  "Zurich": 30.0,
+  "Geneva": 31.0,
+  "Bern": 28.0,
+  "Lucerne": 27.0,
+  "Interlaken": 26.0,
+  "Paris": 25.0,
+  "Lyon": 22.0,
+  "Marseille": 20.0,
+  "Nice": 22.0,
+  "Cannes": 23.0,
+  "Monaco": 35.0,
+  "London": 26.0,
+  "Edinburgh": 23.0,
+  "Manchester": 21.0,
+  "Liverpool": 20.0,
+  "Bath": 22.0,
+  "Oxford": 21.0,
+  "Cambridge": 21.0,
+  "Dublin": 24.0,
+  "Cork": 21.0,
+  "Galway": 20.0,
   "Seoul": 20.7,
   "Dubai": 25.0,
   "Tel Aviv": 23.0,
@@ -442,8 +610,6 @@ const cityPricingIndex: Record<string, number> = {
   "Tangtse": 9.0,
   "Chushul": 9.0,
   "Hanle": 9.0,
-  "Tso Moriri": 9.0,
-  "Tso Kar": 9.0,
   "Tso Kiagar": 9.0,
 };
 
@@ -524,6 +690,11 @@ function getAttractionPrice(category: string, rating: number): number {
   return getRandomPrice(0, 15); // Low rated or free attractions
 }
 
+// Random price generator
+function getRandomPrice(min: number, max: number): number {
+  return Math.floor(Math.random() * (max - min + 1)) + min;
+}
+
 // Fallback images by category when Pexels fails
 function getCategoryFallbackImage(category: string, index: number): string {
   const categoryLower = (category || "").toLowerCase();
@@ -590,18 +761,42 @@ function getCategoryFallbackImage(category: string, index: number): string {
   return defaultImages[index % defaultImages.length];
 }
 
-// Meal images with variety
-function getMealImage(mealType: string, dayIndex: number): string {
-  const lunchImages = [
-    "https://images.unsplash.com/photo-1414235077428-338989a2e8c0?auto=format&fit=crop&w=800&q=80", // Fine dining
-    "https://images.unsplash.com/photo-1504674900247-0877df9cc836?auto=format&fit=crop&w=800&q=80", // Gourmet meal
-    "https://images.unsplash.com/photo-1546069901-ba9599a7e63c?auto=format&fit=crop&w=800&q=80", // Salad plate
-    "https://images.unsplash.com/photo-1565299624946-b28f40a0ae38?auto=format&fit=crop&w=800&q=80", // Pizza
-    "https://images.unsplash.com/photo-1540189549336-e6e99c3679fe?auto=format&fit=crop&w=800&q=80", // Colorful dish
-    "https://images.unsplash.com/photo-1467003909585-2f8a72700288?auto=format&fit=crop&w=800&q=80", // Seafood
-  ];
+// Get meal images using Pexels API with fallback
+async function getMealImage(mealType: string, dayIndex: number, city: string): Promise<string> {
+  const queries: Record<string, string> = {
+    breakfast: "breakfast food morning",
+    lunch: "lunch meal food",
+    dinner: "dinner restaurant food",
+  };
   
-  return lunchImages[dayIndex % lunchImages.length];
+  const query = queries[mealType] || "food meal";
+  const pexelsImage = await fetchPexelsImage(query, city);
+  
+  if (pexelsImage) {
+    return pexelsImage;
+  }
+  
+  // Fallback images if Pexels fails
+  const fallbackImages: Record<string, string[]> = {
+    breakfast: [
+      "https://images.unsplash.com/photo-1567521464027-f127ff144326?auto=format&fit=crop&w=800&q=80", // Pancakes
+      "https://images.unsplash.com/photo-1495521821757-a1efb6729352?auto=format&fit=crop&w=800&q=80", // Croissant
+      "https://images.unsplash.com/photo-1541519227354-08fa5d50c44d?auto=format&fit=crop&w=800&q=80", // Breakfast bowl
+    ],
+    lunch: [
+      "https://images.unsplash.com/photo-1546069901-ba9599a7e63c?auto=format&fit=crop&w=800&q=80", // Salad
+      "https://images.unsplash.com/photo-1414235077428-338989a2e8c0?auto=format&fit=crop&w=800&q=80", // Pasta
+      "https://images.unsplash.com/photo-1504674900247-0877df9cc836?auto=format&fit=crop&w=800&q=80", // Sandwich
+    ],
+    dinner: [
+      "https://images.unsplash.com/photo-1546069901-ba9599a7e63c?auto=format&fit=crop&w=800&q=80", // Steak
+      "https://images.unsplash.com/photo-1414235077428-338989a2e8c0?auto=format&fit=crop&w=800&q=80", // Seafood
+      "https://images.unsplash.com/photo-1467003909585-2f8a72700288?auto=format&fit=crop&w=800&q=80", // Seafood
+    ],
+  };
+  
+  const images = fallbackImages[mealType] || fallbackImages.lunch;
+  return images[dayIndex % images.length];
 }
 
 // Helper function to generate Google Maps URL
@@ -647,7 +842,7 @@ export async function generateMockTripPlan(details: any): Promise<TripPlan> {
   // Fetch photos for attractions using Pexels (FREE!) with proper fallbacks
   const attractionsWithPhotos = await Promise.all(
     attractions.map(async (attraction, index) => {
-      const photoUrl = await fetchPlacePhoto(attraction.name, details.destinationCity);
+      const photoUrl = await fetchPexelsImage(attraction.name, details.destinationCity);
       return {
         ...attraction,
         imageUrl: photoUrl || getCategoryFallbackImage(attraction.category, index),
@@ -677,6 +872,7 @@ export async function generateMockTripPlan(details: any): Promise<TripPlan> {
 
     // ✅ ADD BREAKFAST (08:00) for all days with dynamic pricing
     const breakfastPrice = getMealPrice("breakfast", details.destinationCity);
+    const breakfastImage = await getMealImage("breakfast", day - 1, details.destinationCity);
     dayItems.push({
       id: `day${day}-breakfast`,
       title: `Breakfast at ${details.destinationCity}`,
@@ -685,7 +881,7 @@ export async function generateMockTripPlan(details: any): Promise<TripPlan> {
       type: "meal",
       cost: breakfastPrice * totalPassengers, costPerPerson: breakfastPrice,
       included: true,
-      imageUrl: getMealImage("breakfast", day - 1),
+      imageUrl: breakfastImage,
       googleMapsUrl: getGoogleMapsLink(`breakfast restaurant ${details.destinationCity}`),
       bookingUrl: `https://www.google.com/maps/search/breakfast+restaurant+${encodeURIComponent(details.destinationCity)}`,
     });
@@ -728,6 +924,7 @@ export async function generateMockTripPlan(details: any): Promise<TripPlan> {
 
     // ✅ ADD LUNCH (12:00) for all days with dynamic pricing
     const lunchPrice = getMealPrice("lunch", details.destinationCity);
+    const lunchImage = await getMealImage("lunch", day - 1, details.destinationCity);
     dayItems.push({
       id: `day${day}-lunch`,
       title: `Lunch at ${details.destinationCity}`,
@@ -736,13 +933,14 @@ export async function generateMockTripPlan(details: any): Promise<TripPlan> {
       type: "meal",
       cost: lunchPrice * totalPassengers, costPerPerson: lunchPrice,
       included: true,
-      imageUrl: getMealImage("lunch", day - 1),
+      imageUrl: lunchImage,
       googleMapsUrl: getGoogleMapsLink(`restaurant ${details.destinationCity}`),
       bookingUrl: `https://www.google.com/maps/search/restaurant+${encodeURIComponent(details.destinationCity)}`,
     });
 
     // ✅ ADD DINNER (19:00) for all days with dynamic pricing
     const dinnerPrice = getMealPrice("dinner", details.destinationCity);
+    const dinnerImage = await getMealImage("dinner", day - 1, details.destinationCity);
     dayItems.push({
       id: `day${day}-dinner`,
       title: `Dinner at ${details.destinationCity}`,
@@ -751,8 +949,8 @@ export async function generateMockTripPlan(details: any): Promise<TripPlan> {
       type: "meal",
       cost: dinnerPrice * totalPassengers, costPerPerson: dinnerPrice,
       included: true,
-      imageUrl: getMealImage("dinner", day - 1),
-      googleMapsUrl: getGoogleMapsLink(`fine dining restaurant ${details.destinationCity}`),
+      imageUrl: dinnerImage,
+      googleMapsUrl: getGoogleMapsLink(`restaurant ${details.destinationCity}`),
       bookingUrl: `https://www.google.com/maps/search/restaurant+${encodeURIComponent(details.destinationCity)}`,
     });
 
@@ -760,9 +958,9 @@ export async function generateMockTripPlan(details: any): Promise<TripPlan> {
     if (day === tripDays) {
       dayItems.push({
         id: `day${day}-departure`,
-        title: `Return to ${details.destinationCity} Airport`,
-        description: `Check out and head to the airport for your return flight.`,
-        time: "16:00",
+        title: `Departure from ${details.destinationCity} Airport`,
+        description: `Check out of your accommodation and head to the airport for your return flight.`,
+        time: "18:30",
         type: "transport",
         cost: 0,
         included: true,
@@ -770,94 +968,66 @@ export async function generateMockTripPlan(details: any): Promise<TripPlan> {
       });
     }
 
-    // ✅ SORT ITEMS BY TIME to ensure correct chronological order
-    dayItems.sort((a, b) => {
-      const timeA = a.time.split(':').map(Number);
-      const timeB = b.time.split(':').map(Number);
-      return (timeA[0] * 60 + timeA[1]) - (timeB[0] * 60 + timeB[1]);
-    });
-
     itinerary.push({
-      day,
-      date: format(dayDate, "EEE, MMM d"),
+      date: format(dayDate, "yyyy-MM-dd"),
+      dayNumber: day,
       items: dayItems,
     });
   }
 
-  // Calculate total activity costs
-  const activityCosts = itinerary.reduce((sum, day) => {
-    return sum + day.items.filter((i) => i.included).reduce((daySum, item) => daySum + (item.cost || 0), 0);
-  }, 0);
-
-  const plan: TripPlan = {
-    outboundFlight: {
-      id: "outbound-1",
-      airline: "SkyWings Airlines",
-      flightNumber: "SW 1247",
-      origin: details.departureCity,
-      originCode,
-      destination: details.destinationCity,
-      destinationCode: destCode,
-      departureTime: "09:15",
-      arrivalTime: "12:45",
-      duration: "3h 30m",
-      class: details.flightClass,
-      pricePerPerson: baseFlightPrice,
-      included: true,
-    },
-    returnFlight: {
-      id: "return-1",
-      airline: "SkyWings Airlines",
-      flightNumber: "SW 1248",
-      origin: details.destinationCity,
-      originCode: destCode,
-      destination: details.departureCity,
-      destinationCode: originCode,
-      departureTime: "18:30",
-      arrivalTime: "22:00",
-      duration: "3h 30m",
-      class: details.flightClass,
-      pricePerPerson: baseFlightPrice,
-      included: true,
-    },
-    carRental: details.includeCarRental
-      ? {
-          id: "car-1",
-          company: "EuroMobility",
-          vehicleType: "Compact",
-          vehicleName: "Volkswagen Tiguan or similar",
-          pickupLocation: `${details.destinationCity} Airport`,
-          dropoffLocation: `${details.destinationCity} Airport`,
-          pickupTime: format(departureDate, "MMM d, h:mm a"),
-          dropoffTime: format(returnDate, "MMM d, h:mm a"),
-          pricePerDay: 45,
-          totalPrice: 45 * (tripDays - 1),
-          included: true,
-        }
-      : undefined,
-    hotel: details.includeHotel
-      ? {
-          id: "hotel-1",
-          name: `Grand ${details.destinationCity}, Spain Palace Hotel`,
-          rating: 4.5,
-          address: `123 Central Avenue, ${details.destinationCity}, Spain`,
-          distanceFromAirport: "18 km from airport",
-          pricePerNight: 180,
-          totalPrice: 180 * (tripDays - 1),
-          amenities: ["Free WiFi", "Pool", "Gym", "Restaurant"],
-          included: true,
-        }
-      : undefined,
-    itinerary,
-    totalCost: 0, // Will be calculated below
-  };
-
   // Calculate total cost
-  const flightCost = (plan.outboundFlight?.pricePerPerson || 0) + (plan.returnFlight?.pricePerPerson || 0);
-  const carCost = plan.carRental?.totalPrice || 0;
-  const hotelCost = plan.hotel?.totalPrice || 0;
+  let totalCost = 0;
 
-  plan.totalCost = flightCost + carCost + hotelCost + activityCosts;
+  // Add flight costs
+  const outboundFlightCost = baseFlightPrice * totalPassengers;
+  const returnFlightCost = baseFlightPrice * totalPassengers;
+  totalCost += outboundFlightCost + returnFlightCost;
 
-  return plan;
+  // Add itinerary costs
+  itinerary.forEach((day) => {
+    day.items.forEach((item) => {
+      totalCost += item.cost || 0;
+    });
+  });
+
+  return {
+    id: `trip-${Date.now()}`,
+    destination: details.destinationCity,
+    origin: details.departureCity,
+    startDate: format(departureDate, "yyyy-MM-dd"),
+    endDate: format(returnDate, "yyyy-MM-dd"),
+    totalDays: tripDays,
+    totalCost,
+    totalPassengers,
+    passengers: {
+      adults: details.adults || 0,
+      children: details.children || 0,
+      infants: details.infants || 0,
+    },
+    itinerary,
+    flights: [
+      {
+        id: "flight-outbound",
+        airline: "SkyWings Airlines",
+        departure: details.departureCity,
+        arrival: details.destinationCity,
+        departureTime: "09:15",
+        arrivalTime: "12:45",
+        duration: "3h 30m",
+        cost: outboundFlightCost,
+        passengers: totalPassengers,
+      },
+      {
+        id: "flight-return",
+        airline: "SkyWings Airlines",
+        departure: details.destinationCity,
+        arrival: details.departureCity,
+        departureTime: "18:30",
+        arrivalTime: "22:00",
+        duration: "3h 30m",
+        cost: returnFlightCost,
+        passengers: totalPassengers,
+      },
+    ],
+  };
 }
