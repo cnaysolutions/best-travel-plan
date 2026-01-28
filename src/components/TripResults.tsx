@@ -463,7 +463,7 @@ export function TripResults({
                         </div>
                         <div className="flex items-center gap-2 flex-shrink-0">
                           <p className="font-semibold text-sm sm:text-base whitespace-nowrap">
-                            {safePrice(item.cost)}
+                            {safePrice(item.costPerPerson)}<span class=\"text-xs text-gray-500 ml-1\">/ person</span>
                           </p>
                           <Button
                             variant="ghost"

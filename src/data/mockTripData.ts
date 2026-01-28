@@ -467,7 +467,7 @@ export async function generateMockTripPlan(details: TripDetails): Promise<TripPl
       description: "Start your day with a delicious local breakfast",
       time: "08:00",
       type: "meal",
-      cost: 25 * totalPassengers, // ✅ Multiply by passengers
+      cost: 25 * totalPassengers, costPerPerson: 25, // ✅ Add cost per person
       included: true,
       imageUrl: getMealImage("breakfast", day - 1),
     });
@@ -498,7 +498,7 @@ export async function generateMockTripPlan(details: TripDetails): Promise<TripPl
         description: attraction.description || `Explore this ${attraction.category} in ${details.destinationCity}`,
         time: `${hour.toString().padStart(2, "0")}:00`,
         type: "attraction",
-        cost: attractionCost,
+        cost: attractionCost, costPerPerson: attractionCostPerPerson, // ✅ Add cost per person
         included: true,
         imageUrl: attraction.imageUrl,
         distance: idx > 0 ? "2.5 km" : undefined,
@@ -513,7 +513,7 @@ export async function generateMockTripPlan(details: TripDetails): Promise<TripPl
       description: "Enjoy a memorable dining experience",
       time: "12:00",
       type: "meal",
-      cost: 45 * totalPassengers, // ✅ Multiply by passengers
+      cost: 45 * totalPassengers, costPerPerson: 45, // ✅ Add cost per person
       included: true,
       imageUrl: getMealImage("lunch", day - 1),
     });
@@ -525,7 +525,7 @@ export async function generateMockTripPlan(details: TripDetails): Promise<TripPl
       description: "Savor authentic local flavors",
       time: "19:00",
       type: "meal",
-      cost: 55 * totalPassengers, // ✅ Multiply by passengers
+      cost: 55 * totalPassengers, costPerPerson: 55, // ✅ Add cost per person
       included: true,
       imageUrl: getMealImage("dinner", day - 1),
     });
