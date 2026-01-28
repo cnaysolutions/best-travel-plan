@@ -338,18 +338,134 @@ const cityPricingIndex: Record<string, number> = {
   "Helsinki": 26.0,
   "Auckland": 23.0,
   "Cape Town": 18.0,
+  
+  // Additional European cities
+  "Dubrovnik": 16.0,
+  "Split": 15.5,
+  "Venice": 24.0,
+  "Florence": 20.0,
+  "Milan": 22.0,
+  "Naples": 18.0,
+  "Palermo": 17.0,
+  "Krakow": 12.5,
+  "Wroclaw": 12.0,
+  "Gdansk": 12.5,
+  "Riga": 12.0,
+  "Tallinn": 13.0,
+  "Vilnius": 12.5,
+  "Minsk": 11.0,
+  "Almaty": 11.5,
+  "Astana": 12.0,
+  "Tashkent": 10.5,
+  "Bishkek": 9.5,
+  "Ulaanbaatar": 11.0,
+  "Hanoi": 9.0,
+  "Da Nang": 8.5,
+  "Saigon": 9.5,
+  "Phnom Penh": 8.0,
+  "Siem Reap": 8.5,
+  "Kuala Lumpur": 13.0,
+  "Penang": 11.0,
+  "Chiang Mai": 9.0,
+  "Phuket": 11.5,
+  "Bali": 10.0,
+  "Jakarta": 10.1,
+  "Surabaya": 9.0,
+  "Yogyakarta": 8.5,
+  "Bandung": 9.5,
+  "Cebu": 9.0,
+  "Davao": 8.5,
+  "Boracay": 10.5,
+  "Yangon": 7.5,
+  "Mandalay": 7.0,
+  "Lahore": 8.5,
+  "Islamabad": 9.0,
+  "Rawalpindi": 8.5,
+  "Hyderabad": 9.5,
+  "Chennai": 9.0,
+  "Pune": 10.0,
+  "Ahmedabad": 9.5,
+  "Jaipur": 9.0,
+  "Lucknow": 8.5,
+  "Goa": 10.0,
+  "Kochi": 9.5,
+  "Thiruvananthapuram": 9.0,
+  "Amritsar": 8.5,
+  "Varanasi": 8.0,
+  "Agra": 8.5,
+  "Shimla": 9.0,
+  "Manali": 9.5,
+  "Darjeeling": 8.5,
+  "Leh": 10.0,
+  "Srinagar": 9.0,
+  "Jodhpur": 8.5,
+  "Udaipur": 9.0,
+  "Pushkar": 8.0,
+  "Rishikesh": 8.5,
+  "Haridwar": 8.0,
+  "Mussoorie": 9.5,
+  "Nainital": 9.0,
+  "Almora": 8.0,
+  "Ranikhet": 8.5,
+  "Auli": 9.0,
+  "Kasol": 8.5,
+  "Kufri": 9.0,
+  "Dalhousie": 8.5,
+  "Dharamshala": 8.5,
+  "McLeod Ganj": 8.5,
+  "Tso Moriri": 9.0,
+  "Tso Kar": 9.0,
+  "Pangong": 9.5,
+  "Khardung La": 9.5,
+  "Nubra": 9.0,
+  "Diskit": 9.0,
+  "Hunder": 9.0,
+  "Turtuk": 9.0,
+  "Lamayuru": 9.0,
+  "Alchi": 9.0,
+  "Basgo": 9.0,
+  "Likir": 9.0,
+  "Spituk": 9.0,
+  "Hemis": 9.0,
+  "Thiksey": 9.0,
+  "Shey": 9.0,
+  "Stok": 9.0,
+  "Matho": 9.0,
+  "Choglamsar": 9.0,
+  "Khaltse": 9.0,
+  "Saspol": 9.0,
+  "Temisgam": 9.0,
+  "Sumur": 9.0,
+  "Panamik": 9.0,
+  "Bogdang": 9.0,
+  "Durbuk": 9.0,
+  "Tangtse": 9.0,
+  "Chushul": 9.0,
+  "Hanle": 9.0,
+  "Tso Moriri": 9.0,
+  "Tso Kar": 9.0,
+  "Tso Kiagar": 9.0,
 };
 
 // Get cost-of-living multiplier for a city
 function getCostMultiplier(city: string): number {
   const cityName = city.includes(',') ? city.split(',')[0].trim() : city;
-  const index = cityPricingIndex[cityName];
-  if (!index) {
-    console.warn(`Cost index not found for ${cityName}, using default 20`);
-    return 1.0; // Default multiplier
+  
+  // Try exact match first
+  if (cityPricingIndex[cityName]) {
+    return cityPricingIndex[cityName] / 20;
   }
-  // Normalize to Brussels (index ~20) as baseline
-  return index / 20;
+  
+  // Try case-insensitive match
+  const cityLower = cityName.toLowerCase();
+  for (const [key, index] of Object.entries(cityPricingIndex)) {
+    if (key.toLowerCase() === cityLower) {
+      return index / 20;
+    }
+  }
+  
+  // Default to 1.0 (Brussels baseline) if not found
+  return 1.0;
 }
 
 // Get dynamic meal prices based on city
