@@ -305,7 +305,7 @@ export function TripResults({
                   <p className="text-sm text-gray-500">{tripPlan.hotel.address}</p>
                   <div className="flex items-center gap-2 mt-2">
                     <div className="flex items-center text-sm text-yellow-500">
-                      {tripPlan.hotel.rating} <Star className="h-4 w-4 ml-1" />
+                      {tripPlan.hotel.rating} ⭐
                     </div>
                     <span className="text-sm text-gray-500">·</span>
                     <a
