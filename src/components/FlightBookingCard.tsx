@@ -64,8 +64,12 @@ export function FlightBookingCard({ flight, passengers, onToggle, totalPriceOnly
     const adults = passengers?.adults || 1;
     const children = passengers?.children || 0;
 
-    // Skyscanner URL format: /transport/flights/[from]/[to]/[depdate]/[retdate]/?adults=[n]&children=[n]
-    return `https://www.skyscanner.com/transport/flights/${fromCode}/${toCode}/${depDate}/${retDate}/?adults=${adults}&children=${children}&adultsv2=${adults}&childrenv2=${children}&cabinclass=economy&rtn=1`;
+    // Booking.com flights URL format (same as hotel booking)
+    // Format dates as YYYY-MM-DD for Booking.com
+    const [depYear, depMonth, depDay] = depDate.split('-');
+    const [retYear, retMonth, retDay] = retDate.split('-');
+    
+    return `https://www.booking.com/flights/index.html?type=ROUNDTRIP&from=${fromCode}&to=${toCode}&depart_date=${depYear}-${depMonth}-${depDay}&return_date=${retYear}-${retMonth}-${retDay}&adults=${adults}&children=${children}&cabinclass=ECONOMY`;
   };
 
   return (
