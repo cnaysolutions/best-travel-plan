@@ -287,7 +287,7 @@ function getCarRentalData(city: string, tripDays: number) {
   };
 }
 
-// Helper function to get restaurant recommendations with Resy links
+// Helper function to get restaurant recommendations with Google Maps search (no account needed!)
 function getRestaurantRecommendation(mealType: string, city: string, dayIndex: number) {
   const restaurants = {
     breakfast: [
@@ -312,12 +312,14 @@ function getRestaurantRecommendation(mealType: string, city: string, dayIndex: n
   
   const options = restaurants[mealType as keyof typeof restaurants] || restaurants.lunch;
   const restaurant = options[dayIndex % options.length];
-  const resyLink = `https://resy.com/cities/${encodeURIComponent(city.toLowerCase())}/venues?search=${encodeURIComponent(restaurant.name)}`;
+  
+  // Google Maps search for restaurants (no account needed, shows reviews and ratings)
+  const googleMapsLink = `https://www.google.com/maps/search/${encodeURIComponent(restaurant.cuisine + ' restaurant in ' + city)}`;
   
   return {
     name: restaurant.name,
     cuisine: restaurant.cuisine,
-    resyLink,
+    resyLink: googleMapsLink, // Keep the property name for backward compatibility
   };
 }
 

@@ -36,10 +36,10 @@ export function FlightBookingCard({ flight, passengers, onToggle, totalPriceOnly
     return `€${Math.round(Number(price)).toLocaleString()}`;
   };
 
-  // Generate pre-filled Booking.com flight link
+  // Generate pre-filled Google Flights link
   const generateBookingLink = (): string => {
     if (!departureAirport || !arrivalAirport || !departureDate || !returnDate) {
-      return "https://www.booking.com/flights";
+      return "https://www.google.com/travel/flights";
     }
 
     // Format dates as YYYY-MM-DD
@@ -58,11 +58,11 @@ export function FlightBookingCard({ flight, passengers, onToggle, totalPriceOnly
     const toCode = extractCode(arrivalAirport);
     const depDate = formatDate(departureDate);
     const retDate = formatDate(returnDate);
-    const adults = passengers?.adults || 1;
+    const adults = passengers?.adults || 0;
     const children = passengers?.children || 0;
 
-    // Booking.com flights URL format
-    return `https://www.booking.com/flights/index.html?label=gen173nr-10EgdmbGlnaHRzIKgBAzgESB9YA2hRiAEBmAEJuAEXyAEM2AEB6AEB-AELiAIBqAIDuAKZgBjAAgHSAiQ0OGE5ZGNiZi1mOTY3LTRhNjMtOGI4Yy00ZjBiYjU2YjU2YjjYAgbgAgE&type=ROUNDTRIP&adults=${adults}&children=${children}&from=${fromCode}&to=${toCode}&depart_date=${depDate}&return_date=${retDate}&cabinClass=ECONOMY`;
+    // Google Flights URL format (fully supports deep linking)
+    return `https://www.google.com/travel/flights?q=Flights%20from%20${fromCode}%20to%20${toCode}%20on%20${depDate}%20through%20${retDate}%20for%20${adults}%20adults%20${children}%20children`;
   };
 
   return (

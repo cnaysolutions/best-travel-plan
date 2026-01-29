@@ -65,27 +65,47 @@ const getGoogleMapsLink = (locationQuery: string): string => {
   return `https://www.google.com/maps/search/${encodedLocation}`;
 };
 
-// Helper function to generate pre-filled Rentalcars.com link
-const generateCarRentalLink = (carRental: any, tripDetails: TripDetails): string => {
-  // Extract airport code from destination (e.g., "Manchester (MAN)" -> "MAN")
-  const extractCode = (airport: string): string => {
-    const match = airport?.match(/\(([A-Z]{3})\)/);
-    return match ? match[1] : airport || "";
-  };
-
+// Helper function to generate pre-filled Booking.com hotel link
+const generateHotelBookingLink = (hotel: any, tripDetails: TripDetails): string => {
   // Format dates as YYYY-MM-DD
   const formatDate = (date: Date | string): string => {
     const d = new Date(date);
     return d.toISOString().split('T')[0];
   };
 
+  const checkinDate = formatDate(tripDetails.departureDate);
+  const checkoutDate = formatDate(tripDetails.returnDate);
+  const adults = tripDetails.passengers?.adults || 2;
+  const children = tripDetails.passengers?.children || 0;
+  const rooms = 1; // Default to 1 room
+
+  // Booking.com hotel search URL with dates and guest counts
+  return `https://www.booking.com/searchresults.html?ss=${encodeURIComponent(hotel.address)}&checkin=${checkinDate}&checkout=${checkoutDate}&group_adults=${adults}&group_children=${children}&no_rooms=${rooms}`;
+};
+
+// Helper function to generate pre-filled Rentalcars.com link
+const generateCarRentalLink = (carRental: any, tripDetails: TripDetails): string => {
+  // Extract airport code from destination (e.g., "Manchester (MAN)" -> "MAN")
+  const extractCode = (airport: string): string => {
+    if (!airport) return "";
+    const match = airport.match(/\(([A-Z]{3})\)/);
+    return match ? match[1] : airport;
+  };
+
+  // Format dates as YYYY-MM-DD
+  const formatDate = (date: Date | string): string => {
+    const d = new Date(date);
+    const year = d.getFullYear();
+    const month = String(d.getMonth() + 1).padStart(2, '0');
+    const day = String(d.getDate()).padStart(2, '0');
+    return `${year}-${month}-${day}`;
+  };
+
   // Format time as HH:MM
   const formatTime = (time: string): string => {
-    // If time is already in HH:MM format, return it
     if (time && time.match(/^\d{2}:\d{2}$/)) {
       return time;
     }
-    // Otherwise, default to 10:00
     return "10:00";
   };
 
@@ -95,8 +115,9 @@ const generateCarRentalLink = (carRental: any, tripDetails: TripDetails): string
   const pickupTime = formatTime(carRental?.pickupTime || "10:00");
   const dropoffTime = formatTime(carRental?.dropoffTime || "10:00");
 
-  // Rentalcars.com URL format with airport code and dates
-  return `https://www.rentalcars.com/SearchResults.do?doFiltersReset=true&driversAge=30&ftsType=A&ftsEntry=${airportCode}&dropFtsType=A&dropFtsEntry=${airportCode}&puDay=${pickupDate.split('-')[2]}&puMonth=${pickupDate.split('-')[1]}&puYear=${pickupDate.split('-')[0]}&puTime=${pickupTime}&doDay=${dropoffDate.split('-')[2]}&doMonth=${dropoffDate.split('-')[1]}&doYear=${dropoffDate.split('-')[0]}&doTime=${dropoffTime}`;
+  // Rentalcars.com simplified URL format (more reliable)
+  // Using airport code directly in the search
+  return `https://www.rentalcars.com/en/airport/${airportCode.toLowerCase()}/?puYear=${pickupDate.split('-')[0]}&puMonth=${pickupDate.split('-')[1]}&puDay=${pickupDate.split('-')[2]}&puHour=${pickupTime.split(':')[0]}&puMinute=${pickupTime.split(':')[1]}&doYear=${dropoffDate.split('-')[0]}&doMonth=${dropoffDate.split('-')[1]}&doDay=${dropoffDate.split('-')[2]}&doHour=${dropoffTime.split(':')[0]}&doMinute=${dropoffTime.split(':')[1]}&driversAge=30`;
 };
 
 interface TripResultsProps {
@@ -360,7 +381,7 @@ export function TripResults({
                     </a>
                     <span className="text-sm text-gray-500">·</span>
                     <a
-                      href={`https://www.booking.com/searchresults.html?ss=${encodeURIComponent(tripPlan.hotel.address)}`}
+                      href={generateHotelBookingLink(tripPlan.hotel, tripDetails)}
                       target="_blank"
                       rel="noopener noreferrer"
                       className="text-sm text-blue-600 hover:underline flex items-center gap-1"
