@@ -65,6 +65,40 @@ const getGoogleMapsLink = (locationQuery: string): string => {
   return `https://www.google.com/maps/search/${encodedLocation}`;
 };
 
+// Helper function to generate pre-filled Rentalcars.com link
+const generateCarRentalLink = (carRental: any, tripDetails: TripDetails): string => {
+  // Extract airport code from destination (e.g., "Manchester (MAN)" -> "MAN")
+  const extractCode = (airport: string): string => {
+    const match = airport?.match(/\(([A-Z]{3})\)/);
+    return match ? match[1] : airport || "";
+  };
+
+  // Format dates as YYYY-MM-DD
+  const formatDate = (date: Date | string): string => {
+    const d = new Date(date);
+    return d.toISOString().split('T')[0];
+  };
+
+  // Format time as HH:MM
+  const formatTime = (time: string): string => {
+    // If time is already in HH:MM format, return it
+    if (time && time.match(/^\d{2}:\d{2}$/)) {
+      return time;
+    }
+    // Otherwise, default to 10:00
+    return "10:00";
+  };
+
+  const airportCode = extractCode(tripDetails.destination);
+  const pickupDate = formatDate(tripDetails.departureDate);
+  const dropoffDate = formatDate(tripDetails.returnDate);
+  const pickupTime = formatTime(carRental?.pickupTime || "10:00");
+  const dropoffTime = formatTime(carRental?.dropoffTime || "10:00");
+
+  // Rentalcars.com URL format with airport code and dates
+  return `https://www.rentalcars.com/SearchResults.do?doFiltersReset=true&driversAge=30&ftsType=A&ftsEntry=${airportCode}&dropFtsType=A&dropFtsEntry=${airportCode}&puDay=${pickupDate.split('-')[2]}&puMonth=${pickupDate.split('-')[1]}&puYear=${pickupDate.split('-')[0]}&puTime=${pickupTime}&doDay=${dropoffDate.split('-')[2]}&doMonth=${dropoffDate.split('-')[1]}&doYear=${dropoffDate.split('-')[0]}&doTime=${dropoffTime}`;
+};
+
 interface TripResultsProps {
   tripDetails: TripDetails;
   tripPlan: TripPlan;
@@ -279,6 +313,10 @@ export function TripResults({
                   passengers={tripDetails.passengers}
                   onToggle={() => onToggleItem("outboundFlight", tripPlan.outboundFlight!.id)}
                   totalPriceOnly={true}
+                  departureAirport={tripDetails.departure}
+                  arrivalAirport={tripDetails.destination}
+                  departureDate={tripDetails.departureDate}
+                  returnDate={tripDetails.returnDate}
                 />
               )}
 
@@ -288,6 +326,10 @@ export function TripResults({
                   passengers={tripDetails.passengers}
                   onToggle={() => onToggleItem("returnFlight", tripPlan.returnFlight!.id)}
                   totalPriceOnly={true}
+                  departureAirport={tripDetails.departure}
+                  arrivalAirport={tripDetails.destination}
+                  departureDate={tripDetails.departureDate}
+                  returnDate={tripDetails.returnDate}
                 />
               )}
             </div>
@@ -364,7 +406,7 @@ export function TripResults({
                   </p>
                   <div className="flex items-center gap-2 mt-2">
                     <a
-                      href={`https://www.rentalcars.com/SearchResults.do?doFiltersReset=true&driversAge=30&dropCity=${encodeURIComponent(tripDetails.destinationCity)}&pickupCity=${encodeURIComponent(tripDetails.destinationCity)}`}
+                      href={generateCarRentalLink(tripPlan.carRental, tripDetails)}
                       target="_blank"
                       rel="noopener noreferrer"
                       className="text-sm text-blue-600 hover:underline flex items-center gap-1"

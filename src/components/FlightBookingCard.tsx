@@ -12,9 +12,13 @@ interface FlightBookingCardProps {
     infants: number;
   };
   onToggle: () => void;
+  departureAirport?: string;
+  arrivalAirport?: string;
+  departureDate?: Date | string;
+  returnDate?: Date | string;
 }
 
-export function FlightBookingCard({ flight, passengers, onToggle, totalPriceOnly = false }: FlightBookingCardProps) {
+export function FlightBookingCard({ flight, passengers, onToggle, totalPriceOnly = false, departureAirport, arrivalAirport, departureDate, returnDate }: FlightBookingCardProps) {
   // If no flight data, don't render anything
   if (!flight) {
     return null;
@@ -30,6 +34,35 @@ export function FlightBookingCard({ flight, passengers, onToggle, totalPriceOnly
       return "€0";
     }
     return `€${Math.round(Number(price)).toLocaleString()}`;
+  };
+
+  // Generate pre-filled Booking.com flight link
+  const generateBookingLink = (): string => {
+    if (!departureAirport || !arrivalAirport || !departureDate || !returnDate) {
+      return "https://www.booking.com/flights";
+    }
+
+    // Format dates as YYYY-MM-DD
+    const formatDate = (date: Date | string): string => {
+      const d = new Date(date);
+      return d.toISOString().split('T')[0];
+    };
+
+    // Extract airport codes (e.g., "London (LGW)" -> "LGW")
+    const extractCode = (airport: string): string => {
+      const match = airport.match(/\(([A-Z]{3})\)/);
+      return match ? match[1] : airport;
+    };
+
+    const fromCode = extractCode(departureAirport);
+    const toCode = extractCode(arrivalAirport);
+    const depDate = formatDate(departureDate);
+    const retDate = formatDate(returnDate);
+    const adults = passengers?.adults || 1;
+    const children = passengers?.children || 0;
+
+    // Booking.com flights URL format
+    return `https://www.booking.com/flights/index.html?label=gen173nr-10EgdmbGlnaHRzIKgBAzgESB9YA2hRiAEBmAEJuAEXyAEM2AEB6AEB-AELiAIBqAIDuAKZgBjAAgHSAiQ0OGE5ZGNiZi1mOTY3LTRhNjMtOGI4Yy00ZjBiYjU2YjU2YjjYAgbgAgE&type=ROUNDTRIP&adults=${adults}&children=${children}&from=${fromCode}&to=${toCode}&depart_date=${depDate}&return_date=${retDate}&cabinClass=ECONOMY`;
   };
 
   return (
@@ -74,7 +107,7 @@ export function FlightBookingCard({ flight, passengers, onToggle, totalPriceOnly
             </p>
             {totalPriceOnly && <p className="text-xs text-gray-500">Total price</p>}
             <a
-              href="https://www.booking.com/flights"
+              href={generateBookingLink()}
               target="_blank"
               rel="noopener noreferrer"
               className="text-blue-700 hover:text-blue-900 hover:underline font-semibold flex items-center text-xs mt-1 min-h-[32px] py-1 px-2 rounded transition-colors"
