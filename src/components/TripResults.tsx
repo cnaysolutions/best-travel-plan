@@ -305,7 +305,7 @@ export function TripResults({
                   <p className="text-sm text-gray-500">{tripPlan.hotel.address}</p>
                   <div className="flex items-center gap-2 mt-2">
                     <div className="flex items-center text-sm text-yellow-500">
-                      {tripPlan.hotel.rating} ⭐
+                      {tripPlan.hotel.rating.toFixed(1)} ⭐
                     </div>
                     <span className="text-sm text-gray-500">·</span>
                     <a
@@ -315,6 +315,15 @@ export function TripResults({
                       className="text-sm text-blue-600 hover:underline flex items-center gap-1"
                     >
                       <MapPin className="h-4 w-4" /> View on Map
+                    </a>
+                    <span className="text-sm text-gray-500">·</span>
+                    <a
+                      href={`https://www.booking.com/searchresults.html?ss=${encodeURIComponent(tripPlan.hotel.address)}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-sm text-blue-600 hover:underline flex items-center gap-1"
+                    >
+                      <ExternalLink className="h-4 w-4" /> Book Now
                     </a>
                   </div>
                 </div>
@@ -345,11 +354,24 @@ export function TripResults({
               </h2>
               <div className="border rounded-lg p-4 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
                 <div className="flex-grow">
-                  <h3 className="font-semibold text-lg">{tripPlan.carRental.name}</h3>
-                  <p className="text-sm text-gray-500">{tripPlan.carRental.company}</p>
-                  <p className="text-sm text-gray-500">
-                    {safeFormatDate(tripPlan.carRental.pickupDate, "MMM d, yyyy")} - {safeFormatDate(tripPlan.carRental.dropoffDate, "MMM d, yyyy")}
+                  <h3 className="font-semibold text-lg">{tripPlan.carRental.vehicleName}</h3>
+                  <p className="text-sm text-gray-500">{tripPlan.carRental.company} · {tripPlan.carRental.vehicleType}</p>
+                  <p className="text-sm text-gray-500 mt-1">
+                    Pickup: {tripPlan.carRental.pickupLocation} at {tripPlan.carRental.pickupTime}
                   </p>
+                  <p className="text-sm text-gray-500">
+                    Dropoff: {tripPlan.carRental.dropoffLocation} at {tripPlan.carRental.dropoffTime}
+                  </p>
+                  <div className="flex items-center gap-2 mt-2">
+                    <a
+                      href={`https://www.rentalcars.com/SearchResults.do?doFiltersReset=true&driversAge=30&dropCity=${encodeURIComponent(tripDetails.destinationCity)}&pickupCity=${encodeURIComponent(tripDetails.destinationCity)}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-sm text-blue-600 hover:underline flex items-center gap-1"
+                    >
+                      <ExternalLink className="h-4 w-4" /> Book Now
+                    </a>
+                  </div>
                 </div>
                 <div className="flex items-center gap-4">
                   <p className="font-semibold text-lg whitespace-nowrap">{safePrice(tripPlan.carRental.totalPrice)}</p>

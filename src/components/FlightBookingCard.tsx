@@ -20,6 +20,10 @@ export function FlightBookingCard({ flight, passengers, onToggle, totalPriceOnly
     return null;
   }
 
+  // Calculate total price from pricePerPerson
+  const totalPassengers = (passengers?.adults || 0) + (passengers?.children || 0);
+  const totalPrice = (flight.pricePerPerson || 0) * totalPassengers;
+  
   // Safe price formatter
   const safePrice = (price: number | undefined | null): string => {
     if (price === undefined || price === null || isNaN(Number(price))) {
@@ -66,7 +70,7 @@ export function FlightBookingCard({ flight, passengers, onToggle, totalPriceOnly
           </div>
           <div className="flex flex-col items-start xs:items-end gap-2">
             <p className="font-semibold text-base xs:text-lg">
-              {safePrice(flight.price)}
+              {safePrice(totalPrice)}
             </p>
             {totalPriceOnly && <p className="text-xs text-gray-500">Total price</p>}
             <a
