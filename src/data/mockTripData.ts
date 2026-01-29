@@ -228,6 +228,99 @@ function getCityCoordinates(city: string): { lat: number; lon: number } | null {
   return coords;
 }
 
+// Helper function to get hotel data
+function getHotelData(city: string, tripDays: number) {
+  const multiplier = getCostMultiplier(city);
+  const baseHotelPrice = 120;
+  const pricePerNight = Math.round(baseHotelPrice * multiplier);
+  const totalPrice = pricePerNight * (tripDays - 1);
+  
+  const hotelNames = [
+    `${city} Luxury Hotel`,
+    `${city} Grand Resort`,
+    `${city} Premium Suites`,
+    `${city} Boutique Hotel`,
+    `${city} City Center Hotel`,
+  ];
+  
+  return {
+    id: "hotel-1",
+    name: hotelNames[Math.floor(Math.random() * hotelNames.length)],
+    rating: 4 + Math.random(),
+    address: `Central District, ${city}`,
+    distanceFromAirport: "15 km",
+    pricePerNight,
+    totalPrice,
+    amenities: ["Free WiFi", "Breakfast Included", "Gym", "Spa", "Restaurant"],
+    included: true,
+  };
+}
+
+// Helper function to get car rental data
+function getCarRentalData(city: string, tripDays: number) {
+  const multiplier = getCostMultiplier(city);
+  const baseDailyPrice = 50;
+  const pricePerDay = Math.round(baseDailyPrice * multiplier);
+  const totalPrice = pricePerDay * (tripDays - 1);
+  
+  const carTypes = [
+    { type: "Economy", name: "Toyota Corolla" },
+    { type: "Compact", name: "Honda Civic" },
+    { type: "Sedan", name: "BMW 3 Series" },
+    { type: "SUV", name: "Toyota RAV4" },
+  ];
+  
+  const car = carTypes[Math.floor(Math.random() * carTypes.length)];
+  
+  return {
+    id: "car-rental-1",
+    company: "Premium Car Rentals",
+    vehicleType: car.type,
+    vehicleName: car.name,
+    pickupLocation: `${city} Airport`,
+    dropoffLocation: `${city} Airport`,
+    pickupTime: "13:00",
+    dropoffTime: "10:00",
+    pricePerDay,
+    totalPrice,
+    included: true,
+  };
+}
+
+// Helper function to get restaurant recommendations with Resy links
+function getRestaurantRecommendation(mealType: string, city: string, dayIndex: number) {
+  const restaurants = {
+    breakfast: [
+      { name: "Morning Brew Cafe", cuisine: "Cafe" },
+      { name: "Sunrise Bistro", cuisine: "French" },
+      { name: "Local Breakfast House", cuisine: "Local" },
+      { name: "Artisan Coffee & Pastries", cuisine: "Cafe" },
+    ],
+    lunch: [
+      { name: "City Lunch Spot", cuisine: "International" },
+      { name: "Local Flavors", cuisine: "Local" },
+      { name: "Mediterranean Grill", cuisine: "Mediterranean" },
+      { name: "Fusion Kitchen", cuisine: "Fusion" },
+    ],
+    dinner: [
+      { name: "Fine Dining Experience", cuisine: "French" },
+      { name: "Local Restaurant", cuisine: "Local" },
+      { name: "Seafood House", cuisine: "Seafood" },
+      { name: "Premium Steakhouse", cuisine: "Steakhouse" },
+    ],
+  };
+  
+  const options = restaurants[mealType as keyof typeof restaurants] || restaurants.lunch;
+  const restaurant = options[dayIndex % options.length];
+  const resyLink = `https://resy.com/cities/${encodeURIComponent(city.toLowerCase())}/venues?search=${encodeURIComponent(restaurant.name)}`;
+  
+  return {
+    name: restaurant.name,
+    cuisine: restaurant.cuisine,
+    resyLink,
+  };
+}
+
 // Get airport code for a city
 function getAirportCode(city: string): string {
   const airportCodes: Record<string, string> = {
@@ -873,17 +966,18 @@ export async function generateMockTripPlan(details: any): Promise<TripPlan> {
     // ✅ ADD BREAKFAST (08:00) for all days with dynamic pricing
     const breakfastPrice = getMealPrice("breakfast", details.destinationCity);
     const breakfastImage = await getMealImage("breakfast", day - 1, details.destinationCity);
+    const breakfastRestaurant = getRestaurantRecommendation("breakfast", details.destinationCity, day - 1);
     dayItems.push({
       id: `day${day}-breakfast`,
       title: `Breakfast at ${details.destinationCity}`,
-      description: "Start your day with a delicious local breakfast",
+      description: `Start your day at ${breakfastRestaurant.name} (${breakfastRestaurant.cuisine})`,
       time: "08:00",
       type: "meal",
       cost: breakfastPrice * totalPassengers, costPerPerson: breakfastPrice,
       included: true,
       imageUrl: breakfastImage,
-      googleMapsUrl: getGoogleMapsLink(`breakfast restaurant ${details.destinationCity}`),
-      bookingUrl: `https://www.google.com/maps/search/breakfast+restaurant+${encodeURIComponent(details.destinationCity)}`,
+      googleMapsUrl: getGoogleMapsLink(`${breakfastRestaurant.name} ${details.destinationCity}`),
+      bookingUrl: breakfastRestaurant.resyLink,
     });
 
     // Add 2-3 attractions per day
@@ -925,33 +1019,35 @@ export async function generateMockTripPlan(details: any): Promise<TripPlan> {
     // ✅ ADD LUNCH (12:00) for all days with dynamic pricing
     const lunchPrice = getMealPrice("lunch", details.destinationCity);
     const lunchImage = await getMealImage("lunch", day - 1, details.destinationCity);
+    const lunchRestaurant = getRestaurantRecommendation("lunch", details.destinationCity, day - 1);
     dayItems.push({
       id: `day${day}-lunch`,
       title: `Lunch at ${details.destinationCity}`,
-      description: "Enjoy a memorable dining experience",
+      description: `Enjoy lunch at ${lunchRestaurant.name} (${lunchRestaurant.cuisine})`,
       time: "12:00",
       type: "meal",
       cost: lunchPrice * totalPassengers, costPerPerson: lunchPrice,
       included: true,
       imageUrl: lunchImage,
-      googleMapsUrl: getGoogleMapsLink(`restaurant ${details.destinationCity}`),
-      bookingUrl: `https://www.google.com/maps/search/restaurant+${encodeURIComponent(details.destinationCity)}`,
+      googleMapsUrl: getGoogleMapsLink(`${lunchRestaurant.name} ${details.destinationCity}`),
+      bookingUrl: lunchRestaurant.resyLink,
     });
 
     // ✅ ADD DINNER (19:00) for all days with dynamic pricing
     const dinnerPrice = getMealPrice("dinner", details.destinationCity);
     const dinnerImage = await getMealImage("dinner", day - 1, details.destinationCity);
+    const dinnerRestaurant = getRestaurantRecommendation("dinner", details.destinationCity, day - 1);
     dayItems.push({
       id: `day${day}-dinner`,
       title: `Dinner at ${details.destinationCity}`,
-      description: "Savor authentic local flavors",
+      description: `Savor dinner at ${dinnerRestaurant.name} (${dinnerRestaurant.cuisine})`,
       time: "19:00",
       type: "meal",
       cost: dinnerPrice * totalPassengers, costPerPerson: dinnerPrice,
       included: true,
       imageUrl: dinnerImage,
-      googleMapsUrl: getGoogleMapsLink(`restaurant ${details.destinationCity}`),
-      bookingUrl: `https://www.google.com/maps/search/restaurant+${encodeURIComponent(details.destinationCity)}`,
+      googleMapsUrl: getGoogleMapsLink(`${dinnerRestaurant.name} ${details.destinationCity}`),
+      bookingUrl: dinnerRestaurant.resyLink,
     });
 
     // Last day: departure
@@ -990,44 +1086,52 @@ export async function generateMockTripPlan(details: any): Promise<TripPlan> {
     });
   });
 
-  return {
-    id: `trip-${Date.now()}`,
-    destination: details.destinationCity,
+  // Get hotel and car rental data
+  const hotel = getHotelData(details.destinationCity, tripDays);
+  const carRental = getCarRentalData(details.destinationCity, tripDays);
+  
+  // Add hotel and car rental costs to total
+  totalCost += hotel.totalPrice + carRental.totalPrice;
+
+  // Create Flight objects matching the Flight interface
+  const outboundFlight = {
+    id: "flight-outbound",
+    airline: "SkyWings Airlines",
+    flightNumber: `SW${Math.floor(Math.random() * 9000) + 1000}`,
     origin: details.departureCity,
-    startDate: format(departureDate, "yyyy-MM-dd"),
-    endDate: format(returnDate, "yyyy-MM-dd"),
-    totalDays: tripDays,
-    totalCost,
-    totalPassengers,
-    passengers: {
-      adults: details.adults || 0,
-      children: details.children || 0,
-      infants: details.infants || 0,
-    },
+    originCode: originCode,
+    destination: details.destinationCity,
+    destinationCode: destCode,
+    departureTime: "09:15",
+    arrivalTime: "12:45",
+    duration: "3h 30m",
+    class: details.flightClass || "economy",
+    pricePerPerson: baseFlightPrice,
+    included: true,
+  };
+  
+  const returnFlight = {
+    id: "flight-return",
+    airline: "SkyWings Airlines",
+    flightNumber: `SW${Math.floor(Math.random() * 9000) + 1000}`,
+    origin: details.destinationCity,
+    originCode: destCode,
+    destination: details.departureCity,
+    destinationCode: originCode,
+    departureTime: "18:30",
+    arrivalTime: "22:00",
+    duration: "3h 30m",
+    class: details.flightClass || "economy",
+    pricePerPerson: baseFlightPrice,
+    included: true,
+  };
+
+  return {
+    outboundFlight,
+    returnFlight,
+    carRental,
+    hotel,
     itinerary,
-    flights: [
-      {
-        id: "flight-outbound",
-        airline: "SkyWings Airlines",
-        departure: details.departureCity,
-        arrival: details.destinationCity,
-        departureTime: "09:15",
-        arrivalTime: "12:45",
-        duration: "3h 30m",
-        cost: outboundFlightCost,
-        passengers: totalPassengers,
-      },
-      {
-        id: "flight-return",
-        airline: "SkyWings Airlines",
-        departure: details.destinationCity,
-        arrival: details.departureCity,
-        departureTime: "18:30",
-        arrivalTime: "22:00",
-        duration: "3h 30m",
-        cost: returnFlightCost,
-        passengers: totalPassengers,
-      },
-    ],
+    totalCost,
   };
 }
