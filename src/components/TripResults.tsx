@@ -115,9 +115,14 @@ const generateCarRentalLink = (carRental: any, tripDetails: TripDetails): string
   const pickupTime = formatTime(carRental?.pickupTime || "10:00");
   const dropoffTime = formatTime(carRental?.dropoffTime || "10:00");
 
-  // Rentalcars.com simplified URL format (more reliable)
-  // Using airport code directly in the search
-  return `https://www.rentalcars.com/en/airport/${airportCode.toLowerCase()}/?puYear=${pickupDate.split('-')[0]}&puMonth=${pickupDate.split('-')[1]}&puDay=${pickupDate.split('-')[2]}&puHour=${pickupTime.split(':')[0]}&puMinute=${pickupTime.split(':')[1]}&doYear=${dropoffDate.split('-')[0]}&doMonth=${dropoffDate.split('-')[1]}&doDay=${dropoffDate.split('-')[2]}&doHour=${dropoffTime.split(':')[0]}&doMinute=${dropoffTime.split(':')[1]}&driversAge=30`;
+  // Rentalcars.com search results URL format (works reliably with pre-fill)
+  // Format: /SearchResults.do with pickup/dropoff location and dates
+  const [puYear, puMonth, puDay] = pickupDate.split('-');
+  const [doYear, doMonth, doDay] = dropoffDate.split('-');
+  const [puHour, puMinute] = pickupTime.split(':');
+  const [doHour, doMinute] = dropoffTime.split(':');
+  
+  return `https://www.rentalcars.com/SearchResults.do?doYear=${doYear}&doMonth=${doMonth}&doDay=${doDay}&doHour=${doHour}&doMinute=${doMinute}&puYear=${puYear}&puMonth=${puMonth}&puDay=${puDay}&puHour=${puHour}&puMinute=${puMinute}&ftsType=A&ftsEntry=${airportCode}&dropFtsType=A&dropFtsEntry=${airportCode}&driversAge=30&preflang=en&affiliateCode=&enabler=&filterTo=`;
 };
 
 interface TripResultsProps {

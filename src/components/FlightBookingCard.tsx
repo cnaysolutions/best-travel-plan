@@ -36,16 +36,19 @@ export function FlightBookingCard({ flight, passengers, onToggle, totalPriceOnly
     return `€${Math.round(Number(price)).toLocaleString()}`;
   };
 
-  // Generate pre-filled Google Flights link
+  // Generate pre-filled Skyscanner link (better deep-link support than Google Flights)
   const generateBookingLink = (): string => {
     if (!departureAirport || !arrivalAirport || !departureDate || !returnDate) {
-      return "https://www.google.com/travel/flights";
+      return "https://www.skyscanner.com/transport/flights";
     }
 
-    // Format dates as YYYY-MM-DD
+    // Format dates as YYMMDD for Skyscanner
     const formatDate = (date: Date | string): string => {
       const d = new Date(date);
-      return d.toISOString().split('T')[0];
+      const year = d.getFullYear().toString().slice(-2);
+      const month = (d.getMonth() + 1).toString().padStart(2, '0');
+      const day = d.getDate().toString().padStart(2, '0');
+      return `${year}${month}${day}`;
     };
 
     // Extract airport codes (e.g., "London (LGW)" -> "LGW")
@@ -58,11 +61,11 @@ export function FlightBookingCard({ flight, passengers, onToggle, totalPriceOnly
     const toCode = extractCode(arrivalAirport);
     const depDate = formatDate(departureDate);
     const retDate = formatDate(returnDate);
-    const adults = passengers?.adults || 0;
+    const adults = passengers?.adults || 1;
     const children = passengers?.children || 0;
 
-    // Google Flights URL format (fully supports deep linking)
-    return `https://www.google.com/travel/flights?q=Flights%20from%20${fromCode}%20to%20${toCode}%20on%20${depDate}%20through%20${retDate}%20for%20${adults}%20adults%20${children}%20children`;
+    // Skyscanner URL format: /transport/flights/[from]/[to]/[depdate]/[retdate]/?adults=[n]&children=[n]
+    return `https://www.skyscanner.com/transport/flights/${fromCode}/${toCode}/${depDate}/${retDate}/?adults=${adults}&children=${children}&adultsv2=${adults}&childrenv2=${children}&cabinclass=economy&rtn=1`;
   };
 
   return (
