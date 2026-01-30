@@ -85,49 +85,29 @@ const generateHotelBookingLink = (hotel: any, tripDetails: TripDetails): string 
 
 // Helper function to generate pre-filled Rentalcars.com link
 const generateCarRentalLink = (carRental: any, tripDetails: TripDetails): string => {
-  // Extract airport code from destination (e.g., "Manchester (MAN)" -> "MAN")
-  const extractCode = (airport: string): string => {
-    if (!airport) return "";
-    const match = airport.match(/\(([A-Z]{3})\)/);
-    return match ? match[1] : airport;
-  };
-
-  // Format dates as YYYY-MM-DD
-  const formatDate = (date: Date | string): string => {
-    const d = new Date(date);
-    const year = d.getFullYear();
-    const month = String(d.getMonth() + 1).padStart(2, '0');
-    const day = String(d.getDate()).padStart(2, '0');
-    return `${year}-${month}-${day}`;
-  };
-
-  // Format time as HH:MM
-  const formatTime = (time: string): string => {
-    if (time && time.match(/^\d{2}:\d{2}$/)) {
-      return time;
+  const parseLocation = (location: string): { code: string; name: string } => {
+    if (!location) return { code: "", name: "" };
+    const match = location.match(/^(.+?)\s*\(([A-Z]{3})\)$/);
+    if (match) {
+      return { code: match[2], name: match[1].trim() };
     }
-    return "10:00";
+    return { code: "", name: location };
   };
 
-  const airportCode = extractCode(tripDetails.destinationCity);
-  const pickupDate = formatDate(tripDetails.departureDate);
-  const dropoffDate = formatDate(tripDetails.returnDate);
-  const pickupTime = formatTime(carRental?.pickupTime || "10:00");
-  const dropoffTime = formatTime(carRental?.dropoffTime || "10:00");
-
-  // Rentalcars.com URL format with proper location parameter
-  // Using pickupLocationCode and dropoffLocationCode for airport codes
-  const [puYear, puMonth, puDay] = pickupDate.split('-');
-  const [doYear, doMonth, doDay] = dropoffDate.split('-');
+  const pickupDate = new Date(tripDetails.departureDate);
+  const dropoffDate = new Date(tripDetails.returnDate);
+  const pickupTime = carRental?.pickupTime || "10:00";
+  const dropoffTime = carRental?.dropoffTime || "10:00";
+  
   const [puHour, puMinute] = pickupTime.split(':');
   const [doHour, doMinute] = dropoffTime.split(':');
   
-  // Format: Use full airport name with code for better recognition
-  const destination = tripDetails.destinationCity; // e.g., "Helsinki (HEL)"
-  
-  return `https://www.rentalcars.com/SearchResults.do?doYear=${doYear}&doMonth=${doMonth}&doDay=${doDay}&doHour=${doHour}&doMinute=${doMinute}&puYear=${puYear}&puMonth=${puMonth}&puDay=${puDay}&puHour=${puHour}&puMinute=${puMinute}&ftsType=A&ftsEntry=${encodeURIComponent(destination)}&dropFtsType=A&dropFtsEntry=${encodeURIComponent(destination)}&driversAge=30&preflang=en&affiliateCode=`;
-};
+  const location = parseLocation(tripDetails.destinationCity);
+  const locationName = location.name ? `${location.name} Airport` : "";
+  const locationIata = location.code;
 
+  return `https://www.rentalcars.com/search-results?location=&dropLocation=&locationName=${encodeURIComponent(locationName )}&locationIata=${locationIata}&dropLocationName=${encodeURIComponent(locationName)}&dropLocationIata=${locationIata}&driversAge=30&puDay=${pickupDate.getDate()}&puMonth=${pickupDate.getMonth() + 1}&puYear=${pickupDate.getFullYear()}&puMinute=${puMinute || '0'}&puHour=${puHour || '10'}&doDay=${dropoffDate.getDate()}&doMonth=${dropoffDate.getMonth() + 1}&doYear=${dropoffDate.getFullYear()}&doMinute=${doMinute || '0'}&doHour=${doHour || '10'}&ftsType=A&dropFtsType=A`;
+};
 interface TripResultsProps {
   tripDetails: TripDetails;
   tripPlan: TripPlan;
