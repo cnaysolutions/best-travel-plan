@@ -342,8 +342,8 @@ export function TripResults({
                   passengers={tripDetails.passengers}
                   onToggle={() => onToggleItem("outboundFlight", tripPlan.outboundFlight!.id)}
                   totalPriceOnly={true}
-                  departureAirport={tripDetails.departure}
-                  arrivalAirport={tripDetails.destination}
+                  departureAirport={tripDetails.departureCity}
+                  arrivalAirport={tripDetails.destinationCity}
                   departureDate={tripDetails.departureDate}
                   returnDate={tripDetails.returnDate}
                 />
@@ -355,8 +355,8 @@ export function TripResults({
                   passengers={tripDetails.passengers}
                   onToggle={() => onToggleItem("returnFlight", tripPlan.returnFlight!.id)}
                   totalPriceOnly={true}
-                  departureAirport={tripDetails.departure}
-                  arrivalAirport={tripDetails.destination}
+                  departureAirport={tripDetails.departureCity}
+                  arrivalAirport={tripDetails.destinationCity}
                   departureDate={tripDetails.departureDate}
                   returnDate={tripDetails.returnDate}
                 />
