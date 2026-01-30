@@ -109,7 +109,7 @@ const generateCarRentalLink = (carRental: any, tripDetails: TripDetails): string
     return "10:00";
   };
 
-  const airportCode = extractCode(tripDetails.destination);
+  const airportCode = extractCode(tripDetails.destinationCity);
   const pickupDate = formatDate(tripDetails.departureDate);
   const dropoffDate = formatDate(tripDetails.returnDate);
   const pickupTime = formatTime(carRental?.pickupTime || "10:00");
@@ -123,7 +123,7 @@ const generateCarRentalLink = (carRental: any, tripDetails: TripDetails): string
   const [doHour, doMinute] = dropoffTime.split(':');
   
   // Format: Use full airport name with code for better recognition
-  const destination = tripDetails.destination; // e.g., "Helsinki (HEL)"
+  const destination = tripDetails.destinationCity; // e.g., "Helsinki (HEL)"
   
   return `https://www.rentalcars.com/SearchResults.do?doYear=${doYear}&doMonth=${doMonth}&doDay=${doDay}&doHour=${doHour}&doMinute=${doMinute}&puYear=${puYear}&puMonth=${puMonth}&puDay=${puDay}&puHour=${puHour}&puMinute=${puMinute}&ftsType=A&ftsEntry=${encodeURIComponent(destination)}&dropFtsType=A&dropFtsEntry=${encodeURIComponent(destination)}&driversAge=30&preflang=en&affiliateCode=`;
 };

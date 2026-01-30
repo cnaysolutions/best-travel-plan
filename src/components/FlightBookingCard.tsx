@@ -1,17 +1,30 @@
-import { ExternalLink, Plane, Check, X } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import type { Flight } from "@/types/trip";
+import { Check, X, ExternalLink } from "lucide-react";
+
+interface Flight {
+  airline: string;
+  price: string;
+  departure?: string;
+  arrival?: string;
+  departureTime?: string;
+  arrivalTime?: string;
+  duration?: string;
+  stops?: number;
+  included?: boolean;
+}
+
+interface Passengers {
+  adults: number;
+  children: number;
+  infants: number;
+}
 
 interface FlightBookingCardProps {
-  totalPriceOnly?: boolean;
-  flight: Flight | null | undefined;
-  passengers: {
-    adults: number;
-    children: number;
-    infants: number;
-  };
+  flight: Flight;
+  passengers?: Passengers;
   onToggle: () => void;
+  totalPriceOnly?: boolean;
   departureAirport?: string;
   arrivalAirport?: string;
   departureDate?: Date | string;
@@ -19,36 +32,23 @@ interface FlightBookingCardProps {
 }
 
 export function FlightBookingCard({ flight, passengers, onToggle, totalPriceOnly = false, departureAirport, arrivalAirport, departureDate, returnDate }: FlightBookingCardProps) {
-  // If no flight data, don't render anything
-  if (!flight) {
-    return null;
-  }
-
-  // Calculate total price from pricePerPerson
-  const totalPassengers = (passengers?.adults || 0) + (passengers?.children || 0);
-  const totalPrice = (flight.pricePerPerson || 0) * totalPassengers;
-  
-  // Safe price formatter
-  const safePrice = (price: number | undefined | null): string => {
-    if (price === undefined || price === null || isNaN(Number(price))) {
-      return "€0";
-    }
+  const formatPrice = (price: string) => {
     return `€${Math.round(Number(price)).toLocaleString()}`;
   };
 
-  // Generate pre-filled Skyscanner link (better deep-link support than Google Flights)
+  // Generate pre-filled Booking.com flights link
   const generateBookingLink = (): string => {
     if (!departureAirport || !arrivalAirport || !departureDate || !returnDate) {
-      return "https://www.skyscanner.com/transport/flights";
+      return "https://www.booking.com/flights/";
     }
 
-    // Format dates as YYMMDD for Skyscanner
-    const formatDate = (date: Date | string): string => {
+    // Format dates as YYYY-MM-DD for Booking.com
+    const formatDate = (date: Date | string ): string => {
       const d = new Date(date);
-      const year = d.getFullYear().toString().slice(-2);
+      const year = d.getFullYear();
       const month = (d.getMonth() + 1).toString().padStart(2, '0');
       const day = d.getDate().toString().padStart(2, '0');
-      return `${year}${month}${day}`;
+      return `${year}-${month}-${day}`;
     };
 
     // Extract airport codes (e.g., "London (LGW)" -> "LGW")
@@ -64,25 +64,27 @@ export function FlightBookingCard({ flight, passengers, onToggle, totalPriceOnly
     const adults = passengers?.adults || 1;
     const children = passengers?.children || 0;
 
-    // Booking.com flights URL format (same as hotel booking)
-    // Format dates as YYYY-MM-DD for Booking.com
-    const [depYear, depMonth, depDay] = depDate.split('-');
-    const [retYear, retMonth, retDay] = retDate.split('-');
-    
-    return `https://www.booking.com/flights/index.html?type=ROUNDTRIP&from=${fromCode}&to=${toCode}&depart_date=${depYear}-${depMonth}-${depDay}&return_date=${retYear}-${retMonth}-${retDay}&adults=${adults}&children=${children}&cabinclass=ECONOMY`;
+    // Booking.com flights URL with pre-filled search parameters
+    return `https://www.booking.com/flights/index.html?type=ROUNDTRIP&from=${fromCode}&to=${toCode}&depart_date=${depDate}&return_date=${retDate}&adults=${adults}&children=${children}&cabinclass=ECONOMY`;
   };
 
   return (
-    <Card>
-      <CardContent className="pt-6">
-        <div className="flex flex-col xs:flex-row xs:items-start xs:justify-between gap-4">
+    <Card className="overflow-hidden hover:shadow-md transition-shadow">
+      <CardContent className="p-3 xs:p-4">
+        <div className="flex items-start justify-between gap-2 xs:gap-3">
           <div className="flex-1 min-w-0">
-            <h3 className="font-semibold text-base xs:text-lg mb-2 break-words">
-              {flight.airline || "Flight"}
-            </h3>
-            <div className="space-y-1 text-sm text-gray-600">
+            <div className="flex items-start justify-between gap-2 mb-2">
+              <h3 className="font-semibold text-sm xs:text-base leading-tight break-words">
+                {flight.airline}
+              </h3>
+              <p className="font-bold text-blue-700 text-sm xs:text-base whitespace-nowrap flex-shrink-0">
+                {formatPrice(flight.price )}
+                {!totalPriceOnly && <span className="text-xs text-gray-500 ml-1">/ person</span>}
+              </p>
+            </div>
+            <div className="text-xs xs:text-sm text-gray-600 space-y-0.5">
               {flight.departure && flight.arrival && (
-                <p className="font-medium text-gray-900">
+                <p className="break-words">
                   {flight.departure} → {flight.arrival}
                 </p>
               )}
@@ -107,12 +109,6 @@ export function FlightBookingCard({ flight, passengers, onToggle, totalPriceOnly
                 </p>
               )}
             </div>
-          </div>
-          <div className="flex flex-col items-start xs:items-end gap-2">
-            <p className="font-semibold text-base xs:text-lg">
-              {safePrice(totalPrice)}
-            </p>
-            {totalPriceOnly && <p className="text-xs text-gray-500">Total price</p>}
             <a
               href={generateBookingLink()}
               target="_blank"
