@@ -4,7 +4,7 @@ import { Check, X, ExternalLink } from "lucide-react";
 
 interface Flight {
   airline: string;
-  price: string;
+  pricePerPerson: number;
   departure?: string;
   arrival?: string;
   departureTime?: string;
@@ -32,8 +32,8 @@ interface FlightBookingCardProps {
 }
 
 export function FlightBookingCard({ flight, passengers, onToggle, totalPriceOnly = false, departureAirport, arrivalAirport, departureDate, returnDate }: FlightBookingCardProps) {
-  const formatPrice = (price: string) => {
-    return `€${Math.round(Number(price)).toLocaleString()}`;
+  const formatPrice = (price: number) => {
+    return `€${Math.round(price).toLocaleString()}`;
   };
 
   // Generate pre-filled Booking.com flights link
@@ -43,7 +43,7 @@ export function FlightBookingCard({ flight, passengers, onToggle, totalPriceOnly
     }
 
     // Format dates as YYYY-MM-DD for Booking.com
-    const formatDate = (date: Date | string ): string => {
+    const formatDate = (date: Date | string  ): string => {
       const d = new Date(date);
       const year = d.getFullYear();
       const month = (d.getMonth() + 1).toString().padStart(2, '0');
@@ -78,7 +78,7 @@ export function FlightBookingCard({ flight, passengers, onToggle, totalPriceOnly
                 {flight.airline}
               </h3>
               <p className="font-bold text-blue-700 text-sm xs:text-base whitespace-nowrap flex-shrink-0">
-                {formatPrice(flight.price )}
+                {formatPrice(flight.pricePerPerson )}
                 {!totalPriceOnly && <span className="text-xs text-gray-500 ml-1">/ person</span>}
               </p>
             </div>
