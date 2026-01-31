@@ -157,7 +157,6 @@ export default function TripDetailsPage() {
             bookingUrl: item.booking_url,
           });
         });
-        });
       plan.itinerary = days.filter((d) => d !== undefined);
 
       setData({ plan, details });
