@@ -134,23 +134,29 @@ export default function TripDetailsPage() {
       };
 
       // Rebuild the daily itinerary
-      const days: any[] = [];
+            const days: any[] = [];
+      const totalPassengers = (trip.adults || 0) + (trip.children || 0) + (trip.infants || 0);
       items
 .filter((i: any) => i.item_type !== "flight" && i.item_type !== "hotel" && i.item_type !== "car")
         .forEach((item: any) => {
           const dayNum = item.day_number || 1;
           if (!days[dayNum - 1]) days[dayNum - 1] = { day: dayNum, items: [] };
+          // Calculate costPerPerson from total cost
+          const totalCost = Number(item.cost || 0);
+          const costPerPerson = totalPassengers > 0 ? totalCost / totalPassengers : 0;
           days[dayNum - 1].items.push({
             id: item.id,
             title: item.name,
             description: item.description,
             time: (item.provider_data as any)?.time || "09:00",
             type: "attraction",
-            cost: item.cost,
+            cost: totalCost,
+            costPerPerson: costPerPerson,
             included: item.included,
             imageUrl: item.image_url,
             bookingUrl: item.booking_url,
           });
+        });
         });
       plan.itinerary = days.filter((d) => d !== undefined);
 
