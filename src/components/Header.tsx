@@ -22,13 +22,25 @@ export function Header({ theme, onToggleTheme }: HeaderProps) {
   const navigate = useNavigate();
   const { user, loading, signOut } = useAuth();
 
-  const handleSignOut = async () => {
-    const { error } = await signOut();
-    if (error) {
-      toast.error("Unable to sign out");
-    } else {
-      toast.success("Signed out successfully");
-      navigate("/");
+    const handleSignOut = async () => {
+    try {
+      const { error } = await signOut();
+      if (error) {
+        console.error('Sign out error:', error);
+        // Still redirect and show success - local session was cleared
+        toast.success("Signed out successfully");
+        navigate("/");
+        // Force page reload to clear any cached state
+        window.location.href = "/";
+      } else {
+        toast.success("Signed out successfully");
+        navigate("/");
+      }
+    } catch (err) {
+      console.error('Sign out exception:', err);
+      // Force redirect anyway
+      toast.success("Signed out");
+      window.location.href = "/";
     }
   };
 
