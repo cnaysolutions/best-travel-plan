@@ -460,7 +460,14 @@ export function TripResults({
                     </CardTitle>
                   </CardHeader>
                   <CardContent>
-                    {day.items.map((item) => (
+                    {[...day.items]
+                      .sort((a, b) => {
+                        // Sort by time (HH:MM format)
+                        const timeA = a.time || "99:99";
+                        const timeB = b.time || "99:99";
+                        return timeA.localeCompare(timeB);
+                      })
+                      .map((item) => (
                       <div
                         key={item.id}
                         className="flex flex-col sm:flex-row items-start gap-4 border-b last:border-b-0 py-4"
