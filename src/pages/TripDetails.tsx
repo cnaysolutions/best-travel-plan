@@ -92,14 +92,16 @@ export default function TripDetailsPage() {
       setTripRecord(trip);
 
       // Check if this is a preview trip (no trip_items)
-      const items = Array.isArray(trip.trip_items) ? trip.trip_items : [];
+const items = Array.isArray(trip.trip_items) ? trip.trip_items : [];
 
-      if (items.length === 0) {
-        setIsPreview(true);
-        setLoading(false);
-        return;
-      }
-
+// Only show preview mode if:
+// 1. No trip_items exist AND
+// 2. The trip status is NOT "complete" (user hasn't paid for it yet)
+if (items.length === 0 && trip.status !== "complete") {
+  setIsPreview(true);
+  setLoading(false);
+  return;
+}
       // Reconstruct TripDetails
       const details: TripDetails = {
         departureCity: trip.origin_city,
