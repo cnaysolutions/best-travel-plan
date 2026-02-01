@@ -45,12 +45,10 @@ export function AirportAutocomplete({
   const inputRef = useRef<HTMLInputElement>(null);
   const debounceRef = useRef<NodeJS.Timeout | null>(null);
 
-  // Update dropdown position when it opens or window resizes
   useEffect(() => {
     function updatePosition() {
       if (containerRef.current && isOpen) {
         const rect = containerRef.current.getBoundingClientRect();
-        // Use viewport-relative positioning (fixed) for better mobile support
         setDropdownPosition({
           top: rect.bottom,
           left: rect.left,
@@ -62,7 +60,6 @@ export function AirportAutocomplete({
     updatePosition();
     window.addEventListener('resize', updatePosition);
     window.addEventListener('scroll', updatePosition, true);
-    // Also update on orientation change for mobile
     window.addEventListener('orientationchange', updatePosition);
 
     return () => {
@@ -72,7 +69,6 @@ export function AirportAutocomplete({
     };
   }, [isOpen]);
 
-  // Search for airports when input changes
   useEffect(() => {
     if (debounceRef.current) {
       clearTimeout(debounceRef.current);
@@ -84,7 +80,6 @@ export function AirportAutocomplete({
       return;
     }
 
-    // Don't search if we have a selected airport that matches input
     if (selectedAirport && value === formatAirportDisplay(selectedAirport)) {
       setIsOpen(false);
       return;
@@ -95,7 +90,6 @@ export function AirportAutocomplete({
       setError(null);
 
       try {
-        // Search airports using full-text search
         const searchTerm = value.toLowerCase();
         
         const { data, error: searchError } = await supabase
@@ -126,11 +120,9 @@ export function AirportAutocomplete({
     };
   }, [value, selectedAirport]);
 
-  // Close dropdown when clicking/touching outside
   useEffect(() => {
     function handleClickOutside(event: MouseEvent | TouchEvent) {
       if (containerRef.current && !containerRef.current.contains(event.target as Node)) {
-        // Check if click is on the portal dropdown
         const target = event.target as HTMLElement;
         if (!target.closest('[data-airport-dropdown]')) {
           setIsOpen(false);
@@ -155,63 +147,102 @@ export function AirportAutocomplete({
     onAirportSelect(airport);
     setIsOpen(false);
     setAirports([]);
-    // Blur input on mobile to close keyboard
     if (inputRef.current) {
       inputRef.current.blur();
     }
   }
 
-  // Handle touch/click for mobile compatibility
   function handleItemClick(e: React.MouseEvent | React.TouchEvent, airport: Airport) {
     e.preventDefault();
     e.stopPropagation();
     handleSelect(airport);
   }
 
-  // Dropdown content component
   const DropdownContent = () => {
     if (!isOpen || (!airports.length && !error)) return null;
 
     return createPortal(
       <div
         data-airport-dropdown
-        className="fixed z-[9999] rounded-lg border border-border bg-popover shadow-lg animate-fade-in max-h-96 overflow-hidden"
         style={{
+          position: 'fixed',
+          zIndex: 9999,
           top: `${dropdownPosition.top}px`,
           left: `${dropdownPosition.left}px`,
           width: `${dropdownPosition.width}px`,
+          backgroundColor: '#ffffff',
+          border: '1px solid #e5e7eb',
+          borderRadius: '8px',
+          boxShadow: '0 10px 25px rgba(0,0,0,0.15)',
+          maxHeight: '384px',
+          overflow: 'hidden',
         }}
       >
         {error ? (
-          <div className="p-3 text-sm text-destructive">{error}</div>
+          <div style={{ padding: '12px', fontSize: '14px', color: '#dc2626' }}>{error}</div>
         ) : (
-             <ul className="max-h-96 overflow-auto py-1" style={{ WebkitOverflowScrolling: 'touch' }}>
+          <ul style={{ maxHeight: '384px', overflowY: 'auto', padding: '4px 0', margin: 0, listStyle: 'none', WebkitOverflowScrolling: 'touch' }}>
             {airports.map((airport) => (
               <li key={airport.id}>
                 <button
                   type="button"
                   onClick={(e) => handleItemClick(e, airport)}
                   onTouchEnd={(e) => handleItemClick(e, airport)}
-                  className="w-full px-3 py-2.5 text-left hover:bg-gray-100 focus:bg-gray-100 active:bg-gray-200 focus:outline-none transition-colors flex items-center gap-3 touch-manipulation"
+                  style={{
+                    width: '100%',
+                    padding: '10px 12px',
+                    textAlign: 'left',
+                    backgroundColor: 'transparent',
+                    border: 'none',
+                    cursor: 'pointer',
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '12px',
+                  }}
+                  onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#f3f4f6'}
+                  onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'transparent'}
                 >
-                  <div className="h-8 w-8 rounded-full bg-amber-100 flex items-center justify-center shrink-0">
-                    <Plane className="h-4 w-4 text-amber-600" />
+                  <div style={{
+                    height: '32px',
+                    width: '32px',
+                    borderRadius: '50%',
+                    backgroundColor: '#fef3c7',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    flexShrink: 0,
+                  }}>
+                    <Plane style={{ height: '16px', width: '16px', color: '#d97706' }} />
                   </div>
-                  <div className="flex-1 min-w-0">
-                    <div className="flex items-center gap-2 flex-wrap">
-                      <span className="font-medium text-gray-900">
+                  <div style={{ flex: 1, minWidth: 0 }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap' }}>
+                      <span style={{ fontWeight: 600, color: '#111827', fontSize: '15px' }}>
                         {airport.city}
                       </span>
-                      <span className="text-xs font-mono bg-gray-200 px-1.5 py-0.5 rounded text-gray-700">
+                      <span style={{
+                        fontSize: '12px',
+                        fontFamily: 'monospace',
+                        backgroundColor: '#e5e7eb',
+                        padding: '2px 6px',
+                        borderRadius: '4px',
+                        color: '#374151',
+                      }}>
                         {airport.iata_code}
                       </span>
                       {airport.is_amadeus_supported && (
-                        <Badge variant="secondary" className="text-xs bg-blue-100 text-blue-700">
+                        <span style={{
+                          fontSize: '11px',
+                          backgroundColor: '#dbeafe',
+                          color: '#1d4ed8',
+                          padding: '2px 6px',
+                          borderRadius: '9999px',
+                          fontWeight: 500,
+                        }}>
                           Real Prices
-                        </Badge>
+                        </span>
                       )}
                     </div>
-                    <div className="text-sm text-gray-600 truncate">
+                    <div style={{ fontSize: '13px', color: '#4b5563', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
                       {airport.name}, {airport.country}
                     </div>
                   </div>
@@ -235,7 +266,6 @@ export function AirportAutocomplete({
           value={value}
           onChange={(e) => onChange(e.target.value)}
           onFocus={() => {
-            // Re-open dropdown on focus if there are results
             if (airports.length > 0 && value.length >= 2) {
               setIsOpen(true);
             }
