@@ -185,33 +185,33 @@ export function AirportAutocomplete({
         {error ? (
           <div className="p-3 text-sm text-destructive">{error}</div>
         ) : (
-          <ul className="max-h-96 overflow-auto py-1" style={{ WebkitOverflowScrolling: 'touch' }}>
+             <ul className="max-h-96 overflow-auto py-1" style={{ WebkitOverflowScrolling: 'touch' }}>
             {airports.map((airport) => (
               <li key={airport.id}>
                 <button
                   type="button"
                   onClick={(e) => handleItemClick(e, airport)}
                   onTouchEnd={(e) => handleItemClick(e, airport)}
-                  className="w-full px-3 py-2.5 text-left hover:bg-accent/10 focus:bg-accent/10 active:bg-accent/20 focus:outline-none transition-colors flex items-center gap-3 touch-manipulation"
+                  className="w-full px-3 py-2.5 text-left hover:bg-gray-100 focus:bg-gray-100 active:bg-gray-200 focus:outline-none transition-colors flex items-center gap-3 touch-manipulation"
                 >
-                  <div className="h-8 w-8 rounded-full bg-accent/20 flex items-center justify-center shrink-0">
-                    <Plane className="h-4 w-4 text-accent" />
+                  <div className="h-8 w-8 rounded-full bg-amber-100 flex items-center justify-center shrink-0">
+                    <Plane className="h-4 w-4 text-amber-600" />
                   </div>
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-2 flex-wrap">
-                      <span className="font-medium text-foreground">
+                      <span className="font-medium text-gray-900">
                         {airport.city}
                       </span>
-                      <span className="text-xs font-mono bg-muted px-1.5 py-0.5 rounded text-muted-foreground">
+                      <span className="text-xs font-mono bg-gray-200 px-1.5 py-0.5 rounded text-gray-700">
                         {airport.iata_code}
                       </span>
                       {airport.is_amadeus_supported && (
-                        <Badge variant="secondary" className="text-xs">
+                        <Badge variant="secondary" className="text-xs bg-blue-100 text-blue-700">
                           Real Prices
                         </Badge>
                       )}
                     </div>
-                    <div className="text-sm text-muted-foreground truncate">
+                    <div className="text-sm text-gray-600 truncate">
                       {airport.name}, {airport.country}
                     </div>
                   </div>
