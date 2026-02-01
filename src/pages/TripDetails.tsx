@@ -143,9 +143,12 @@ if (items.length === 0 && trip.status !== "complete") {
         .forEach((item: any) => {
           const dayNum = item.day_number || 1;
           if (!days[dayNum - 1]) days[dayNum - 1] = { day: dayNum, items: [] };
-          // Calculate costPerPerson from total cost
+          // Get costPerPerson from provider_data if available, otherwise calculate from total cost
           const totalCost = Number(item.cost || 0);
-          const costPerPerson = totalPassengers > 0 ? totalCost / totalPassengers : 0;
+          const savedCostPerPerson = (item.provider_data as any)?.costPerPerson;
+          const costPerPerson = savedCostPerPerson != null 
+            ? Number(savedCostPerPerson) 
+            : (totalPassengers > 0 ? totalCost / totalPassengers : 0);
           days[dayNum - 1].items.push({
             id: item.id,
             title: item.name,

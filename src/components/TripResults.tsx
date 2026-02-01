@@ -252,7 +252,10 @@ export function TripResults({
             day_number: dayIndex + 1,
             image_url: item.imageUrl,
             booking_url: item.bookingUrl,
-            provider_data: { time: item.time },
+            provider_data: { 
+              time: item.time,
+              costPerPerson: (item as any).costPerPerson || null,
+            },
           });
         });
       });

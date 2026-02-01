@@ -154,6 +154,7 @@ function buildTripItems(tripId: string, tripPlan: TripPlan, totalPassengers: num
           distance: item.distance || null,
           duration: item.duration || null,
           originalType: item.type,
+          costPerPerson: (item as any).costPerPerson || null,
         } as Json,
         image_url: item.imageUrl || null,
         booking_url: item.bookingUrl || null,
