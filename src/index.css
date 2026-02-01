@@ -696,3 +696,51 @@ body.theme-dark.mode-planning {
 .theme-dark [role="menuitem"]:hover {
   background-color: rgba(255, 255, 255, 0.1) !important;
 }
+/* =========================================
+   CALENDAR DATE PICKER FIX
+   Make dates visible on mobile
+   ========================================= */
+
+/* Calendar grid - ensure dates are visible */
+[role="grid"] button,
+[role="gridcell"] button,
+.rdp-day,
+.rdp-button {
+  color: #1f2937 !important;
+}
+
+/* Calendar header (month/year) */
+.rdp-caption_label,
+.rdp-head_cell {
+  color: #1f2937 !important;
+}
+
+/* Calendar navigation arrows */
+.rdp-nav_button {
+  color: #1f2937 !important;
+}
+
+/* Selected date */
+[role="gridcell"] button[aria-selected="true"],
+.rdp-day_selected {
+  background-color: hsl(220 35% 22%) !important;
+  color: #ffffff !important;
+}
+
+/* Today's date */
+.rdp-day_today {
+  font-weight: bold;
+  border: 1px solid hsl(220 35% 22%) !important;
+}
+
+/* Hover state */
+[role="gridcell"] button:hover,
+.rdp-day:hover {
+  background-color: rgba(0, 0, 0, 0.1) !important;
+}
+
+/* Dark mode calendar inside popover */
+.dark [data-radix-popper-content-wrapper] [role="grid"] button,
+.theme-dark [data-radix-popper-content-wrapper] [role="grid"] button {
+  color: #1f2937 !important;
+}
