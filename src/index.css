@@ -744,3 +744,129 @@ body.theme-dark.mode-planning {
 .theme-dark [data-radix-popper-content-wrapper] [role="grid"] button {
   color: #1f2937 !important;
 }
+/* =========================================
+   TRIP RESULTS PAGE FIXES
+   Header, Estimated Total, and Book links
+   ========================================= */
+
+/* Itinerary header gradient - more visible */
+.bg-gradient-to-r.from-blue-50.to-indigo-50 {
+  background: linear-gradient(to right, #eff6ff, #eef2ff) !important;
+}
+
+.dark .bg-gradient-to-r.from-blue-50.to-indigo-50,
+.theme-dark .bg-gradient-to-r.from-blue-50.to-indigo-50 {
+  background: linear-gradient(to right, #1e3a5f, #312e81) !important;
+}
+
+/* Card title in results - ensure visibility */
+.dark .bg-gradient-to-r h1,
+.dark .bg-gradient-to-r h2,
+.dark .bg-gradient-to-r h3,
+.dark .bg-gradient-to-r [class*="CardTitle"],
+.theme-dark .bg-gradient-to-r h1,
+.theme-dark .bg-gradient-to-r h2,
+.theme-dark .bg-gradient-to-r h3,
+.theme-dark .bg-gradient-to-r [class*="CardTitle"] {
+  color: #ffffff !important;
+}
+
+.dark .bg-gradient-to-r p,
+.theme-dark .bg-gradient-to-r p {
+  color: #d1d5db !important;
+}
+
+/* Estimated Total card */
+.bg-blue-50 {
+  background-color: #eff6ff !important;
+}
+
+.dark .bg-blue-50,
+.theme-dark .bg-blue-50 {
+  background-color: #1e3a5f !important;
+  border-color: #3b82f6 !important;
+}
+
+.dark .bg-blue-50 p,
+.theme-dark .bg-blue-50 p {
+  color: #e5e7eb !important;
+}
+
+.dark .bg-blue-50 .text-blue-600,
+.theme-dark .bg-blue-50 .text-blue-600 {
+  color: #60a5fa !important;
+}
+
+.dark .bg-blue-50 .text-gray-600,
+.dark .bg-blue-50 .text-gray-500,
+.theme-dark .bg-blue-50 .text-gray-600,
+.theme-dark .bg-blue-50 .text-gray-500 {
+  color: #9ca3af !important;
+}
+
+/* Book Now links - always visible */
+.text-blue-600 {
+  color: #2563eb !important;
+}
+
+.dark .text-blue-600,
+.theme-dark .text-blue-600 {
+  color: #60a5fa !important;
+}
+
+/* Section titles (Flights, Accommodation, etc) */
+.dark .text-xl.font-semibold,
+.theme-dark .text-xl.font-semibold {
+  color: #f3f4f6 !important;
+}
+
+/* Card borders in dark mode */
+.dark .border.rounded-lg,
+.theme-dark .border.rounded-lg {
+  border-color: rgba(255, 255, 255, 0.2) !important;
+  background-color: rgba(30, 41, 59, 0.8) !important;
+}
+
+/* Text inside card sections */
+.dark .border.rounded-lg h3,
+.theme-dark .border.rounded-lg h3 {
+  color: #f3f4f6 !important;
+}
+
+.dark .border.rounded-lg .text-gray-500,
+.dark .border.rounded-lg .text-gray-600,
+.theme-dark .border.rounded-lg .text-gray-500,
+.theme-dark .border.rounded-lg .text-gray-600 {
+  color: #9ca3af !important;
+}
+
+/* Price text */
+.dark .font-semibold.text-lg,
+.theme-dark .font-semibold.text-lg {
+  color: #f3f4f6 !important;
+}
+
+/* View on Map link */
+.dark a.text-sm.text-blue-600,
+.theme-dark a.text-sm.text-blue-600 {
+  color: #60a5fa !important;
+}
+
+/* Daily itinerary items */
+.dark .border.rounded-lg.p-4,
+.theme-dark .border.rounded-lg.p-4 {
+  background-color: rgba(30, 41, 59, 0.9) !important;
+}
+
+/* Start Over button */
+.dark button[class*="outline"],
+.theme-dark button[class*="outline"] {
+  border-color: rgba(255, 255, 255, 0.4) !important;
+  color: #ffffff !important;
+  background-color: transparent !important;
+}
+
+.dark button[class*="outline"]:hover,
+.theme-dark button[class*="outline"]:hover {
+  background-color: rgba(255, 255, 255, 0.1) !important;
+}
