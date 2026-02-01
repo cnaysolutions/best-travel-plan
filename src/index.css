@@ -870,3 +870,56 @@ body.theme-dark.mode-planning {
 .theme-dark button[class*="outline"]:hover {
   background-color: rgba(255, 255, 255, 0.1) !important;
 }
+/* =========================================
+   AIRPORT AUTOCOMPLETE DROPDOWN FIX
+   City names and codes visibility
+   ========================================= */
+
+/* Airport dropdown container */
+[data-airport-dropdown] {
+  background-color: #ffffff !important;
+}
+
+/* Airport dropdown items - all text dark */
+[data-airport-dropdown] button {
+  color: #1f2937 !important;
+}
+
+[data-airport-dropdown] .font-medium,
+[data-airport-dropdown] span.font-medium {
+  color: #1f2937 !important;
+}
+
+/* Airport code badge */
+[data-airport-dropdown] .text-xs.font-mono,
+[data-airport-dropdown] span.bg-muted {
+  background-color: #e5e7eb !important;
+  color: #374151 !important;
+}
+
+/* Airport description text */
+[data-airport-dropdown] .text-sm.text-muted-foreground,
+[data-airport-dropdown] .truncate {
+  color: #6b7280 !important;
+}
+
+/* Real Prices badge */
+[data-airport-dropdown] [class*="Badge"] {
+  background-color: #dbeafe !important;
+  color: #1d4ed8 !important;
+}
+
+/* Hover state */
+[data-airport-dropdown] button:hover,
+[data-airport-dropdown] button:active {
+  background-color: #f3f4f6 !important;
+}
+
+/* Icon circle background */
+[data-airport-dropdown] .rounded-full.bg-accent\/20 {
+  background-color: #fef3c7 !important;
+}
+
+[data-airport-dropdown] .rounded-full svg {
+  color: #d97706 !important;
+}
