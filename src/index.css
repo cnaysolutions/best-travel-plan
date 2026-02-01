@@ -589,3 +589,110 @@ body.theme-dark.mode-planning {
 .theme-dark .bg-gradient-hero .text-primary-foreground\/80 {
   color: rgba(255, 255, 255, 0.85) !important;
 }
+
+
+/* =========================================
+   MOBILE DARK MODE FIXES
+   Tab buttons, badges, and form elements
+   ========================================= */
+
+/* Tabs - ensure visible text on mobile dark mode */
+.dark [role="tablist"],
+.theme-dark [role="tablist"] {
+  background-color: rgba(255, 255, 255, 0.1) !important;
+}
+
+.dark [role="tab"],
+.theme-dark [role="tab"] {
+  color: rgba(255, 255, 255, 0.7) !important;
+}
+
+.dark [role="tab"][data-state="active"],
+.theme-dark [role="tab"][data-state="active"] {
+  background-color: #ffffff !important;
+  color: #1f2937 !important;
+}
+
+/* Badge fixes for dark mode - ensure visible text */
+.dark .bg-secondary,
+.theme-dark .bg-secondary {
+  background-color: rgba(255, 255, 255, 0.15) !important;
+  color: #ffffff !important;
+}
+
+.dark [class*="Badge"],
+.theme-dark [class*="Badge"] {
+  color: inherit;
+}
+
+/* Draft badge - light background, dark text */
+.dark .rounded-full.bg-secondary,
+.theme-dark .rounded-full.bg-secondary {
+  background-color: rgba(255, 255, 255, 0.2) !important;
+  color: #ffffff !important;
+}
+
+/* Premium button text fix */
+.dark .bg-gradient-hero button,
+.theme-dark .bg-gradient-hero button,
+.dark button.bg-gradient-hero,
+.theme-dark button.bg-gradient-hero {
+  color: #ffffff !important;
+}
+
+/* Outline button in dark mode */
+.dark button[class*="outline"],
+.theme-dark button[class*="outline"] {
+  border-color: rgba(255, 255, 255, 0.3) !important;
+  color: #ffffff !important;
+}
+
+/* Fix Sign In button visibility */
+.dark [data-slot="card"] button.bg-gradient-hero,
+.theme-dark [data-slot="card"] button.bg-gradient-hero,
+.dark .rounded-lg.border button.bg-gradient-hero,
+.theme-dark .rounded-lg.border button.bg-gradient-hero {
+  color: #ffffff !important;
+}
+
+/* Continue with Google button */
+.dark [data-slot="card"] button[class*="outline"],
+.theme-dark [data-slot="card"] button[class*="outline"],
+.dark .rounded-lg.border button[class*="outline"],
+.theme-dark .rounded-lg.border button[class*="outline"] {
+  background-color: #ffffff !important;
+  color: #1f2937 !important;
+  border-color: #d1d5db !important;
+}
+
+/* Trip cards in dark mode */
+.dark .border.rounded-lg.bg-card,
+.theme-dark .border.rounded-lg.bg-card {
+  background-color: rgba(30, 41, 59, 0.9) !important;
+}
+
+.dark .border.rounded-lg.bg-card *,
+.theme-dark .border.rounded-lg.bg-card * {
+  color: #e5e7eb !important;
+}
+
+.dark .border.rounded-lg.bg-card .text-muted-foreground,
+.theme-dark .border.rounded-lg.bg-card .text-muted-foreground {
+  color: #9ca3af !important;
+}
+
+/* Dropdown menu in dark mode */
+.dark [role="menu"],
+.theme-dark [role="menu"] {
+  background-color: #1e293b !important;
+}
+
+.dark [role="menuitem"],
+.theme-dark [role="menuitem"] {
+  color: #e5e7eb !important;
+}
+
+.dark [role="menuitem"]:hover,
+.theme-dark [role="menuitem"]:hover {
+  background-color: rgba(255, 255, 255, 0.1) !important;
+}
