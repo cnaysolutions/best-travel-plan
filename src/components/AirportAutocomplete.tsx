@@ -50,9 +50,10 @@ export function AirportAutocomplete({
     function updatePosition() {
       if (containerRef.current && isOpen) {
         const rect = containerRef.current.getBoundingClientRect();
+        // Use viewport-relative positioning (fixed) for better mobile support
         setDropdownPosition({
-          top: rect.bottom + window.scrollY,
-          left: rect.left + window.scrollX,
+          top: rect.bottom,
+          left: rect.left,
           width: rect.width,
         });
       }
@@ -61,10 +62,13 @@ export function AirportAutocomplete({
     updatePosition();
     window.addEventListener('resize', updatePosition);
     window.addEventListener('scroll', updatePosition, true);
+    // Also update on orientation change for mobile
+    window.addEventListener('orientationchange', updatePosition);
 
     return () => {
       window.removeEventListener('resize', updatePosition);
       window.removeEventListener('scroll', updatePosition, true);
+      window.removeEventListener('orientationchange', updatePosition);
     };
   }, [isOpen]);
 
@@ -122,9 +126,9 @@ export function AirportAutocomplete({
     };
   }, [value, selectedAirport]);
 
-  // Close dropdown when clicking outside
+  // Close dropdown when clicking/touching outside
   useEffect(() => {
-    function handleClickOutside(event: MouseEvent) {
+    function handleClickOutside(event: MouseEvent | TouchEvent) {
       if (containerRef.current && !containerRef.current.contains(event.target as Node)) {
         // Check if click is on the portal dropdown
         const target = event.target as HTMLElement;
@@ -135,7 +139,11 @@ export function AirportAutocomplete({
     }
 
     document.addEventListener('mousedown', handleClickOutside);
-    return () => document.removeEventListener('mousedown', handleClickOutside);
+    document.addEventListener('touchstart', handleClickOutside);
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+      document.removeEventListener('touchstart', handleClickOutside);
+    };
   }, []);
 
   function formatAirportDisplay(airport: Airport): string {
@@ -147,6 +155,17 @@ export function AirportAutocomplete({
     onAirportSelect(airport);
     setIsOpen(false);
     setAirports([]);
+    // Blur input on mobile to close keyboard
+    if (inputRef.current) {
+      inputRef.current.blur();
+    }
+  }
+
+  // Handle touch/click for mobile compatibility
+  function handleItemClick(e: React.MouseEvent | React.TouchEvent, airport: Airport) {
+    e.preventDefault();
+    e.stopPropagation();
+    handleSelect(airport);
   }
 
   // Dropdown content component
@@ -166,13 +185,14 @@ export function AirportAutocomplete({
         {error ? (
           <div className="p-3 text-sm text-destructive">{error}</div>
         ) : (
-          <ul className="max-h-96 overflow-auto py-1">
+          <ul className="max-h-96 overflow-auto py-1" style={{ WebkitOverflowScrolling: 'touch' }}>
             {airports.map((airport) => (
               <li key={airport.id}>
                 <button
                   type="button"
-                  onClick={() => handleSelect(airport)}
-                  className="w-full px-3 py-2.5 text-left hover:bg-accent/10 focus:bg-accent/10 focus:outline-none transition-colors flex items-center gap-3"
+                  onClick={(e) => handleItemClick(e, airport)}
+                  onTouchEnd={(e) => handleItemClick(e, airport)}
+                  className="w-full px-3 py-2.5 text-left hover:bg-accent/10 focus:bg-accent/10 active:bg-accent/20 focus:outline-none transition-colors flex items-center gap-3 touch-manipulation"
                 >
                   <div className="h-8 w-8 rounded-full bg-accent/20 flex items-center justify-center shrink-0">
                     <Plane className="h-4 w-4 text-accent" />
@@ -214,12 +234,22 @@ export function AirportAutocomplete({
           type="text"
           value={value}
           onChange={(e) => onChange(e.target.value)}
+          onFocus={() => {
+            // Re-open dropdown on focus if there are results
+            if (airports.length > 0 && value.length >= 2) {
+              setIsOpen(true);
+            }
+          }}
           placeholder={placeholder}
           className={cn(
             "pr-10",
             selectedAirport && "border-success"
           )}
           autoComplete="off"
+          autoCorrect="off"
+          autoCapitalize="off"
+          spellCheck="false"
+          inputMode="search"
         />
         <div className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground">
           {isLoading ? (
