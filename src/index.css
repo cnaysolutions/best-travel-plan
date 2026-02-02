@@ -555,3 +555,84 @@ html body.theme-dark.mode-planning {
     background-attachment: scroll !important;
   }
 }
+/* =========================================
+   FIX 1: CALENDAR DATE NUMBERS ON MOBILE
+   ========================================= */
+
+/* Force all calendar day numbers to be visible */
+.rdp-day,
+.rdp-button,
+.rdp-cell button,
+[role="gridcell"] button,
+[role="grid"] button,
+button[name="day"] {
+  color: #1f2937 !important;
+  opacity: 1 !important;
+}
+
+/* Calendar day numbers specifically */
+.rdp-day_outside {
+  color: #9ca3af !important;
+  opacity: 0.5 !important;
+}
+
+/* Ensure the calendar container has white background */
+.rdp,
+.rdp-months,
+.rdp-month,
+.rdp-table {
+  background-color: #ffffff !important;
+}
+
+/* =========================================
+   FIX 2: BACKGROUND ON AUTH & TRIPS PAGES
+   Apply background to all pages
+   ========================================= */
+
+/* Auth page background */
+.min-h-screen,
+div.min-h-screen,
+main,
+.flex-1 {
+  background: transparent !important;
+}
+
+/* Make sure the html and body always show background */
+html {
+  background-image: 
+    linear-gradient(rgba(255, 255, 255, 0.75), rgba(255, 255, 255, 0.82)),
+    url('/images/background.jpg') !important;
+  background-size: cover !important;
+  background-position: center !important;
+  background-attachment: fixed !important;
+  background-repeat: no-repeat !important;
+  min-height: 100vh;
+}
+
+/* Cards on auth/trips pages - semi-transparent white */
+.rounded-lg.border.bg-card,
+[data-slot="card"],
+.bg-card {
+  background-color: rgba(255, 255, 255, 0.95) !important;
+  backdrop-filter: blur(8px) !important;
+}
+
+/* Trip cards with slight transparency to show background */
+.border.rounded-lg.bg-card.text-card-foreground {
+  background-color: rgba(255, 255, 255, 0.92) !important;
+}
+
+/* Header should be slightly transparent */
+header.sticky,
+header.border-b {
+  background-color: rgba(255, 255, 255, 0.9) !important;
+  backdrop-filter: blur(10px) !important;
+}
+
+/* Dark mode header */
+.dark header.sticky,
+.dark header.border-b,
+.theme-dark header.sticky,
+.theme-dark header.border-b {
+  background-color: rgba(15, 23, 42, 0.9) !important;
+}
