@@ -636,3 +636,140 @@ header.border-b {
 .theme-dark header.border-b {
   background-color: rgba(15, 23, 42, 0.9) !important;
 }
+/* =========================================
+   MOBILE TEXT VISIBILITY FIX - FORCE COLORS
+   This overrides any theme detection issues
+   ========================================= */
+
+/* Force trip card text to always be visible */
+.border.rounded-lg.bg-card h3,
+.border.rounded-lg.bg-card p,
+.border.rounded-lg.bg-card span,
+.border.rounded-lg.bg-card div,
+.bg-card h3,
+.bg-card p,
+.bg-card span:not(.bg-emerald-500\/20):not(.bg-secondary),
+.bg-card div:not(.bg-emerald-500\/20) {
+  color: #1f2937 !important;
+  -webkit-text-fill-color: #1f2937 !important;
+  opacity: 1 !important;
+}
+
+/* Trip route text (Frankfurt → Bermejo) */
+h3.font-display,
+.font-display.font-semibold,
+[class*="font-display"] {
+  color: #1f2937 !important;
+  -webkit-text-fill-color: #1f2937 !important;
+}
+
+/* Date and travelers text */
+.text-sm.text-muted-foreground,
+.text-muted-foreground {
+  color: #6b7280 !important;
+  -webkit-text-fill-color: #6b7280 !important;
+  opacity: 1 !important;
+}
+
+/* Created date text */
+.text-xs.text-muted-foreground {
+  color: #9ca3af !important;
+  -webkit-text-fill-color: #9ca3af !important;
+}
+
+/* Calendar - Force date numbers visible */
+.rdp-day,
+.rdp-button,
+.rdp-cell,
+.rdp-cell button,
+[role="gridcell"],
+[role="gridcell"] button,
+[role="grid"] button,
+table button,
+button[name="day"] {
+  color: #1f2937 !important;
+  -webkit-text-fill-color: #1f2937 !important;
+  opacity: 1 !important;
+  background-color: transparent !important;
+}
+
+/* Calendar selected day */
+.rdp-day_selected,
+[aria-selected="true"] {
+  color: #ffffff !important;
+  -webkit-text-fill-color: #ffffff !important;
+  background-color: #1e3a5f !important;
+}
+
+/* Calendar day headers (Su Mo Tu...) */
+.rdp-head_cell,
+.rdp-caption_label,
+thead th {
+  color: #1f2937 !important;
+  -webkit-text-fill-color: #1f2937 !important;
+}
+
+/* Your Trips page title */
+h1, h2.font-display {
+  color: #1f2937 !important;
+  -webkit-text-fill-color: #1f2937 !important;
+}
+
+/* Ensure cards have white background on mobile */
+@media (max-width: 768px) {
+  .bg-card,
+  .border.rounded-lg,
+  [class*="rounded-lg"][class*="border"] {
+    background-color: #ffffff !important;
+    -webkit-backdrop-filter: none !important;
+    backdrop-filter: none !important;
+  }
+  
+  .bg-card *,
+  .border.rounded-lg * {
+    color: #1f2937 !important;
+    -webkit-text-fill-color: #1f2937 !important;
+  }
+  
+  .bg-card .text-muted-foreground,
+  .border.rounded-lg .text-muted-foreground {
+    color: #6b7280 !important;
+    -webkit-text-fill-color: #6b7280 !important;
+  }
+  
+  /* Badge colors */
+  .bg-emerald-500\/20,
+  [class*="Complete"] {
+    background-color: rgba(16, 185, 129, 0.2) !important;
+    color: #065f46 !important;
+    -webkit-text-fill-color: #065f46 !important;
+  }
+  
+  .bg-secondary {
+    background-color: #e5e7eb !important;
+    color: #374151 !important;
+    -webkit-text-fill-color: #374151 !important;
+  }
+}
+
+/* Force prefers-color-scheme override for problematic mobile browsers */
+@media (prefers-color-scheme: dark) {
+  .bg-card,
+  .border.rounded-lg.bg-card,
+  [data-slot="card"] {
+    background-color: #ffffff !important;
+  }
+  
+  .bg-card *,
+  .border.rounded-lg.bg-card *,
+  [data-slot="card"] * {
+    color: #1f2937 !important;
+    -webkit-text-fill-color: #1f2937 !important;
+  }
+  
+  .bg-card .text-muted-foreground,
+  [data-slot="card"] .text-muted-foreground {
+    color: #6b7280 !important;
+    -webkit-text-fill-color: #6b7280 !important;
+  }
+}
