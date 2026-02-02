@@ -935,7 +935,7 @@ body.theme-light.mode-planning,
 body.theme-light.mode-results {
   background-image: 
     linear-gradient(rgba(255, 255, 255, 0.85), rgba(255, 255, 255, 0.9)),
-    url('https://customer-assets.emergentagent.com/job_5d2a77da-b1f7-4e70-b093-dac8d3e50323/artifacts/ks5p0zr3_ondsPfwmv2Tz.jpg') !important;
+    url('/images/background.jpg') !important;
   background-size: cover !important;
   background-position: center !important;
   background-attachment: fixed !important;
