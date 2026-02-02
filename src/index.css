@@ -923,3 +923,47 @@ body.theme-dark.mode-planning {
 [data-airport-dropdown] .rounded-full svg {
   color: #d97706 !important;
 }
+/* =========================================
+   CUSTOM BACKGROUND IMAGE
+   Menton coastal town with text overlay
+   ========================================= */
+
+/* Light mode background */
+body,
+body.theme-light,
+body.theme-light.mode-planning,
+body.theme-light.mode-results {
+  background-image: 
+    linear-gradient(rgba(255, 255, 255, 0.85), rgba(255, 255, 255, 0.9)),
+    url('https://customer-assets.emergentagent.com/job_5d2a77da-b1f7-4e70-b093-dac8d3e50323/artifacts/ks5p0zr3_ondsPfwmv2Tz.jpg') !important;
+  background-size: cover !important;
+  background-position: center !important;
+  background-attachment: fixed !important;
+  background-repeat: no-repeat !important;
+}
+
+/* Dark mode background - darker overlay */
+body.theme-dark,
+body.theme-dark.mode-planning,
+body.theme-dark.mode-results {
+  background-image: 
+    linear-gradient(rgba(15, 23, 42, 0.88), rgba(15, 23, 42, 0.92)),
+    url('https://customer-assets.emergentagent.com/job_5d2a77da-b1f7-4e70-b093-dac8d3e50323/artifacts/ks5p0zr3_ondsPfwmv2Tz.jpg') !important;
+  background-size: cover !important;
+  background-position: center !important;
+  background-attachment: fixed !important;
+  background-repeat: no-repeat !important;
+}
+
+/* Mobile optimization - scroll instead of fixed for performance */
+@media (max-width: 768px) {
+  body,
+  body.theme-light,
+  body.theme-light.mode-planning,
+  body.theme-light.mode-results,
+  body.theme-dark,
+  body.theme-dark.mode-planning,
+  body.theme-dark.mode-results {
+    background-attachment: scroll !important;
+  }
+}
