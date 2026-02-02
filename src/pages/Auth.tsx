@@ -161,7 +161,7 @@ export default function Auth() {
           <a href="/" className="flex items-center gap-2">
             <Compass className="h-6 w-6 text-accent" />
             <span className="font-display text-xl font-semibold text-foreground">
-              TripWeave
+              Best Holiday Plan
             </span>
           </a>
         </div>

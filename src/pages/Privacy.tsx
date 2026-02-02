@@ -14,8 +14,8 @@ export default function Privacy() {
                 <Compass className="h-5 w-5 text-primary-foreground" />
               </div>
               <div>
-                <p className="font-display text-lg font-semibold">TripWeave</p>
-                <p className="text-xs text-muted-foreground">Concierge</p>
+                <p className="font-display text-lg font-semibold">Best Holiday Plan</p>
+                <p className="text-xs text-muted-foreground">Best Holiday Plan</p>
               </div>
             </Link>
             <Button variant="ghost" asChild>
@@ -37,7 +37,7 @@ export default function Privacy() {
           <section>
             <h2 className="font-display text-2xl font-semibold mb-4">1. Introduction</h2>
             <p className="text-muted-foreground leading-relaxed">
-              Welcome to TripWeave Concierge. We are committed to protecting your personal information 
+              Welcome to Best Holiday Plan. We are committed to protecting your personal information 
               and your right to privacy. This Privacy Policy explains how we collect, use, disclose, 
               and safeguard your information when you use our travel planning platform.
             </p>

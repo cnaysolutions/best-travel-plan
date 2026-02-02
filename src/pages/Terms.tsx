@@ -14,8 +14,8 @@ export default function Terms() {
                 <Compass className="h-5 w-5 text-primary-foreground" />
               </div>
               <div>
-                <p className="font-display text-lg font-semibold">TripWeave</p>
-                <p className="text-xs text-muted-foreground">Concierge</p>
+                <p className="font-display text-lg font-semibold">Best Holiday Plan</p>
+                <p className="text-xs text-muted-foreground">Best Holiday Plan</p>
               </div>
             </Link>
             <Button variant="ghost" asChild>
@@ -37,7 +37,7 @@ export default function Terms() {
           <section>
             <h2 className="font-display text-2xl font-semibold mb-4">1. Acceptance of Terms</h2>
             <p className="text-muted-foreground leading-relaxed">
-              By accessing and using TripWeave Concierge, you agree to be bound by these Terms of Service 
+              By accessing and using Best Holiday Plan, you agree to be bound by these Terms of Service 
               and all applicable laws and regulations. If you do not agree with any of these terms, you 
               are prohibited from using or accessing this platform.
             </p>
@@ -46,7 +46,7 @@ export default function Terms() {
           <section>
             <h2 className="font-display text-2xl font-semibold mb-4">2. Description of Service</h2>
             <p className="text-muted-foreground leading-relaxed">
-              TripWeave Concierge is a premium travel planning platform that helps users design and 
+              Best Holiday Plan is a premium travel planning platform that helps users design and 
               organize international trips. Our service includes flight search, accommodation discovery, 
               car rental options, and itinerary planning tools.
             </p>
@@ -68,7 +68,7 @@ export default function Terms() {
           <section>
             <h2 className="font-display text-2xl font-semibold mb-4">4. Booking and Payments</h2>
             <p className="text-muted-foreground leading-relaxed">
-              While TripWeave provides cost estimates and travel information, actual bookings are 
+              While Best Holiday Plan provides cost estimates and travel information, actual bookings are 
               completed through third-party providers. We are not responsible for the terms, conditions, 
               or fulfillment of services provided by airlines, hotels, car rental companies, or other 
               travel service providers.
@@ -78,8 +78,8 @@ export default function Terms() {
           <section>
             <h2 className="font-display text-2xl font-semibold mb-4">5. Intellectual Property</h2>
             <p className="text-muted-foreground leading-relaxed">
-              The TripWeave platform, including its original content, features, and functionality, is 
-              owned by TripWeave and is protected by international copyright, trademark, patent, trade 
+              The Best Holiday Plan platform, including its original content, features, and functionality, is 
+              owned by Best Holiday Plan and is protected by international copyright, trademark, patent, trade 
               secret, and other intellectual property laws.
             </p>
           </section>
@@ -101,7 +101,7 @@ export default function Terms() {
           <section>
             <h2 className="font-display text-2xl font-semibold mb-4">7. Limitation of Liability</h2>
             <p className="text-muted-foreground leading-relaxed">
-              TripWeave shall not be liable for any indirect, incidental, special, consequential, or 
+              Best Holiday Plan shall not be liable for any indirect, incidental, special, consequential, or 
               punitive damages resulting from your use of or inability to use the service. Our total 
               liability shall not exceed the amount you paid for the service in the past twelve months.
             </p>
@@ -129,7 +129,7 @@ export default function Terms() {
             <h2 className="font-display text-2xl font-semibold mb-4">10. Contact Us</h2>
             <p className="text-muted-foreground leading-relaxed">
               If you have any questions about these Terms of Service, please contact us at 
-              legal@tripweave.com.
+              legal@best-travel-plan.cloud.
             </p>
           </section>
         </div>
