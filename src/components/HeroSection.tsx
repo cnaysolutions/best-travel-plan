@@ -1,43 +1,64 @@
+import { Button } from "@/components/ui/button";
+import { ArrowRight, Sparkles } from "lucide-react";
+
 export function HeroSection() {
   return (
-    <section
-      className="
-        relative
-        w-full
-        py-20
-        md:py-28
-        flex
-        items-center
-        justify-center
-        bg-transparent
-      "
-    >
-      {/* Soft contrast layer — DOES NOT block app background */}
+    <section className="relative w-full overflow-hidden">
+      {/* Background */}
+      <div className="absolute inset-0">
+        <div className="absolute -top-24 left-1/2 h-72 w-[42rem] -translate-x-1/2 rounded-full bg-primary/10 blur-3xl" />
+        <div className="absolute -bottom-28 right-[-10rem] h-80 w-80 rounded-full bg-accent/20 blur-3xl" />
+      </div>
+
+      {/* Soft contrast layer */}
       <div
-        className="
-          absolute
-          inset-0
-          bg-white/65
-          dark:bg-slate-900/65
-          backdrop-blur-sm
-        "
+        className="absolute inset-0 bg-white/55 dark:bg-slate-900/55 backdrop-blur-sm"
         aria-hidden="true"
       />
 
-      {/* Content */}
-      <div className="relative z-10 container mx-auto px-4 text-center">
-        <div className="max-w-3xl mx-auto space-y-6 animate-fade-in-up">
+      <div className="relative z-10 container mx-auto px-4 py-16 md:py-24">
+        <div className="mx-auto max-w-3xl text-center animate-fade-in-up space-y-6">
+          <div className="inline-flex items-center gap-2 rounded-full border border-border/60 bg-background/60 px-4 py-1.5 text-sm text-muted-foreground backdrop-blur">
+            <Sparkles className="h-4 w-4" />
+            Plan your total holiday cost in minutes
+          </div>
+
           <h1 className="font-display text-4xl md:text-5xl lg:text-6xl font-semibold text-foreground leading-tight">
             How much will my <span className="text-accent">holiday really cost?</span>
           </h1>
 
           <p className="text-lg text-muted-foreground max-w-xl mx-auto leading-relaxed">
-            See the full picture before you travel — flights, accommodation, transport, and realistic daily expenses
-            calculated in real time.
+            See the full picture before you travel — flights, accommodation, transport, and realistic daily expenses.
           </p>
 
+          <div className="flex flex-col sm:flex-row items-center justify-center gap-3 pt-2">
+            <Button
+              variant="premium"
+              size="lg"
+              onClick={() => {
+                const el = document.getElementById("plan");
+                el?.scrollIntoView({ behavior: "smooth", block: "start" });
+              }}
+              className="w-full sm:w-auto"
+            >
+              Start planning <ArrowRight className="ml-2 h-4 w-4" />
+            </Button>
+
+            <Button
+              variant="outline"
+              size="lg"
+              onClick={() => {
+                const el = document.getElementById("how-it-works");
+                el?.scrollIntoView({ behavior: "smooth", block: "start" });
+              }}
+              className="w-full sm:w-auto"
+            >
+              See how it works
+            </Button>
+          </div>
+
           <p className="text-sm text-muted-foreground/80 max-w-lg mx-auto">
-            No bookings. No pressure. Just clear, data-driven planning.
+            No booking. No pressure. Just clarity.
           </p>
         </div>
       </div>

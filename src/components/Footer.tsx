@@ -13,7 +13,9 @@ export function Footer() {
                 <Compass className="h-5 w-5 text-primary-foreground" />
               </div>
               <div>
-                <p className="font-display text-lg font-semibold">Best Holiday Plan</p>
+                <p className="font-display text-lg font-semibold">
+                  Best Holiday Plan
+                </p>
               </div>
             </div>
             <p className="text-muted-foreground text-sm max-w-sm leading-relaxed">
@@ -21,23 +23,25 @@ export function Footer() {
             </p>
           </div>
 
-          {/* Links */}
+          {/* Explore */}
           <div>
             <h4 className="font-medium mb-4">Explore</h4>
             <ul className="space-y-2 text-sm text-muted-foreground">
               <li>
-                <a href="#" className="hover:text-foreground transition-colors">
+                {/* ✅ THIS is the important fix */}
+                <a
+                  href="/#how-it-works"
+                  className="hover:text-foreground transition-colors"
+                >
                   How It Works
                 </a>
               </li>
               <li>
-                <a href="#" className="hover:text-foreground transition-colors">
-                  Destinations
-                </a>
-              </li>
-              <li>
-                <a href="#" className="hover:text-foreground transition-colors">
-                  Travel Guides
+                <a
+                  href="/#plan"
+                  className="hover:text-foreground transition-colors"
+                >
+                  Plan Your Trip
                 </a>
               </li>
             </ul>
@@ -48,17 +52,26 @@ export function Footer() {
             <h4 className="font-medium mb-4">Legal</h4>
             <ul className="space-y-2 text-sm text-muted-foreground">
               <li>
-                <Link to="/privacy" className="hover:text-foreground transition-colors">
+                <Link
+                  to="/privacy"
+                  className="hover:text-foreground transition-colors"
+                >
                   Privacy Policy
                 </Link>
               </li>
               <li>
-                <Link to="/terms" className="hover:text-foreground transition-colors">
+                <Link
+                  to="/terms"
+                  className="hover:text-foreground transition-colors"
+                >
                   Terms of Service
                 </Link>
               </li>
               <li>
-                <a href="#contact" className="hover:text-foreground transition-colors">
+                <a
+                  href="#contact"
+                  className="hover:text-foreground transition-colors"
+                >
                   Contact Us
                 </a>
               </li>
@@ -67,7 +80,9 @@ export function Footer() {
         </div>
 
         <div className="mt-12 pt-8 border-t border-border text-center text-sm text-muted-foreground">
-          <p>© {new Date().getFullYear()} Best Holiday Plan. All rights reserved.</p>
+          <p>
+            © {new Date().getFullYear()} Best Holiday Plan. All rights reserved.
+          </p>
         </div>
       </div>
     </footer>
