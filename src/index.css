@@ -843,3 +843,68 @@ h1, h2.font-display {
       #020617 100%
     );
 }
+/* ===============================
+   VIVID TRAVEL / HOLIDAY BACKGROUND
+   =============================== */
+
+.travel-bg {
+  background:
+    radial-gradient(
+      900px 500px at 15% 10%,
+      rgba(0, 153, 255, 0.45),
+      transparent 60%
+    ),
+    radial-gradient(
+      700px 500px at 85% 20%,
+      rgba(0, 200, 150, 0.45),
+      transparent 60%
+    ),
+    radial-gradient(
+      800px 600px at 50% 100%,
+      rgba(255, 200, 0, 0.55),
+      transparent 65%
+    ),
+    linear-gradient(
+      180deg,
+      #dff3ff 0%,
+      #e6fff4 35%,
+      #fff3cf 70%,
+      #ffffff 100%
+    );
+  animation: travelFlow 22s ease-in-out infinite alternate;
+}
+
+/* Dark mode (still vivid, not dull) */
+.dark .travel-bg {
+  background:
+    radial-gradient(
+      900px 500px at 15% 10%,
+      rgba(0, 153, 255, 0.35),
+      transparent 60%
+    ),
+    radial-gradient(
+      700px 500px at 85% 20%,
+      rgba(0, 200, 150, 0.35),
+      transparent 60%
+    ),
+    radial-gradient(
+      800px 600px at 50% 100%,
+      rgba(255, 200, 0, 0.35),
+      transparent 65%
+    ),
+    linear-gradient(
+      180deg,
+      #020617 0%,
+      #020617 100%
+    );
+}
+
+/* Subtle animated movement = alive feeling */
+@keyframes travelFlow {
+  0% {
+    background-position: 0% 0%, 100% 0%, 50% 100%, 0% 0%;
+  }
+  100% {
+    background-position: 10% 10%, 90% 15%, 50% 90%, 0% 0%;
+  }
+}
