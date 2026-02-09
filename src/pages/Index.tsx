@@ -70,7 +70,7 @@ const Index = () => {
   };
 
   return (
-    <div className={`app-shell ${themeClass} ${modeClass}`}>
+    <div className={`app-shell travel-bg ${themeClass} ${modeClass}`}>
       <Header theme={theme} onToggleTheme={toggleTheme} />
 
       {!tripPlan ? (

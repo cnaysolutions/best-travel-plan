@@ -793,3 +793,53 @@ h1, h2.font-display {
     padding-top: max(0.75rem, env(safe-area-inset-top));
   }
 }
+/* ===== Travel / Holiday background ===== */
+.travel-bg {
+  background:
+    radial-gradient(
+      1200px 600px at 10% -10%,
+      rgba(56, 189, 248, 0.25),
+      transparent 40%
+    ),
+    radial-gradient(
+      800px 500px at 90% 20%,
+      rgba(34, 197, 94, 0.18),
+      transparent 45%
+    ),
+    radial-gradient(
+      900px 600px at 50% 100%,
+      rgba(251, 191, 36, 0.20),
+      transparent 50%
+    ),
+    linear-gradient(
+      180deg,
+      #f8fbff 0%,
+      #f1f7f4 40%,
+      #ffffff 100%
+    );
+}
+
+/* Dark mode version */
+.dark .travel-bg {
+  background:
+    radial-gradient(
+      1200px 600px at 10% -10%,
+      rgba(56, 189, 248, 0.18),
+      transparent 40%
+    ),
+    radial-gradient(
+      800px 500px at 90% 20%,
+      rgba(34, 197, 94, 0.14),
+      transparent 45%
+    ),
+    radial-gradient(
+      900px 600px at 50% 100%,
+      rgba(251, 191, 36, 0.12),
+      transparent 50%
+    ),
+    linear-gradient(
+      180deg,
+      #020617 0%,
+      #020617 100%
+    );
+}
