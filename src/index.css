@@ -908,3 +908,96 @@ h1, h2.font-display {
     background-position: 10% 10%, 90% 15%, 50% 90%, 0% 0%;
   }
 }
+/* ===============================
+   THINKING TRAVELER SILHOUETTE OVERLAY
+   =============================== */
+
+.travel-overlay {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 0;
+}
+
+/* Put all your content above the overlay */
+.app-shell {
+  position: relative;
+  z-index: 1;
+}
+
+/* The SVG sits in the background */
+.travel-overlay svg {
+  position: absolute;
+  right: -6%;
+  bottom: -10%;
+  width: min(720px, 80vw);
+  height: auto;
+  opacity: 0.08; /* <-- make it vivid/subtle here */
+  filter: blur(0.2px);
+}
+
+/* Slightly lower opacity on small screens so it doesn’t distract */
+@media (max-width: 640px) {
+  .travel-overlay svg {
+    opacity: 0.05;
+    right: -20%;
+    bottom: -18%;
+    width: 110vw;
+  }
+}
+
+/* Dark mode: a bit stronger */
+.dark .travel-overlay svg {
+  opacity: 0.10;
+}
+/* ===============================
+   DIFFERENT BG FOR RESULTS MODE
+   =============================== */
+
+/* When results are visible, make background calmer + more "clarity" */
+.mode-results .travel-bg {
+  background:
+    radial-gradient(
+      900px 500px at 15% 10%,
+      rgba(0, 153, 255, 0.25),
+      transparent 60%
+    ),
+    radial-gradient(
+      700px 500px at 85% 20%,
+      rgba(0, 200, 150, 0.18),
+      transparent 60%
+    ),
+    radial-gradient(
+      900px 600px at 50% 110%,
+      rgba(255, 200, 0, 0.20),
+      transparent 65%
+    ),
+    linear-gradient(
+      180deg,
+      #f6fbff 0%,
+      #f7fff9 40%,
+      #ffffff 100%
+    );
+  animation: none; /* results = steady, calm */
+}
+
+/* Dark mode results */
+.dark .mode-results .travel-bg {
+  background:
+    radial-gradient(
+      900px 500px at 15% 10%,
+      rgba(0, 153, 255, 0.18),
+      transparent 60%
+    ),
+    radial-gradient(
+      700px 500px at 85% 20%,
+      rgba(0, 200, 150, 0.12),
+      transparent 60%
+    ),
+    radial-gradient(
+      900px 600px at 50% 110%,
+      rgba(255, 200, 0, 0.10),
+      transparent 65%
+    ),
+    linear-gradient(180deg, #020617 0%, #020617 100%);
+}
