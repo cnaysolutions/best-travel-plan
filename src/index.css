@@ -1098,3 +1098,52 @@ h1, h2.font-display {
     background-attachment: scroll;
   }
 }
+/* ======================================================
+   GLOBAL TRAVEL BACKGROUND (SINGLE SOURCE OF TRUTH)
+   ====================================================== */
+
+.travel-bg {
+  /* Soft overlay so content stays readable */
+  background-image:
+    linear-gradient(
+      180deg,
+      rgba(255, 255, 255, 0.82) 0%,
+      rgba(255, 255, 255, 0.82) 100%
+    ),
+    url("/backgrounds/travel-bg.png");
+
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+
+  min-height: 100vh;
+}
+
+/* Results page – slightly calmer */
+.mode-results .travel-bg {
+  background-image:
+    linear-gradient(
+      180deg,
+      rgba(255, 255, 255, 0.90) 0%,
+      rgba(255, 255, 255, 0.90) 100%
+    ),
+    url("/backgrounds/travel-bg.png");
+}
+
+/* Dark mode support */
+.dark .travel-bg {
+  background-image:
+    linear-gradient(
+      180deg,
+      rgba(2, 6, 23, 0.72) 0%,
+      rgba(2, 6, 23, 0.72) 100%
+    ),
+    url("/backgrounds/travel-bg.png");
+}
+
+/* Mobile optimization */
+@media (max-width: 768px) {
+  .travel-bg {
+    background-position: top center;
+  }
+}
