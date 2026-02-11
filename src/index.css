@@ -555,13 +555,6 @@ main,
 }
 
 html {
-  background-image: 
-    linear-gradient(rgba(255, 255, 255, 0.75), rgba(255, 255, 255, 0.82)),
-    url('/images/background.jpg') !important;
-  background-size: cover !important;
-  background-position: center !important;
-  background-attachment: fixed !important;
-  background-repeat: no-repeat !important;
   min-height: 100vh;
 }
 
@@ -754,59 +747,47 @@ h1, h2.font-display {
 /* ======================================================
    FINAL: SITE-WIDE TRAVEL BACKGROUND (single source of truth)
    Uses: /public/backgrounds/travel-bg.png
+   - NO white overlay — vivid, okşayıcı (caressing) colors
    ====================================================== */
 
-@keyframes bgGlowMove {
-  0% { background-position: 0% 0%, 100% 0%, 50% 100%, center; }
-  100% { background-position: 12% 8%, 88% 15%, 50% 92%, center; }
-}
-
-/* Main wrapper background */
-/* LIGHT MODE */
+/* LIGHT MODE — vivid, no transparency overlay */
 .travel-bg {
-  background-image:
-    linear-gradient(
-      180deg,
-      rgba(255,255,255,0.75) 0%,
-      rgba(255,255,255,0.75) 100%
-    ),
-    url("/backgrounds/travel-bg.png");
-
-  background-size: contain;
-  background-position: right center;
+  background-image: url("/backgrounds/travel-bg.png");
+  background-size: cover;
+  background-position: center;
   background-repeat: no-repeat;
+  background-attachment: fixed;
   min-height: 100vh;
 }
 
-/* Results mode: calmer (no animation) */
-.mode-results  {
+/* Results mode: very light warm tint so data is readable */
+.travel-bg.mode-results,
+.mode-results.travel-bg {
   background-image:
-    radial-gradient(900px 520px at 12% 8%, rgba(0, 153, 255, 0.18), transparent 62%),
-    radial-gradient(760px 520px at 88% 18%, rgba(0, 210, 170, 0.16), transparent 62%),
-    radial-gradient(900px 650px at 50% 105%, rgba(255, 195, 0, 0.18), transparent 66%),
-    linear-gradient(180deg, rgba(255,255,255,0.70) 0%, rgba(255,255,255,0.70) 100%),
+    linear-gradient(180deg, rgba(255,252,245,0.25) 0%, rgba(255,252,245,0.30) 100%),
     url("/backgrounds/travel-bg.png");
-
-  animation: none;
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  background-attachment: fixed;
 }
 
-/* DARK MODE */
+/* DARK MODE — subtle dark overlay to keep text readable */
 .dark .travel-bg {
   background-image:
-    linear-gradient(
-      180deg,
-      rgba(2,6,23,0.65) 0%,
-      rgba(2,6,23,0.65) 100%
-    ),
+    linear-gradient(180deg, rgba(2,6,23,0.45) 0%, rgba(2,6,23,0.45) 100%),
     url("/backgrounds/travel-bg.png");
-
-  background-size: contain;
-  background-position: right center;
+  background-size: cover;
+  background-position: center;
   background-repeat: no-repeat;
+  background-attachment: fixed;
 }
-/* MOBILE FIX */
+
+/* MOBILE FIX: iOS Safari hates background-attachment: fixed */
 @media (max-width: 1024px) {
-  .travel-bg {
+  .travel-bg,
+  .dark .travel-bg {
+    background-attachment: scroll;
     background-size: cover;
     background-position: center;
   }

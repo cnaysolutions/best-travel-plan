@@ -103,3 +103,20 @@ body,
   background: #0f172a;
   box-shadow: 0 10px 30px rgba(0, 0, 0, 0.45);
 }
+/* ---------- LIGHT MODE ---------- */
+.theme-light.mode-planning {
+  color: #1f2937;
+}
+
+.theme-light.mode-results {
+  color: #1f2937;
+}
+
+/* ---------- DARK MODE ---------- */
+.theme-dark.mode-planning {
+  color: #e5e7eb;
+}
+
+.theme-dark.mode-results {
+  color: #e5e7eb;
+}

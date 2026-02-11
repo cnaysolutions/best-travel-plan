@@ -4,15 +4,15 @@ import { ArrowRight, Sparkles } from "lucide-react";
 export function HeroSection() {
   return (
     <section className="relative w-full overflow-hidden">
-      {/* Background */}
+      {/* Background decorative blurs */}
       <div className="absolute inset-0">
         <div className="absolute -top-24 left-1/2 h-72 w-[42rem] -translate-x-1/2 rounded-full bg-primary/10 blur-3xl" />
         <div className="absolute -bottom-28 right-[-10rem] h-80 w-80 rounded-full bg-accent/20 blur-3xl" />
       </div>
 
-      {/* Soft contrast layer */}
+      {/* Very light warm tint — NOT opaque, lets travel-bg show through vividly */}
       <div
-        className="absolute inset-0 bg-white/55 dark:bg-slate-900/55 backdrop-blur-sm"
+        className="absolute inset-0 bg-amber-50/15 dark:bg-slate-900/25"
         aria-hidden="true"
       />
 
@@ -23,11 +23,11 @@ export function HeroSection() {
             Plan your total holiday cost in minutes
           </div>
 
-          <h1 className="font-display text-4xl md:text-5xl lg:text-6xl font-semibold text-foreground leading-tight">
+          <h1 className="font-display text-4xl md:text-5xl lg:text-6xl font-semibold text-foreground leading-tight drop-shadow-sm">
             How much will my <span className="text-accent">holiday really cost?</span>
           </h1>
 
-          <p className="text-lg text-muted-foreground max-w-xl mx-auto leading-relaxed">
+          <p className="text-lg text-muted-foreground max-w-xl mx-auto leading-relaxed drop-shadow-sm">
             See the full picture before you travel — flights, accommodation, transport, and realistic daily expenses.
           </p>
 
