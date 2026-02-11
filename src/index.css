@@ -512,6 +512,17 @@
   background-color: rgba(255, 255, 255, 0.1) !important;
 }
 
+
+@media (max-width: 768px) {
+  body,
+  html body,
+  body.theme-light,
+  body.theme-dark,
+  body.theme-light.mode-planning,
+  body.theme-dark.mode-planning {
+    background-attachment: scroll !important;
+  }
+}
 /* =========================================
    FIX 1: CALENDAR DATE NUMBERS ON MOBILE
    ========================================= */
@@ -551,20 +562,6 @@ button[name="day"] {
 div.min-h-screen,
 main,
 .flex-1 {
-  background: transparent !important;
-}
-
-html {
-  background-image: 
-    linear-gradient(rgba(255, 255, 255, 0.75), rgba(255, 255, 255, 0.82)),
-    url('/images/background.jpg') !important;
-  background-size: cover !important;
-  background-position: center !important;
-  background-attachment: fixed !important;
-  background-repeat: no-repeat !important;
-  min-height: 100vh;
-}
-
 /* Cards on auth/trips pages - semi-transparent white */
 .rounded-lg.border.bg-card,
 [data-slot="card"],
@@ -750,9 +747,84 @@ h1, h2.font-display {
   }
 }
 /* ===== Travel / Holiday background ===== */
+/* Dark mode version */
+.dark /* ===============================
+   VIVID TRAVEL / HOLIDAY BACKGROUND
+   =============================== */
+
+/* Dark mode (still vivid, not dull) */
+.dark /* Subtle animated movement = alive feeling */
+100% {
+    background-position: 10% 10%, 90% 15%, 50% 90%, 0% 0%;
+  }
+}
+/* ===============================
+   THINKING TRAVELER SILHOUETTE OVERLAY
+   =============================== */
+
+/* Put all your content above the overlay */
+.app-shell {
+  position: relative;
+  z-index: 1;
+}
+
+/* The SVG sits in the background */
+/* Slightly lower opacity on small screens so it doesn’t distract */
+@media (max-width: 640px) {
+  }
+
+/* Dark mode: a bit stronger */
+.dark /* ===============================
+   DIFFERENT BG FOR RESULTS MODE
+   =============================== */
+
+/* When results are visible, make background calmer + more "clarity" */
+.mode-results /* Dark mode results */
+.dark .mode-results /* ===============================
+   VIVID TRAVEL BG (PLANNING)
+   =============================== */
+
+100% { background-position: 12% 10%, 88% 18%, 50% 90%, 0% 0%; }
+}
+
+/* Dark mode */
+.dark /* ===============================
+   RESULTS MODE BG (CALMER)
+   =============================== */
+
+.mode-results .dark .mode-results /* ===============================
+   THINKING TRAVELER OVERLAY
+   (Fixed: overlay must be above background)
+   =============================== */
+
+.app-shell {
+  position: relative;
+  min-height: 100vh;
+  width: 100%;
+}
+
+/* Overlay ABOVE background, BELOW content */
+/* Content ABOVE overlay */
+/* The SVG itself */
+/* Mobile: reduce distraction */
+@media (max-width: 640px) {
+  }
+
+/* iOS Safari: never use fixed attachment tricks */
+@media (max-width: 1024px) {
+  }
+/* ======================================================
+   GLOBAL TRAVEL BACKGROUND (SINGLE SOURCE OF TRUTH)
+   ====================================================== */
+
+/* Results page – slightly calmer */
+.mode-results /* Dark mode support */
+.dark /* Mobile optimization */
+@media (max-width: 768px) {
+  }
 
 /* ======================================================
-   FINAL: SITE-WIDE TRAVEL BACKGROUND (single source of truth)
+   FINAL: VIVID TRAVEL BACKGROUND (SINGLE SOURCE OF TRUTH)
    Uses: /public/backgrounds/travel-bg.png
    ====================================================== */
 
@@ -761,13 +833,13 @@ h1, h2.font-display {
   100% { background-position: 12% 8%, 88% 15%, 50% 92%, center; }
 }
 
-/* Main wrapper background */
 .travel-bg {
   background-image:
     radial-gradient(900px 520px at 12% 8%, rgba(0, 153, 255, 0.35), transparent 62%),
     radial-gradient(760px 520px at 88% 18%, rgba(0, 210, 170, 0.32), transparent 62%),
     radial-gradient(900px 650px at 50% 105%, rgba(255, 195, 0, 0.38), transparent 66%),
-    linear-gradient(180deg, rgba(255,255,255,0.55) 0%, rgba(255,255,255,0.55) 100%),
+    /* overlay: lower = more vivid, higher = more readable */
+    linear-gradient(180deg, rgba(255, 255, 255, 0.55) 0%, rgba(255, 255, 255, 0.55) 100%),
     url("/backgrounds/travel-bg.png");
 
   background-size: cover;
@@ -778,13 +850,13 @@ h1, h2.font-display {
   animation: bgGlowMove 18s ease-in-out infinite alternate;
 }
 
-/* Results mode: calmer (no animation) */
+/* Results mode: calmer + no animation */
 .mode-results .travel-bg {
   background-image:
     radial-gradient(900px 520px at 12% 8%, rgba(0, 153, 255, 0.18), transparent 62%),
     radial-gradient(760px 520px at 88% 18%, rgba(0, 210, 170, 0.16), transparent 62%),
     radial-gradient(900px 650px at 50% 105%, rgba(255, 195, 0, 0.18), transparent 66%),
-    linear-gradient(180deg, rgba(255,255,255,0.70) 0%, rgba(255,255,255,0.70) 100%),
+    linear-gradient(180deg, rgba(255, 255, 255, 0.70) 0%, rgba(255, 255, 255, 0.70) 100%),
     url("/backgrounds/travel-bg.png");
 
   animation: none;
@@ -797,11 +869,11 @@ h1, h2.font-display {
     radial-gradient(900px 520px at 12% 8%, rgba(56, 189, 248, 0.22), transparent 62%),
     radial-gradient(760px 520px at 88% 18%, rgba(34, 197, 94, 0.18), transparent 62%),
     radial-gradient(900px 650px at 50% 105%, rgba(251, 191, 36, 0.16), transparent 66%),
-    linear-gradient(180deg, rgba(2,6,23,0.55) 0%, rgba(2,6,23,0.55) 100%),
+    linear-gradient(180deg, rgba(2, 6, 23, 0.55) 0%, rgba(2, 6, 23, 0.55) 100%),
     url("/backgrounds/travel-bg.png");
 }
 
-/* iOS Safari: avoid fixed-attachment issues */
+/* iOS Safari: avoid "fixed background" issues */
 @media (max-width: 1024px) {
   .travel-bg {
     background-attachment: scroll;
@@ -809,8 +881,8 @@ h1, h2.font-display {
 }
 
 /* ======================================================
-   Optional: Thinking traveler overlay layering helpers
-   (only used if your app renders .travel-overlay / .app-content)
+   THINKING TRAVELER OVERLAY (optional)
+   Put <div class="travel-overlay"> ...svg... </div> inside app-shell
    ====================================================== */
 
 .app-shell {
@@ -826,6 +898,7 @@ h1, h2.font-display {
   z-index: 1;
 }
 
+/* Put your main content in a wrapper with class="app-content" */
 .app-content {
   position: relative;
   z-index: 2;
@@ -848,4 +921,9 @@ h1, h2.font-display {
     bottom: -16%;
     width: 110vw;
   }
+}
+
+.dark .travel-overlay svg,
+.theme-dark .travel-overlay svg {
+  opacity: 0.20;
 }
