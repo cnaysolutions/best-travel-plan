@@ -762,24 +762,24 @@ h1, h2.font-display {
 }
 
 /* Main wrapper background */
+/* LIGHT MODE */
 .travel-bg {
   background-image:
-    radial-gradient(900px 520px at 12% 8%, rgba(0, 153, 255, 0.35), transparent 62%),
-    radial-gradient(760px 520px at 88% 18%, rgba(0, 210, 170, 0.32), transparent 62%),
-    radial-gradient(900px 650px at 50% 105%, rgba(255, 195, 0, 0.38), transparent 66%),
-    linear-gradient(180deg, rgba(255,255,255,0.55) 0%, rgba(255,255,255,0.55) 100%),
+    linear-gradient(
+      180deg,
+      rgba(255,255,255,0.75) 0%,
+      rgba(255,255,255,0.75) 100%
+    ),
     url("/backgrounds/travel-bg.png");
 
-  background-size: cover;
+  background-size: contain;
+  background-position: right center;
   background-repeat: no-repeat;
-  background-position: center;
-
   min-height: 100vh;
-  animation: bgGlowMove 18s ease-in-out infinite alternate;
 }
 
 /* Results mode: calmer (no animation) */
-.mode-results .travel-bg {
+.mode-results  {
   background-image:
     radial-gradient(900px 520px at 12% 8%, rgba(0, 153, 255, 0.18), transparent 62%),
     radial-gradient(760px 520px at 88% 18%, rgba(0, 210, 170, 0.16), transparent 62%),
@@ -790,22 +790,19 @@ h1, h2.font-display {
   animation: none;
 }
 
-/* Dark mode */
-.dark .travel-bg,
-.theme-dark .travel-bg {
+/* DARK MODE */
+.dark .travel-bg {
   background-image:
-    radial-gradient(900px 520px at 12% 8%, rgba(56, 189, 248, 0.22), transparent 62%),
-    radial-gradient(760px 520px at 88% 18%, rgba(34, 197, 94, 0.18), transparent 62%),
-    radial-gradient(900px 650px at 50% 105%, rgba(251, 191, 36, 0.16), transparent 66%),
-    linear-gradient(180deg, rgba(2,6,23,0.55) 0%, rgba(2,6,23,0.55) 100%),
+    linear-gradient(
+      180deg,
+      rgba(2,6,23,0.65) 0%,
+      rgba(2,6,23,0.65) 100%
+    ),
     url("/backgrounds/travel-bg.png");
-}
 
-/* iOS Safari: avoid fixed-attachment issues */
-@media (max-width: 1024px) {
-  .travel-bg {
-    background-attachment: scroll;
-  }
+  background-size: contain;
+  background-position: right center;
+  background-repeat: no-repeat;
 }
 
 /* ======================================================
