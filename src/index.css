@@ -804,6 +804,13 @@ h1, h2.font-display {
   background-position: right center;
   background-repeat: no-repeat;
 }
+/* MOBILE FIX */
+@media (max-width: 1024px) {
+  .travel-bg {
+    background-size: cover;
+    background-position: center;
+  }
+}
 
 /* ======================================================
    Optional: Thinking traveler overlay layering helpers
