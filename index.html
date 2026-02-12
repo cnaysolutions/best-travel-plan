@@ -18,6 +18,15 @@
     <meta name="robots" content="index, follow" />
     <link rel="canonical" href="https://www.best-travel-plan.cloud/" />
 
+    <!-- PWA: Manifest + Theme Color -->
+    <link rel="manifest" href="/icons/site.webmanifest" />
+    <meta name="theme-color" content="#1a2744" />
+
+    <!-- iOS PWA support -->
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+    <meta name="apple-mobile-web-app-title" content="Best Holiday Plan" />
+
     <!-- Favicons (IMPORTANT: use /icons/...) -->
     <link rel="icon" href="/icons/favicon.ico" />
     <link rel="icon" type="image/png" sizes="16x16" href="/icons/favicon-16x16.png" />
@@ -111,9 +120,24 @@
       })();
     </script>
   </head>
-
   <body>
     <div id="root"></div>
     <script type="module" src="/src/main.tsx"></script>
+
+    <!-- Service Worker Registration -->
+    <script>
+      if ('serviceWorker' in navigator) {
+        window.addEventListener('load', () => {
+          navigator.serviceWorker
+            .register('/sw.js')
+            .then((reg) => {
+              console.log('[PWA] Service worker registered, scope:', reg.scope);
+            })
+            .catch((err) => {
+              console.warn('[PWA] Service worker registration failed:', err);
+            });
+        });
+      }
+    </script>
   </body>
 </html>

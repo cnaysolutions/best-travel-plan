@@ -1,21 +1,50 @@
 {
-  "name": "MyWebSite",
-  "short_name": "MySite",
+  "name": "Best Holiday Plan - Trip Cost Calculator",
+  "short_name": "Best Holiday Plan",
+  "description": "Plan your complete holiday cost with real-time prices for flights, hotels, car rentals, and daily expenses.",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "orientation": "portrait-primary",
+  "theme_color": "#1a2744",
+  "background_color": "#f8f5f0",
+  "categories": ["travel", "finance", "lifestyle"],
+  "lang": "en",
+  "dir": "ltr",
   "icons": [
     {
-      "src": "/web-app-manifest-192x192.png",
+      "src": "/icons/web-app-manifest-192x192.png",
       "sizes": "192x192",
       "type": "image/png",
       "purpose": "maskable"
     },
     {
-      "src": "/web-app-manifest-512x512.png",
+      "src": "/icons/web-app-manifest-512x512.png",
       "sizes": "512x512",
       "type": "image/png",
       "purpose": "maskable"
+    },
+    {
+      "src": "/icons/web-app-manifest-192x192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/icons/web-app-manifest-512x512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
     }
   ],
-  "theme_color": "#ffffff",
-  "background_color": "",
-  "display": "standalone"
+  "screenshots": [
+    {
+      "src": "/icons/og-image.png",
+      "sizes": "1200x630",
+      "type": "image/png",
+      "form_factor": "wide",
+      "label": "Best Holiday Plan - Plan your complete trip cost"
+    }
+  ],
+  "prefer_related_applications": false
 }
