@@ -68,6 +68,14 @@ export function Footer() {
                 </Link>
               </li>
               <li>
+                <Link
+                  to="/data-deletion"
+                  className="hover:text-foreground transition-colors"
+                >
+                  Data Deletion
+                </Link>
+              </li>
+              <li>
                 <a
                   href="#contact"
                   className="hover:text-foreground transition-colors"
