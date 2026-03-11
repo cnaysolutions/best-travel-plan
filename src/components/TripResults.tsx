@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from "react";
+import { useState, useMemo } from "react";
 import { useParams } from "react-router-dom";
 import { format, isValid } from "date-fns";
 import {
@@ -19,6 +19,7 @@ import {
   FileText,
   Loader2,
   ExternalLink,
+  Share2,
 } from "lucide-react";
 
 // Helper function for safe date parsing
@@ -74,8 +75,16 @@ const generateHotelBookingLink = (hotel: any, tripDetails: TripDetails): string 
     return d.toISOString().split('T')[0];
   };
 
-  const checkinDate = formatDate(tripDetails.departureDate);
-  const checkoutDate = formatDate(tripDetails.returnDate);
+  // Guard against null/undefined dates
+  const checkinDate = tripDetails.departureDate
+    ? formatDate(tripDetails.departureDate)
+    : "";
+  const checkoutDate = tripDetails.returnDate
+    ? formatDate(tripDetails.returnDate)
+    : "";
+
+  if (!checkinDate || !checkoutDate) return "#";
+
   const adults = tripDetails.passengers?.adults || 2;
   const children = tripDetails.passengers?.children || 0;
   const rooms = 1; // Default to 1 room
@@ -94,6 +103,9 @@ const generateCarRentalLink = (carRental: any, tripDetails: TripDetails): string
     }
     return { code: "", name: location };
   };
+
+  // Guard against null/undefined dates
+  if (!tripDetails.departureDate || !tripDetails.returnDate) return "#";
 
   const pickupDate = new Date(tripDetails.departureDate);
   const dropoffDate = new Date(tripDetails.returnDate);
@@ -126,10 +138,10 @@ export function TripResults({
 }: TripResultsProps) {
   const { user } = useAuth();
   const { toast } = useToast();
-  const [isSaving, setIsSaving] = React.useState(false);
+  const [isSaving, setIsSaving] = useState(false);
 
   // Calculate total cost
-  const totalCost = React.useMemo(() => {
+  const totalCost = useMemo(() => {
     let cost = 0;
     if (tripPlan.outboundFlight?.included && tripPlan.outboundFlight?.pricePerPerson) {
       cost += tripPlan.outboundFlight.pricePerPerson * ((tripDetails.passengers?.adults || 0) + (tripDetails.passengers?.children || 0));
@@ -296,9 +308,21 @@ export function TripResults({
               {safeFormatDate(tripDetails.departureDate, "MMM d, yyyy")} - {safeFormatDate(tripDetails.returnDate, "MMM d, yyyy")}
             </p>
           </div>
-          <Button onClick={onReset} variant="outline" className="w-full sm:w-auto">
-            Start Over
-          </Button>
+          <div className="flex gap-2 w-full sm:w-auto">
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => {
+                navigator.clipboard.writeText(window.location.href);
+                toast({ title: "Link copied!", description: "Trip link copied to clipboard." });
+              }}
+            >
+              <Share2 className="h-4 w-4 mr-2" /> Share Trip
+            </Button>
+            <Button onClick={onReset} variant="outline" className="w-full sm:w-auto">
+              Start Over
+            </Button>
+          </div>
         </div>
       </CardHeader>
 
@@ -312,6 +336,9 @@ export function TripResults({
               {tripDetails.passengers?.adults || 0} Adult{(tripDetails.passengers?.adults || 0) !== 1 ? "s" : ""} {tripDetails.passengers?.children || 0 > 0 ? `+ ${tripDetails.passengers?.children} Child${(tripDetails.passengers?.children || 0) !== 1 ? "ren" : ""}` : ""}
             </p>
           </div>
+          <p className="text-xs text-muted-foreground mt-2 text-center">
+            * Prices are estimates for planning purposes only. Actual prices may vary. Always verify before booking.
+          </p>
 
           {/* Flights */}
           {(tripPlan.outboundFlight || tripPlan.returnFlight) && (
@@ -563,5 +590,3 @@ export function TripResults({
   );
 }
 
-import React from "react";
-import { Calendar } from "lucide-react";

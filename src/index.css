@@ -783,16 +783,13 @@ h1, h2.font-display {
   background-attachment: fixed;
 }
 
-/* MOBILE FIX: iOS Safari hates background-attachment: fixed */
+/* MOBILE FIX */
 @media (max-width: 1024px) {
-  .travel-bg,
-  .dark .travel-bg {
-    background-attachment: scroll;
+  .travel-bg {
     background-size: cover;
     background-position: center;
   }
 }
-
 /* ======================================================
    Optional: Thinking traveler overlay layering helpers
    (only used if your app renders .travel-overlay / .app-content)

@@ -16,7 +16,7 @@ import type { TripDetails, FlightClass } from "@/types/trip";
 import type { Location } from "@/types/location";
 
 interface TripIntakeFormProps {
-  onSubmit: (details: TripDetails) => void;
+  onSubmit: (details: TripDetails) => Promise<void>;
   isLoading?: boolean;
 }
 
@@ -95,35 +95,43 @@ export function TripIntakeForm({ onSubmit, isLoading }: TripIntakeFormProps) {
       return;
     }
 
-    // Try to deduct a credit
-    const creditDeducted = await deductCredit();
-    if (!creditDeducted) {
-      toast({
-        title: "Credit Deduction Failed",
-        description: "Unable to deduct credit. Please purchase more credits.",
-        variant: "destructive",
-      });
-      redirectToCheckout();
-      return;
-    }
-
     // Convert airports to Location format for backward compatibility
     const departureLocation = airportToLocation(departureAirport);
     const destinationLocation = airportToLocation(destinationAirport);
 
-    // Submit trip details
-    onSubmit({
-      departureCity: `${departureAirport.city} (${departureAirport.iata_code})`,
-      destinationCity: `${destinationAirport.city} (${destinationAirport.iata_code})`,
-      departureLocation,
-      destinationLocation,
-      departureDate,
-      returnDate,
-      passengers: { adults, children, infants },
-      flightClass,
-      includeCarRental,
-      includeHotel,
-    });
+    // 1. Generate the trip plan FIRST (before deducting credit)
+    try {
+      await onSubmit({
+        departureCity: `${departureAirport.city} (${departureAirport.iata_code})`,
+        destinationCity: `${destinationAirport.city} (${destinationAirport.iata_code})`,
+        departureLocation,
+        destinationLocation,
+        departureDate,
+        returnDate,
+        passengers: { adults, children, infants },
+        flightClass,
+        includeCarRental,
+        includeHotel,
+      });
+    } catch (error) {
+      // Plan generation failed — bail out without deducting credit
+      toast({
+        title: "Trip Planning Failed",
+        description: "Something went wrong generating your trip plan. No credit was deducted.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    // 2. Only deduct credit AFTER successful plan generation
+    const creditDeducted = await deductCredit();
+    if (!creditDeducted) {
+      toast({
+        title: "Credit Deduction Failed",
+        description: "Your trip was generated but we couldn't deduct a credit. Please contact support.",
+        variant: "destructive",
+      });
+    }
   };
 
   const handleDepartureAirportSelect = (airport: Airport) => {
