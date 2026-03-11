@@ -45,13 +45,13 @@ export function HeroSection() {
             </Button>
 
             <Button
-              variant="outline"
+              variant="ghost"
               size="lg"
               onClick={() => {
                 const el = document.getElementById("how-it-works");
                 el?.scrollIntoView({ behavior: "smooth", block: "start" });
               }}
-              className="w-full sm:w-auto"
+              className="w-full sm:w-auto text-muted-foreground"
             >
               See how it works
             </Button>

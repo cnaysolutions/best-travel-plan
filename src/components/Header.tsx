@@ -30,17 +30,14 @@ export function Header({ theme, onToggleTheme }: HeaderProps) {
         // Still redirect and show success - local session was cleared
         toast.success("Signed out successfully");
         navigate("/");
-        // Force page reload to clear any cached state
-        window.location.href = "/";
       } else {
         toast.success("Signed out successfully");
         navigate("/");
       }
     } catch (err) {
       console.error('Sign out exception:', err);
-      // Force redirect anyway
       toast.success("Signed out");
-      window.location.href = "/";
+      navigate("/");
     }
   };
 
