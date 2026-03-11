@@ -8,16 +8,18 @@ import { Loader2 } from "lucide-react";
 // Keep Index eager (landing page — must load fast)
 import Index from "./pages/Index";
 
+// Keep Auth & ResetPassword eager — they handle OAuth callbacks and must be ready on redirect
+import Auth from "./pages/Auth";
+import ResetPassword from "./pages/ResetPassword";
+
 // Lazy load all other pages
 const NotFound = lazy(() => import("./pages/NotFound"));
 const Privacy = lazy(() => import("./pages/Privacy"));
 const Terms = lazy(() => import("./pages/Terms"));
 const DataDeletion = lazy(() => import("./pages/DataDeletion"));
-const Auth = lazy(() => import("./pages/Auth"));
 const Trips = lazy(() => import("./pages/Trips"));
 const TripDetails = lazy(() => import("./pages/TripDetails"));
 const TripIntake = lazy(() => import("./pages/TripIntake"));
-const ResetPassword = lazy(() => import("./pages/ResetPassword"));
 
 const queryClient = new QueryClient();
 
