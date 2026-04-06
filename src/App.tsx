@@ -43,6 +43,8 @@ function App() {
                 <Route path="/terms" element={<Terms />} />
                 <Route path="/data-deletion" element={<DataDeletion />} />
                 <Route path="/auth" element={<Auth />} />
+                <Route path="/auth/callback" element={<Auth />} />
+                <Route path="/auth/reset-password" element={<ResetPassword />} />
                 <Route path="/reset-password" element={<ResetPassword />} />
                 <Route path="/trips" element={<Trips />} />
                 <Route path="/trip/new" element={<TripIntake />} />
