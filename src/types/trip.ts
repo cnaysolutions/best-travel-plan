@@ -73,9 +73,11 @@ export interface ItineraryItem {
   distance?: string;
   duration?: string;
   cost?: number;
+  costPerPerson?: number;
   included: boolean;
   imageUrl?: string;
   bookingUrl?: string;
+  googleMapsUrl?: string;
 }
 
 export interface DayItinerary {

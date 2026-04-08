@@ -193,8 +193,8 @@ export function TripResults({
           include_car: tripDetails.includeCarRental,
           origin_iata_code: tripDetails.departureLocation?.iataCode || null,
           destination_iata_code: tripDetails.destinationLocation?.iataCode || null,
-          origin_country: tripDetails.departureLocation?.country || null,
-          destination_country: tripDetails.destinationLocation?.country || null,
+          origin_country: tripDetails.departureLocation?.countryName || null,
+          destination_country: tripDetails.destinationLocation?.countryName || null,
         })
         .select()
         .single();
@@ -333,7 +333,7 @@ export function TripResults({
             <p className="text-sm text-gray-600 mb-1">Estimated Total</p>
             <p className="text-3xl font-bold text-blue-600">{safePrice(totalCost)}</p>
             <p className="text-xs text-gray-500 mt-2">
-              {tripDetails.passengers?.adults || 0} Adult{(tripDetails.passengers?.adults || 0) !== 1 ? "s" : ""} {tripDetails.passengers?.children || 0 > 0 ? `+ ${tripDetails.passengers?.children} Child${(tripDetails.passengers?.children || 0) !== 1 ? "ren" : ""}` : ""}
+              {tripDetails.passengers?.adults || 0} Adult{(tripDetails.passengers?.adults || 0) !== 1 ? "s" : ""}{(tripDetails.passengers?.children ?? 0) > 0 ? ` + ${tripDetails.passengers?.children} Child${(tripDetails.passengers?.children ?? 0) !== 1 ? "ren" : ""}` : ""}
             </p>
           </div>
           <p className="text-xs text-muted-foreground mt-2 text-center">
