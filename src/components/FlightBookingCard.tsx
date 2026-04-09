@@ -1,6 +1,6 @@
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Check, X, ExternalLink } from "lucide-react";
+import { Check, X, ExternalLink, Clock, Plane } from "lucide-react";
 
 interface Flight {
   airline: string;
@@ -42,7 +42,6 @@ export function FlightBookingCard({ flight, passengers, onToggle, totalPriceOnly
       return "https://www.booking.com/flights/";
     }
 
-    // Format dates as YYYY-MM-DD for Booking.com
     const formatDate = (date: Date | string  ): string => {
       const d = new Date(date);
       const year = d.getFullYear();
@@ -51,7 +50,6 @@ export function FlightBookingCard({ flight, passengers, onToggle, totalPriceOnly
       return `${year}-${month}-${day}`;
     };
 
-    // Extract airport codes (e.g., "London (LGW)" -> "LGW")
     const extractCode = (airport: string): string => {
       const match = airport.match(/\(([A-Z]{3})\)/);
       return match ? match[1] : airport;
@@ -64,43 +62,55 @@ export function FlightBookingCard({ flight, passengers, onToggle, totalPriceOnly
     const adults = passengers?.adults || 1;
     const children = passengers?.children || 0;
 
-    // Booking.com flights URL with pre-filled search parameters
     return `https://www.booking.com/flights/index.html?type=ROUNDTRIP&from=${fromCode}&to=${toCode}&depart_date=${depDate}&return_date=${retDate}&adults=${adults}&children=${children}&cabinclass=ECONOMY`;
   };
 
   return (
-    <Card className="overflow-hidden hover:shadow-md transition-shadow">
-      <CardContent className="p-3 xs:p-4">
-        <div className="flex items-start justify-between gap-2 xs:gap-3">
+    <Card className="overflow-hidden border-border/40 hover:shadow-medium transition-all duration-300 hover:-translate-y-0.5 bg-background/80 backdrop-blur-sm">
+      <CardContent className="p-4 xs:p-5">
+        <div className="flex items-start justify-between gap-3">
           <div className="flex-1 min-w-0">
-            <div className="flex items-start justify-between gap-2 mb-2">
-              <h3 className="font-semibold text-sm xs:text-base leading-tight break-words">
-                {flight.airline}
-              </h3>
-              <p className="font-bold text-blue-700 text-sm xs:text-base whitespace-nowrap flex-shrink-0">
-                {formatPrice(flight.pricePerPerson )}
-                {!totalPriceOnly && <span className="text-xs text-gray-500 ml-1">/ person</span>}
-              </p>
+            {/* Airline & price header */}
+            <div className="flex items-start justify-between gap-3 mb-3">
+              <div className="flex items-center gap-2.5">
+                <div className="h-9 w-9 rounded-xl bg-gradient-to-br from-blue-500/15 to-indigo-500/15 flex items-center justify-center flex-shrink-0">
+                  <Plane className="h-4 w-4 text-blue-600" />
+                </div>
+                <h3 className="font-semibold text-sm xs:text-base leading-tight break-words">
+                  {flight.airline}
+                </h3>
+              </div>
+              <div className="text-right flex-shrink-0">
+                <p className="font-bold text-blue-600 text-base xs:text-lg whitespace-nowrap">
+                  {formatPrice(flight.pricePerPerson)}
+                </p>
+                {!totalPriceOnly && <span className="text-xs text-gray-500">per person</span>}
+              </div>
             </div>
-            <div className="text-xs xs:text-sm text-gray-600 space-y-0.5">
+
+            {/* Flight details */}
+            <div className="text-xs xs:text-sm text-gray-600 space-y-1.5 ml-[2.875rem]">
               {flight.departure && flight.arrival && (
-                <p className="break-words">
-                  {flight.departure} → {flight.arrival}
+                <p className="break-words font-medium text-foreground/80">
+                  {flight.departure} &rarr; {flight.arrival}
                 </p>
               )}
-              {flight.departureTime && flight.arrivalTime && (
-                <p>
-                  {flight.departureTime} - {flight.arrivalTime}
-                </p>
-              )}
-              {flight.duration && (
-                <p>Duration: {flight.duration}</p>
-              )}
-              {flight.stops !== undefined && (
-                <p>
-                  {flight.stops === 0 ? "Direct flight" : `${flight.stops} stop${flight.stops > 1 ? "s" : ""}`}
-                </p>
-              )}
+              <div className="flex flex-wrap items-center gap-x-4 gap-y-1">
+                {flight.departureTime && flight.arrivalTime && (
+                  <span className="inline-flex items-center gap-1">
+                    <Clock className="h-3 w-3" />
+                    {flight.departureTime} &ndash; {flight.arrivalTime}
+                  </span>
+                )}
+                {flight.duration && (
+                  <span className="text-gray-500">{flight.duration}</span>
+                )}
+                {flight.stops !== undefined && (
+                  <span className={`text-xs font-medium px-2 py-0.5 rounded-full ${flight.stops === 0 ? 'bg-emerald-50 text-emerald-700' : 'bg-amber-50 text-amber-700'}`}>
+                    {flight.stops === 0 ? "Direct" : `${flight.stops} stop${flight.stops > 1 ? "s" : ""}`}
+                  </span>
+                )}
+              </div>
               {passengers && (
                 <p className="text-xs text-gray-500">
                   {passengers.adults} adult{passengers.adults > 1 ? "s" : ""}
@@ -109,25 +119,30 @@ export function FlightBookingCard({ flight, passengers, onToggle, totalPriceOnly
                 </p>
               )}
             </div>
-            <a
-              href={generateBookingLink()}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="text-blue-700 hover:text-blue-900 hover:underline font-semibold flex items-center text-xs mt-1 min-h-[32px] py-1 px-2 rounded transition-colors"
-            >
-              <ExternalLink className="h-3 w-3 mr-1 flex-shrink-0" /> Book Now
-            </a>
+
+            {/* Book now link */}
+            <div className="ml-[2.875rem] mt-3">
+              <a
+                href={generateBookingLink()}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center gap-1.5 text-xs font-semibold text-blue-600 hover:text-blue-800 transition-colors px-3 py-1.5 rounded-lg hover:bg-blue-50"
+              >
+                <ExternalLink className="h-3 w-3" /> Book Now
+              </a>
+            </div>
           </div>
+
           <Button
             variant="ghost"
             size="icon"
-            className="h-9 w-9 xs:h-10 xs:w-10 flex-shrink-0"
+            className="h-10 w-10 rounded-xl flex-shrink-0 hover:bg-gray-100 transition-colors"
             onClick={onToggle}
           >
             {flight.included ? (
-              <Check className="h-4 w-4 text-green-500" />
+              <Check className="h-4.5 w-4.5 text-emerald-500" />
             ) : (
-              <X className="h-4 w-4 text-red-500" />
+              <X className="h-4.5 w-4.5 text-red-400" />
             )}
           </Button>
         </div>

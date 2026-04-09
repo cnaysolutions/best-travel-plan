@@ -297,21 +297,24 @@ export function TripResults({
   const totalPassengers = (tripDetails.passengers?.adults || 0) + (tripDetails.passengers?.children || 0);
 
   return (
-    <Card className="w-full">
-      <CardHeader className="bg-gradient-to-r from-blue-50 to-indigo-50">
+    <Card className="w-full overflow-hidden shadow-elevated border-border/30">
+      <CardHeader className="relative bg-gradient-to-r from-blue-50 via-indigo-50 to-violet-50 dark:from-blue-950/50 dark:via-indigo-950/50 dark:to-violet-950/50 pb-8">
+        {/* Decorative gradient line */}
+        <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-blue-500 via-accent to-violet-500" />
         <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
           <div>
-            <CardTitle className="text-2xl sm:text-3xl mb-2">
-              Your Itinerary: {tripDetails.departureCity} → {tripDetails.destinationCity}
+            <CardTitle className="text-2xl sm:text-3xl mb-2 font-display font-bold">
+              {tripDetails.departureCity} <span className="text-accent">&rarr;</span> {tripDetails.destinationCity}
             </CardTitle>
             <p className="text-sm text-gray-600">
-              {safeFormatDate(tripDetails.departureDate, "MMM d, yyyy")} - {safeFormatDate(tripDetails.returnDate, "MMM d, yyyy")}
+              {safeFormatDate(tripDetails.departureDate, "MMM d, yyyy")} &mdash; {safeFormatDate(tripDetails.returnDate, "MMM d, yyyy")}
             </p>
           </div>
           <div className="flex gap-2 w-full sm:w-auto">
             <Button
               variant="outline"
               size="sm"
+              className="rounded-xl border-border/50 hover:border-accent/50 transition-all duration-300"
               onClick={() => {
                 navigator.clipboard.writeText(window.location.href);
                 toast({ title: "Link copied!", description: "Trip link copied to clipboard." });
@@ -319,32 +322,36 @@ export function TripResults({
             >
               <Share2 className="h-4 w-4 mr-2" /> Share Trip
             </Button>
-            <Button onClick={onReset} variant="outline" className="w-full sm:w-auto">
+            <Button onClick={onReset} variant="outline" className="w-full sm:w-auto rounded-xl border-border/50 hover:border-accent/50 transition-all duration-300">
               Start Over
             </Button>
           </div>
         </div>
       </CardHeader>
 
-      <CardContent className="pt-6">
-        <div className="space-y-6">
+      <CardContent className="pt-8">
+        <div className="space-y-8">
           {/* Estimated Total */}
-          <div className="bg-blue-50 p-4 rounded-lg border border-blue-200">
-            <p className="text-sm text-gray-600 mb-1">Estimated Total</p>
-            <p className="text-3xl font-bold text-blue-600">{safePrice(totalCost)}</p>
-            <p className="text-xs text-gray-500 mt-2">
+          <div className="relative bg-gradient-to-br from-blue-50 to-indigo-50 dark:from-blue-950/30 dark:to-indigo-950/30 p-6 rounded-2xl border border-blue-200/50 shadow-soft overflow-hidden">
+            <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-bl from-accent/10 to-transparent rounded-bl-full" />
+            <p className="text-sm text-gray-600 mb-1 font-medium uppercase tracking-wide">Estimated Total</p>
+            <p className="text-4xl font-bold text-blue-600 font-display">{safePrice(totalCost)}</p>
+            <p className="text-xs text-gray-500 mt-3">
               {tripDetails.passengers?.adults || 0} Adult{(tripDetails.passengers?.adults || 0) !== 1 ? "s" : ""}{(tripDetails.passengers?.children ?? 0) > 0 ? ` + ${tripDetails.passengers?.children} Child${(tripDetails.passengers?.children ?? 0) !== 1 ? "ren" : ""}` : ""}
             </p>
           </div>
-          <p className="text-xs text-muted-foreground mt-2 text-center">
+          <p className="text-xs text-muted-foreground mt-2 text-center italic">
             * Prices are estimates for planning purposes only. Actual prices may vary. Always verify before booking.
           </p>
 
           {/* Flights */}
           {(tripPlan.outboundFlight || tripPlan.returnFlight) && (
             <div className="space-y-4">
-              <h2 className="text-xl font-semibold flex items-center gap-2">
-                <Plane className="h-5 w-5" /> Flights
+              <h2 className="text-xl font-semibold flex items-center gap-3">
+                <div className="h-9 w-9 rounded-xl bg-gradient-to-br from-blue-500/20 to-indigo-500/20 flex items-center justify-center">
+                  <Plane className="h-4.5 w-4.5 text-blue-600" />
+                </div>
+                Flights
               </h2>
 
               {tripPlan.outboundFlight && (
@@ -378,10 +385,13 @@ export function TripResults({
           {/* Accommodation */}
           {tripPlan.hotel && (
             <div>
-              <h2 className="text-xl font-semibold flex items-center gap-2 mb-4">
-                <Building2 className="h-5 w-5" /> Accommodation
+              <h2 className="text-xl font-semibold flex items-center gap-3 mb-4">
+                <div className="h-9 w-9 rounded-xl bg-gradient-to-br from-amber-500/20 to-orange-500/20 flex items-center justify-center">
+                  <Building2 className="h-4.5 w-4.5 text-amber-600" />
+                </div>
+                Accommodation
               </h2>
-              <div className="border rounded-lg p-4 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+              <div className="border border-border/40 rounded-2xl p-5 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 bg-background/60 backdrop-blur-sm hover:shadow-soft transition-all duration-300">
                 <div className="flex-grow">
                   <h3 className="font-semibold text-lg">{tripPlan.hotel.name}</h3>
                   <p className="text-sm text-gray-500">{tripPlan.hotel.address}</p>
@@ -431,10 +441,13 @@ export function TripResults({
           {/* Car Rental */}
           {tripPlan.carRental && (
             <div>
-              <h2 className="text-xl font-semibold flex items-center gap-2 mb-4">
-                <Car className="h-5 w-5" /> Car Rental
+              <h2 className="text-xl font-semibold flex items-center gap-3 mb-4">
+                <div className="h-9 w-9 rounded-xl bg-gradient-to-br from-emerald-500/20 to-teal-500/20 flex items-center justify-center">
+                  <Car className="h-4.5 w-4.5 text-emerald-600" />
+                </div>
+                Car Rental
               </h2>
-              <div className="border rounded-lg p-4 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+              <div className="border border-border/40 rounded-2xl p-5 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 bg-background/60 backdrop-blur-sm hover:shadow-soft transition-all duration-300">
                 <div className="flex-grow">
                   <h3 className="font-semibold text-lg">{tripPlan.carRental.vehicleName}</h3>
                   <p className="text-sm text-gray-500">{tripPlan.carRental.company} · {tripPlan.carRental.vehicleType}</p>
@@ -477,14 +490,18 @@ export function TripResults({
           {/* Daily Itinerary */}
           {tripPlan.itinerary && tripPlan.itinerary.length > 0 ? (
             <div>
-              <h2 className="text-xl font-semibold flex items-center gap-2 mb-4">
-                <MapPin className="h-5 w-5" /> Daily Itinerary
+              <h2 className="text-xl font-semibold flex items-center gap-3 mb-5">
+                <div className="h-9 w-9 rounded-xl bg-gradient-to-br from-violet-500/20 to-purple-500/20 flex items-center justify-center">
+                  <MapPin className="h-4.5 w-4.5 text-violet-600" />
+                </div>
+                Daily Itinerary
               </h2>
               {tripPlan.itinerary.map((day, index) => (
-                <Card key={index} className="mb-6">
-                  <CardHeader>
-                    <CardTitle className="text-lg">
-                      Day {day.day}: {safeFormatDate(day.date, "EEEE, MMMM d")}
+                <Card key={`day-${day.day || index}`} className="mb-6 border-border/40 overflow-hidden shadow-soft hover:shadow-medium transition-all duration-300">
+                  <CardHeader className="bg-gradient-to-r from-slate-50 to-gray-50 dark:from-slate-900/50 dark:to-gray-900/50 border-b border-border/20">
+                    <CardTitle className="text-lg flex items-center gap-3">
+                      <span className="inline-flex h-8 w-8 items-center justify-center rounded-lg bg-gradient-to-br from-primary/80 to-primary text-primary-foreground text-sm font-bold shadow-sm">{day.day}</span>
+                      {safeFormatDate(day.date, "EEEE, MMMM d")}
                     </CardTitle>
                   </CardHeader>
                   <CardContent>
@@ -572,15 +589,15 @@ export function TripResults({
           <Button
             onClick={handleSaveTrip}
             disabled={isSaving}
-            className="w-full bg-blue-600 hover:bg-blue-700 text-white py-2 rounded"
+            className="w-full h-14 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white rounded-xl text-base font-medium shadow-medium hover:shadow-elevated transition-all duration-300 hover:scale-[1.01]"
           >
             {isSaving ? (
               <>
-                <Loader2 className="h-4 w-4 mr-2 animate-spin" /> Saving...
+                <Loader2 className="h-5 w-5 mr-2 animate-spin" /> Saving your trip...
               </>
             ) : (
               <>
-                <Mail className="h-4 w-4 mr-2" /> Save Trip
+                <Mail className="h-5 w-5 mr-2" /> Save Trip
               </>
             )}
           </Button>

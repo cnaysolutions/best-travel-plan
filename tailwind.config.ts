@@ -124,15 +124,30 @@ export default {
           "0%": { backgroundPosition: "-200% 0" },
           "100%": { backgroundPosition: "200% 0" },
         },
+        "float-slow": {
+          "0%, 100%": { transform: "translateY(0px)" },
+          "50%": { transform: "translateY(-12px)" },
+        },
+        "float-reverse": {
+          "0%, 100%": { transform: "translateY(-8px)" },
+          "50%": { transform: "translateY(8px)" },
+        },
+        "pulse-slow": {
+          "0%, 100%": { opacity: "1" },
+          "50%": { opacity: "0.6" },
+        },
       },
       animation: {
         "accordion-down": "accordion-down 0.2s ease-out",
         "accordion-up": "accordion-up 0.2s ease-out",
         "fade-in": "fade-in 0.3s ease-out forwards",
-        "fade-in-up": "fade-in-up 0.4s ease-out forwards",
+        "fade-in-up": "fade-in-up 0.5s ease-out both",
         "slide-in-right": "slide-in-right 0.4s ease-out forwards",
         "scale-in": "scale-in 0.3s ease-out forwards",
         shimmer: "shimmer 2s infinite linear",
+        "float-slow": "float-slow 6s ease-in-out infinite",
+        "float-reverse": "float-reverse 7s ease-in-out infinite",
+        "pulse-slow": "pulse-slow 3s ease-in-out infinite",
       },
       spacing: {
         "18": "4.5rem",

@@ -27,7 +27,6 @@ export function Header({ theme, onToggleTheme }: HeaderProps) {
       const { error } = await signOut();
       if (error) {
         console.error('Sign out error:', error);
-        // Still redirect and show success - local session was cleared
         toast.success("Signed out successfully");
         navigate("/");
       } else {
@@ -55,34 +54,32 @@ export function Header({ theme, onToggleTheme }: HeaderProps) {
   };
 
   return (
-    <header className="sticky top-0 z-50 border-b border-border/50 bg-background/80 backdrop-blur-md">
-      <div className="container mx-auto px-4 py-4">
+    <header className="sticky top-0 z-50 border-b border-border/30 bg-background/70 backdrop-blur-xl shadow-soft">
+      <div className="container mx-auto px-4 py-3.5">
         <div className="flex items-center justify-between">
           <Link to="/" className="flex items-center gap-3 group">
-            <div className="h-10 w-10 rounded-full bg-gradient-hero flex items-center justify-center shadow-soft group-hover:shadow-medium transition-shadow duration-300">
-              <Compass className="h-5 w-5 text-primary-foreground" />
+            <div className="h-10 w-10 rounded-xl bg-gradient-hero flex items-center justify-center shadow-medium group-hover:shadow-glow transition-all duration-500 group-hover:scale-105">
+              <Compass className="h-5 w-5 text-primary-foreground transition-transform duration-500 group-hover:rotate-45" />
             </div>
-            <div>
-            <span className="font-display text-xl font-semibold text-foreground tracking-tight">
+            <span className="font-display text-xl font-bold text-foreground tracking-tight">
               Best Holiday Plan
             </span>
-            </div>
           </Link>
 
-          <nav className="flex items-center gap-4">
+          <nav className="flex items-center gap-3">
             {/* Theme Toggle */}
             {onToggleTheme && (
               <Button
                 variant="ghost"
                 size="icon"
                 onClick={onToggleTheme}
-                className="h-9 w-9"
+                className="h-9 w-9 rounded-xl hover:bg-accent/10 transition-colors duration-300"
                 aria-label={theme === 'dark' ? 'Switch to light mode' : 'Switch to dark mode'}
               >
                 {theme === 'dark' ? (
-                  <Sun className="h-4 w-4" />
+                  <Sun className="h-4 w-4 transition-transform duration-300 hover:rotate-45" />
                 ) : (
-                  <Moon className="h-4 w-4" />
+                  <Moon className="h-4 w-4 transition-transform duration-300 hover:-rotate-12" />
                 )}
               </Button>
             )}
@@ -91,14 +88,14 @@ export function Header({ theme, onToggleTheme }: HeaderProps) {
               <>
                 <Link
                   to="/#how-it-works"
-                  className="hidden md:block text-sm text-muted-foreground hover:text-foreground transition-colors"
+                  className="hidden md:block text-sm text-muted-foreground hover:text-foreground transition-colors duration-300 font-medium"
                 >
                   How It Works
                 </Link>
-                <Button variant="outline" size="sm" onClick={() => navigate("/auth")}>
+                <Button variant="outline" size="sm" onClick={() => navigate("/auth")} className="rounded-xl border-border/50 hover:border-accent/50 transition-all duration-300">
                   Sign In
                 </Button>
-                <Button variant="premium" size="sm" onClick={() => navigate("/auth")}>
+                <Button variant="premium" size="sm" onClick={() => navigate("/auth")} className="rounded-xl shadow-soft hover:shadow-medium transition-all duration-300">
                   Get Started
                 </Button>
               </>
@@ -109,24 +106,24 @@ export function Header({ theme, onToggleTheme }: HeaderProps) {
                 <CreditDisplay />
                 <Link
                   to="/trips"
-                  className="text-sm text-muted-foreground hover:text-foreground transition-colors"
+                  className="text-sm text-muted-foreground hover:text-foreground transition-colors duration-300 font-medium"
                 >
                   My Trips
                 </Link>
                 <DropdownMenu>
                   <DropdownMenuTrigger asChild>
-                    <Button variant="ghost" className="relative h-9 w-9 rounded-full">
-                      <Avatar className="h-9 w-9">
+                    <Button variant="ghost" className="relative h-10 w-10 rounded-xl p-0">
+                      <Avatar className="h-9 w-9 ring-2 ring-accent/20 hover:ring-accent/40 transition-all duration-300">
                         <AvatarImage src={user.user_metadata?.avatar_url} alt="Profile" />
-                        <AvatarFallback className="bg-primary/10 text-primary font-medium">
+                        <AvatarFallback className="bg-gradient-to-br from-primary/20 to-accent/20 text-primary font-semibold text-sm">
                           {getInitials()}
                         </AvatarFallback>
                       </Avatar>
                     </Button>
                   </DropdownMenuTrigger>
-                  <DropdownMenuContent align="end" className="w-56">
-                    <div className="px-2 py-1.5">
-                      <p className="text-sm font-medium">
+                  <DropdownMenuContent align="end" className="w-56 rounded-xl shadow-elevated border-border/50 backdrop-blur-xl">
+                    <div className="px-3 py-2.5">
+                      <p className="text-sm font-semibold">
                         {user.user_metadata?.full_name || "Traveler"}
                       </p>
                       <p className="text-xs text-muted-foreground truncate">
@@ -134,12 +131,12 @@ export function Header({ theme, onToggleTheme }: HeaderProps) {
                       </p>
                     </div>
                     <DropdownMenuSeparator />
-                    <DropdownMenuItem onClick={() => navigate("/trips")}>
+                    <DropdownMenuItem onClick={() => navigate("/trips")} className="rounded-lg mx-1 cursor-pointer">
                       <User className="mr-2 h-4 w-4" />
                       My Trips
                     </DropdownMenuItem>
                     <DropdownMenuSeparator />
-                    <DropdownMenuItem onClick={handleSignOut}>
+                    <DropdownMenuItem onClick={handleSignOut} className="rounded-lg mx-1 cursor-pointer">
                       <LogOut className="mr-2 h-4 w-4" />
                       Sign Out
                     </DropdownMenuItem>
